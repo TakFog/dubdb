@@ -1,0 +1,4 @@
+/target/*
+/.idea/
+/backup/*
+/config_local.yml
