@@ -1,0 +1,15 @@
+
+trakt:
+  client_id: trakt-api-key
+
+mongodb:
+  url: localhost:27017
+  db: dubdb
+
+bootstrap:
+  movie: Avengers:_Endgame
+  dub: Luca_Ward
+
+#retry: 3
+#wiki:
+#  cache: wiki_cache
