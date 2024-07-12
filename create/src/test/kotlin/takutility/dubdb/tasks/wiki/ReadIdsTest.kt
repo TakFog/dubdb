@@ -55,6 +55,15 @@ internal class ReadIdsTest {
     }
 
     @Test
+    fun maxTurilli() {
+        assertIds(run("Max_Turilli"),
+            MONDO_DOPPIATORI to "doppiaggio/voci/vocimturi.htm",
+            IMDB to "nm0850442",
+            WIKIDATA to "Q3853081",
+        )
+    }
+
+    @Test
     fun robertDowneyJr() {
         assertIds(run("Robert_Downey_Jr."),
                 IMDB to "nm0000375",
