@@ -3,12 +3,13 @@ package takutility.dubdb.entities
 class DubbedEntity(
     name: String,
     val movie: MovieRef,
-    val chara: Chara?,
-    val dubber: DubberRef?,
-    val actor: ActorRef?,
+    val chara: Chara? = null,
+    val dubber: DubberRef? = null,
+    val actor: ActorRef? = null,
     ids: SourceIds = SourceIds(),
     parsed: Boolean = false,
-    sources: MutableList<DataSource> = mutableListOf(),
+    sources: MutableList<RawData> = mutableListOf(),
     //DubAttributes
-) {
+): Entity(name, ids, parsed, sources) {
+    override fun get(): DubbedEntity? = this
 }

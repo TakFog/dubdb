@@ -1,12 +1,14 @@
 package takutility.dubdb.entities
 
-interface DubberRef: EntityRef<Dubber>
+interface DubberRef: EntityRef {
+    override fun get(): Dubber
+}
 
 class Dubber(
     name: String,
     ids: SourceIds = SourceIds(),
     parsed: Boolean = false,
-    sources: MutableList<DataSource> = mutableListOf()
-): DubberRef, Entity<Dubber>(name, ids, parsed, sources) {
+    sources: MutableList<RawData> = mutableListOf()
+): DubberRef, Entity(name, ids, parsed, sources) {
     override fun get(): Dubber = this
 }

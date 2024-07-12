@@ -1,12 +1,15 @@
 package takutility.dubdb.entities
 
-interface ActorRef: EntityRef<Actor>
+interface ActorRef: EntityRef {
+    override fun get(): Actor
+
+}
 
 class Actor(
     name: String,
     ids: SourceIds = SourceIds(),
     parsed: Boolean = false,
-    sources: MutableList<DataSource> = mutableListOf()
-): ActorRef, Entity<Actor>(name, ids, parsed, sources) {
+    sources: MutableList<RawData> = mutableListOf()
+): ActorRef, Entity(name, ids, parsed, sources) {
     override fun get(): Actor = this
 }

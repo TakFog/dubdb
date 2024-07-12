@@ -2,28 +2,17 @@ package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.Source.*
 import takutility.dubdb.entities.SourceId
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.CachedWikiPageLoader
+import takutility.dubdb.wiki.WikiPageLoader
 
-internal class ReadIdsTest {
+internal class ReadIdsTest: WikiPageTest<ReadIds>() {
 
-    companion object {
-
-        private lateinit var task: ReadIds
-
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            task = ReadIds(CachedWikiPageLoader("src/test/resources/cache"))
-        }
-
-        fun run(title: String): TaskResult = task.run(SourceId(Source.WIKI, title))
-    }
+    override fun newTask(loader: WikiPageLoader) = ReadIds(loader)
+    fun run(title: String): TaskResult = task.run(SourceId(WIKI, title))
 
     @Test
     fun missing() {
@@ -32,7 +21,7 @@ internal class ReadIdsTest {
 
     @Test
     fun wrongId() {
-        assertTrue(task.run(SourceId(Source.MONDO_DOPPIATORI, "pippo")).isEmpty())
+        assertTrue(task.run(SourceId(MONDO_DOPPIATORI, "pippo")).isEmpty())
     }
 
     @Test
@@ -71,6 +60,8 @@ internal class ReadIdsTest {
                 WIKI_EN to "Robert_Downey_Jr.",
         )
     }
+
+
 }
 
 fun assertId(expected: String, res: TaskResult, source: Source) {

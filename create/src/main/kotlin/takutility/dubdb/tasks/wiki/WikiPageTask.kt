@@ -10,7 +10,12 @@ open class WikiPageTask(val loader: WikiPageLoader) {
     protected fun load(wikiSource: SourceId?): Document? {
         if (wikiSource == null || wikiSource.source != Source.WIKI)
             return null
-
         return loader.load(wikiSource.id)
+    }
+
+    protected fun load(page: String?): Document? {
+        if (page == null)
+            return null
+        return loader.load(page)
     }
 }

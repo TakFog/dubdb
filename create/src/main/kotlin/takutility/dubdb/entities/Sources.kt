@@ -1,25 +1,37 @@
 package takutility.dubdb.entities
 
+private val wikiMissingPattern: Regex = Regex("""https://it\.wikipedia.org/w/index\.php\?title=([^&]+)&action=edit&redlink=1""")
 
 enum class Source(val domain: String, pathPrefix: String = "") {
     DUBDB("")
     , IMDB("imdb.com", "/Name")
     , MONDO_DOPPIATORI("antoniogenna.net")
     , WIKI("it.wikipedia.org", "/wiki")
+    , WIKI_MISSING("it.wikipedia.org", "/w/index.php")
     , WIKI_EN("en.wikipedia.org", "/wiki")
     , WIKIDATA("wikidata.org")
     , TRAKT("trakt.tv")
+    , UNK("")
     ;
 
-    val urlPrefix = domain + pathPrefix
+    private val urlPrefix = domain + pathPrefix
 
     fun urlToId(url: String): String? {
-        if (!url.contains(this.domain)) return null
+        if (!url.contains(this.urlPrefix)) return null
 
-        if (this == WIKIDATA) {
-            val start = url.lastIndexOf("Q")
-            return if (start > 0) url.substring(start)
-                else null
+        when (this) {
+            DUBDB, UNK -> return null
+            WIKIDATA -> {
+                val start = url.lastIndexOf("Q")
+                return if (start > 0) url.substring(start)
+                    else null
+            }
+            WIKI_MISSING -> {
+                wikiMissingPattern.find(url)
+                    ?.let { return it.groups[1]?.value }
+                    ?: return null
+            }
+            else -> {}
         }
 
         var start = url.indexOf(urlPrefix)
@@ -29,20 +41,23 @@ enum class Source(val domain: String, pathPrefix: String = "") {
     }
 }
 
-class SourceId(
+data class SourceId(
     val source: Source,
     val id: String
     ) {
 
     companion object {
-        fun fromUrl(source: Source, url: String): SourceId? {
-            val id = source.urlToId(url) ?: return null
-            return SourceId(source, id)
-        }
-    }
-}
+        fun fromUrl(source: Source, url: String): SourceId?
+            = source.urlToId(url)?.let { SourceId(source, it) }
 
-class DataSource(sourceId: SourceId, raw: String)
+        fun fromUrlOrNull(url:String): SourceId?
+            = Source.values().firstNotNullOfOrNull { fromUrl(it, url) }
+
+        fun fromUrl(url:String): SourceId = fromUrlOrNull(url) ?: SourceId(Source.UNK, url)
+    }
+
+    fun notUnk() : SourceId? = if (source == Source.UNK) null else this
+}
 
 open class ImmutableSourceIds(open val data: Map<Source, SourceId>) : Collection<SourceId> {
 
@@ -84,7 +99,7 @@ open class ImmutableSourceIds(open val data: Map<Source, SourceId>) : Collection
 
 }
 
-class SourceIds(data: MutableMap<Source, SourceId>) : ImmutableSourceIds(data) {
+class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSourceIds(data) {
 
     companion object {
         /**
@@ -93,22 +108,28 @@ class SourceIds(data: MutableMap<Source, SourceId>) : ImmutableSourceIds(data) {
         val empty = ImmutableSourceIds(mapOf())
 
         fun mutable() = SourceIds()
+
+        fun of(vararg values: Pair<Source, String>): SourceIds {
+            return SourceIds(mutableMapOf(*values
+                .map { it.first to SourceId(it.first, it.second) }.toTypedArray()))
+        }
     }
 
     constructor() : this(mutableMapOf())
 
-    override val data: MutableMap<Source, SourceId> = mutableMapOf()
-
-    operator fun plusAssign(element: SourceId) {
-        data[element.source] = element
+    operator fun plusAssign(element: SourceId?) {
+        element?.let { data[it.source] = it }
     }
 
-    fun add(element: SourceId) {
-        data[element.source] = element
+    fun add(element: SourceId?) {
+        element?.let { data[it.source] = it }
     }
 
-    operator fun set(source: Source, id: Any) {
-        data[source] = SourceId(source, id.toString())
+    operator fun set(source: Source, id: Any?) {
+        if (id == null)
+            data.remove(source)
+        else
+            data[source] = SourceId(source, id.toString())
     }
 
     override fun toImmutable() = ImmutableSourceIds(data.toMap())
