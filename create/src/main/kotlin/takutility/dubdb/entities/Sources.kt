@@ -7,6 +7,7 @@ enum class Source(val domain: String, pathPrefix: String = "") {
     , IMDB("imdb.com", "/Name")
     , MONDO_DOPPIATORI("antoniogenna.net")
     , WIKI("it.wikipedia.org", "/wiki")
+    , WIKIMEDIA("wikimedia.org")
     , WIKI_MISSING("it.wikipedia.org", "/w/index.php")
     , WIKI_EN("en.wikipedia.org", "/wiki")
     , WIKIDATA("wikidata.org")
