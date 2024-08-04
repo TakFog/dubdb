@@ -1,9 +1,11 @@
 package takutility.dubdb.entities
 
 interface ActorRef: EntityRef {
-    override fun get(): Actor
-
+    override fun get(): Actor?
 }
+
+class ActorRefImpl(name: String? = null, ids: SourceIds = SourceIds())
+    : BaseEntityRefImpl<Actor>(name, ids), ActorRef
 
 class Actor(
     name: String,

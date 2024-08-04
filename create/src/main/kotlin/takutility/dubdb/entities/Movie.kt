@@ -1,8 +1,13 @@
 package takutility.dubdb.entities
 
-typealias MovieRef = EntityRef
+interface MovieRef: EntityRef {
+    override fun get(): Movie?
+}
 
-fun movieRefOf(name: String? = null, ids: SourceIds = SourceIds()): MovieRef = BaseEntityRefImpl<Movie>(name, ids)
+class MovieRefImpl(name: String? = null, ids: SourceIds = SourceIds())
+    : BaseEntityRefImpl<Movie>(name, ids), MovieRef
+
+fun movieRefOf(name: String? = null, ids: SourceIds = SourceIds()): MovieRef = MovieRefImpl(name, ids)
 
 class Movie(
     name: String,

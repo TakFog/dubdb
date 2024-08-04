@@ -114,6 +114,12 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
             return SourceIds(mutableMapOf(*values
                 .map { it.first to SourceId(it.first, it.second) }.toTypedArray()))
         }
+
+        fun of(vararg values: SourceId): SourceIds {
+            val ids = SourceIds()
+            values.forEach { ids += it }
+            return ids
+        }
     }
 
     constructor() : this(mutableMapOf())

@@ -23,7 +23,7 @@ open class BaseEntityRefImpl<E: EntityRef>(
     override fun get(): E? = null
 }
 
-class EntityRefImpl(name: String?, ids: SourceIds = SourceIds()): BaseEntityRefImpl<EntityRefImpl>(name, ids) {
+class EntityRefImpl(name: String? = null, ids: SourceIds = SourceIds()): BaseEntityRefImpl<EntityRefImpl>(name, ids) {
     override fun toString(): String {
         return name ?: wikiId
             ?: if (ids.isNotEmpty()) ids.first().toString() else super.toString()

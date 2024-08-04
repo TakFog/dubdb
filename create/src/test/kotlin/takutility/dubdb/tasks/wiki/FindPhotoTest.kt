@@ -2,20 +2,24 @@ package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import takutility.dubdb.entities.Actor
-import takutility.dubdb.entities.Source
-import takutility.dubdb.entities.SourceIds
+import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
 import takutility.dubdb.wiki.WikiPageLoader
 
 
-internal class FindActorPhotoTest: WikiPageTest<FindActorPhoto>() {
-    override fun newTask(loader: WikiPageLoader) = FindActorPhoto(loader)
-    fun run(name: String): TaskResult = task.run(Actor(name, ids = SourceIds.of(Source.WIKI to name)))
+internal class FindPhotoTest: WikiPageTest<FindPhoto>() {
+    override fun newTask(loader: WikiPageLoader) = FindPhoto(loader)
+    fun run(name: String): TaskResult = task.run(EntityRefImpl(ids = SourceIds.of(Source.WIKI to name)))
 
     @Test
     fun unlinkedActor() {
         val res = task.run(Actor("dummy"))
+        assertTrue(res.isEmpty())
+    }
+
+    @Test
+    fun unlinkedDubber() {
+        val res = task.run(Dubber("dummy"))
         assertTrue(res.isEmpty())
     }
 
@@ -37,7 +41,19 @@ internal class FindActorPhotoTest: WikiPageTest<FindActorPhoto>() {
         assertWikimedia(res)
     }
 
+    @Test
+    fun angeloMaggi() {
+        val res = run("Angelo_Maggi")
+        assertWikimedia(res, "Angelo_Maggi_20240113.jpg")
+    }
+
+    @Test
+    fun ninoDAgata() {
+        val res = run("Nino_D'Agata")
+        assertWikimedia(res)
+    }
+
     fun assertWikimedia(res: TaskResult, expected: String? = null) {
-        assertWikimedia(res.actor(), expected)
+        assertWikimedia(res.sourceIds, expected)
     }
 }

@@ -3,7 +3,8 @@ package takutility.dubdb.tasks.wiki
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import takutility.dubdb.entities.Entity
+import takutility.dubdb.entities.EntityRef
+import takutility.dubdb.entities.ImmutableSourceIds
 import takutility.dubdb.entities.Source
 import takutility.dubdb.wiki.CachedWikiPageLoader
 import takutility.dubdb.wiki.WikiPageLoader
@@ -29,9 +30,13 @@ abstract class WikiPageTest<T: WikiPageTask> {
 
     abstract fun newTask(loader: WikiPageLoader): T
 
-    fun assertWikimedia(entity: Entity?, expected: String? = null) {
+    fun assertWikimedia(entity: EntityRef?, expected: String? = null) {
         assertNotNull(entity, "missing entity")
-        val id = entity!!.ids[Source.WIKIMEDIA]?.id
+        assertWikimedia(entity!!.ids, expected)
+    }
+
+    fun assertWikimedia(ids: ImmutableSourceIds?, expected: String? = null) {
+        val id = ids?.get(Source.WIKIMEDIA)?.id
         if (expected != null) {
             assertEquals(expected, id)
         } else
