@@ -4,8 +4,8 @@ import org.jsoup.nodes.Element
 import takutility.dubdb.entities.*
 
 private fun <E : EntityRef> parse(aTag: Element, ctor: (String) -> E): E {
-    val id = aTag.asWikiId()
-    return ctor(aTag.text()).apply { wikiId = id }
+    val srcId = aTag.asWikiSourceId()
+    return ctor(aTag.text()).apply { ids += srcId }
 }
 
 fun Element.asWikiId(): String = absUrl("href")
@@ -18,6 +18,8 @@ fun Element.asWikiSourceId(): SourceId = absUrl("href")
         ?: SourceId.fromUrl(Source.WIKI_MISSING, it)
         ?: SourceId(Source.UNK, it)
     }
+
+fun Element.asEntity(): EntityRef = parse(this) { name -> EntityRefImpl(name) }
 
 fun Element.asActor() = parse(this) { name -> Actor(name) }
 

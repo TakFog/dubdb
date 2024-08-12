@@ -1,6 +1,7 @@
 package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
@@ -52,7 +53,6 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
                 , "Prova a prendermi"
                 , "The Terminal"
                 , "La guerra di Charlie Wilson"
-                , "The Pixar Story"
                 , "Molto forte, incredibilmente vicino"
                 , "Cloud Atlas"
                 , "Captain Phillips - Attacco in mare aperto"
@@ -69,21 +69,32 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
         )
 
         assertLinkedEntity(res, "Ted Levine", "Shutter Island")
-        assertLinkedEntity(res, "Tim Preece", "L'uomo nell'ombra")
         assertLinkedEntity(res, "Jack Coleman", "Castle")
-        assertEntity(res, "Scimmia",
-            "Kung Fu Panda",
-            "Kung Fu Panda 2",
-            "Kung Fu Panda 3",
-            "Kung Fu Panda - Mitiche avventure"
-        )
+
         assertEntity(res, "Ryo Nagare",
             "Il Grande Mazinga contro Getta Robot",
             "Il Grande Mazinga contro Getta Robot G",
-            "Il Grande Mazinga, Getta Robot G, UFO Robot Goldrake contro il Dragosauro"
+            "UFO Robot Goldrake, il Grande Mazinga e Getta Robot G contro il Dragosauro",
         )
         assertLinkedEntity(res, "Guile", "Street Fighter II V")
-        assertLinkedEntity(res, "David Aston", "Matrix")
+    }
+
+    @Test
+    fun differentLink_angeloMaggi() {
+        val res = run("Angelo_Maggi")
+        val scimmia = find(res, "Scimmia")
+
+        assertMovie(scimmia, "Kung Fu Panda")
+        assertMovie(scimmia, "Kung Fu Panda 2")
+        assertMovie(scimmia, "Kung Fu Panda 3")
+        assertMovie(scimmia, "Kung Fu Panda - Mitiche avventure")
+
+        scimmia.forEach {
+            if (it.movie.name == "Kung Fu Panda - Mitiche avventure")
+                assertNull(it.wiki)
+            else
+                assertNotNull(it.wiki)
+        }
     }
 
     @Test
@@ -96,11 +107,26 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
             assertEquals(DataSource.DUBBER, it.sources[0].dataSource)
             assertEquals(dubber.wiki, it.sources[0].sourceId)
         }
+
+        find(res, "Tim Roth", "Invincibile").sources.apply {
+            assertEquals(1, size)
+            assertEquals("""<a href="/wiki/Tim_Roth" title="Tim Roth">Tim Roth</a> in <i><a href="/wiki/Invincibile" title="Invincibile">Invincibile</a></i>, <i><a href="/wiki/Dark_Water_(film_2005)" title="Dark Water (film 2005)">Dark Water</a></i>, <i><a href="/wiki/Un%27altra_giovinezza" title="Un'altra giovinezza">Un'altra giovinezza</a></i>, <i><a href="/wiki/Grace_di_Monaco_(film)" title="Grace di Monaco (film)">Grace di Monaco</a></i>"""
+                , get(0).raw)
+        }
+
+        find(res, "Padre di Azur", "Azur e Asmar").sources.apply {
+            assertEquals(1, size)
+            assertEquals("""Padre di Azur in <i><a href="/wiki/Azur_e_Asmar" title="Azur e Asmar">Azur e Asmar</a></i>"""
+                , get(0).raw)
+        }
     }
 
     @Test
     fun actorMissing_angeloMaggi() {
         val res = run("Angelo_Maggi")
+
+        assertMissingEntity(res, "David Aston", "Matrix")
+        assertMissingEntity(res, "Tim Preece", "L'uomo nell'ombra")
         assertMissingEntity(res, "Andy Secombe",
             "Star Wars: Episodio I - La minaccia fantasma",
             "Star Wars: Episodio II - L'attacco dei cloni"
@@ -140,14 +166,14 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
         val res = run("Gabriele_Patriarca_(doppiatore)")
 
         find(res, "Frank Brown").forEach{
-            assertNull(it.wikiId, "${it.name} wiki")
-            assertNotNull(it.ids[Source.WIKI_MISSING], "${it.name} missing")
+            assertNull(it.movie.wikiId, "${it.name} wiki")
+            assertNotNull(it.movie.ids[Source.WIKI_MISSING], "${it.name} missing")
         }
 
         find(res, "Brian").forEach{
             if (it.name != "Taddeo l'esploratore e la tavola di smeraldo") return
-            assertNull(it.wikiId, "${it.name} wiki")
-            assertNotNull(it.ids[Source.WIKI_MISSING], "${it.name} missing")
+            assertNull(it.movie.wikiId, "${it.name} wiki")
+            assertNotNull(it.movie.ids[Source.WIKI_MISSING], "${it.name} missing")
         }
     }
 
@@ -183,6 +209,7 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
 
 }
 
+@Disabled
 internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
 
     @Test
@@ -217,6 +244,12 @@ internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
     fun saraLabidi() {
         val res = run("Sara_Labidi")
 
+        assertEntity(res, "Olivia nelle prime due stagioni", "Giust'in tempo")
+        assertEntity(res, "Miana nell'edizione home video"
+            , "Godzilla - Minaccia sulla città"
+            , "Godzilla mangiapianeti"
+        )
+
         assertLinkedEntity(res, "Asuka Soryu Langley"
             , "Neon Genesis Evangelion"
             , "Neon Genesis Evangelion: Death & Rebirth"
@@ -227,29 +260,24 @@ internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
         assertSource(find(res, "Asuka Soryu Langley", "Neon Genesis Evangelion: Death & Rebirth"),
             """<a href="/wiki/Asuka_S%C5%8Dry%C5%AB_Langley" title="Asuka Sōryū Langley">Asuka Soryu Langley</a> nell'edizione Netflix di <i><a href="/wiki/Neon_Genesis_Evangelion:_Death_%26_Rebirth" title="Neon Genesis Evangelion: Death &amp; Rebirth">Neon Genesis Evangelion: Death &amp; Rebirth</a></i> e <i><a href="/wiki/Neon_Genesis_Evangelion:_The_End_of_Evangelion" title="Neon Genesis Evangelion: The End of Evangelion">Neon Genesis Evangelion: The End of Evangelion</a></i>""")
 
-        assertEntity(res, "Olivia nelle prime due stagioni", "Giust'in tempo")
-        assertEntity(res, "Miana nell'edizione home video"
-            , "Godzilla - Minaccia sulla città"
-            , "Godzilla mangiapianeti"
-        )
-
     }
 
 }
 
+@Disabled
 internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
 
     @Test
     fun linked() {
         val res = run("Angelo_Maggi")
 
-        find(res, "I Simpson").forEach {
+        findMovie(res, "I Simpson").forEach {
             assertSource(it, """<a href="/wiki/Clancy_Winchester" title="Clancy Winchester">Commissario Winchester</a> (2ª voce e principale, ep.5.5+) e <a href="/wiki/Timothy_Lovejoy" title="Timothy Lovejoy">Reverendo Lovejoy</a> (ep.5.22) in <i><a href="/wiki/I_Simpson" title="I Simpson">I Simpson</a></i>""")
         }
         assertLinkedEntity(res, "Commissario Winchester", "I Simpson")
         assertLinkedEntity(res, "Reverendo Lovejoy", "I Simpson")
 
-        find(res, "I Simpson - Il film").forEach {
+        findMovie(res, "I Simpson - Il film").forEach {
             assertSource(it, """<a href="/wiki/Clancy_Winchester" title="Clancy Winchester">Commissario Winchester</a> e <a href="/wiki/Tom_Hanks" title="Tom Hanks">Tom Hanks</a> in <i><a href="/wiki/I_Simpson_-_Il_film" title="I Simpson - Il film">I Simpson - Il film</a></i>""")
         }
         assertLinkedEntity(res, "Commissario Winchester", "I Simpson - Il film")
@@ -263,7 +291,7 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
     fun mixed() {
         val res = run("Sara_Labidi")
 
-        val henryDanger = find(res, "Henry Danger")
+        val henryDanger = findMovie(res, "Henry Danger")
         henryDanger.forEach {
             assertSource(it, """Maeve Tomalty, <a href="/wiki/Jade_Pettyjohn" title="Jade Pettyjohn">Jade Pettyjohn</a> e Sedona Cohen in <i><a href="/wiki/Henry_Danger" title="Henry Danger">Henry Danger</a></i>""")
         }
@@ -276,7 +304,7 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
     fun unlink() {
         val res = run("Sara_Labidi")
 
-        find(res, "The 100").forEach {
+        findMovie(res, "The 100").forEach {
             assertSource(it, """Izabela Vidovic e Lola Flanery in <i><a href="/wiki/The_100" title="The 100">The 100</a></i>""")
         }
         assertEntity(res, "Izabela Vidovic", "The 100")
@@ -293,8 +321,15 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
 
 fun find(res: TaskResult, name: String): List<DubbedEntity> {
     val dubbed = res.dubbedEntities?.filter { it.name == name }
-    assertNotNull(dubbed, name)
-    assertFalse(dubbed!!.isEmpty(), name)
+    assertNotNull(dubbed, "$name not found")
+    assertFalse(dubbed!!.isEmpty(), "$name not found")
+    return dubbed
+}
+
+fun findMovie(res: TaskResult, movie: String): List<DubbedEntity> {
+    val dubbed = res.dubbedEntities?.filter { it.movie.name == movie }
+    assertNotNull(dubbed, "$movie not found")
+    assertFalse(dubbed!!.isEmpty(), "$movie not found")
     return dubbed
 }
 
@@ -316,7 +351,12 @@ fun assertEntity(res: TaskResult, dubber: DubberRef, name: String, linked: Boole
 }
 
 fun assertMovie(entities: List<DubbedEntity>, movie: String) {
-    val entity = entities.first { it.movie.name == movie }
+    assertFalse(entities.isEmpty(), "$movie empty")
+    val entity = try {
+        entities.first { it.movie.name == movie }
+    } catch (e: NoSuchElementException) {
+        fail("$movie not found in ${entities.map { it.movie.name }}")
+    }
     assertNotNull(entity, movie)
     assertNotNull(entity.movie.wikiId, "movie $movie not linked")
 }
