@@ -141,5 +141,4 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
 
     override fun toImmutable() = ImmutableSourceIds(data.toMap())
 
-    override fun toMutable() = this
 }

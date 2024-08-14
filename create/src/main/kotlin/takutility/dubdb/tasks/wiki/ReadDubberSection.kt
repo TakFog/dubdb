@@ -9,6 +9,7 @@ import takutility.dubdb.wiki.asEntity
 import takutility.dubdb.wiki.asMovie
 
 private val SPLITS = listOf(" in ", " ne ")
+private val CHAR_SPLITS = setOf(",", "e")
 
 class ReadDubberSection(loader: WikiPageLoader): WikiPageTask(loader) {
 
@@ -39,29 +40,22 @@ class ReadDubberSection(loader: WikiPageLoader): WikiPageTask(loader) {
             element.select("li").forEach { li: Element ->
                 val split = findSplit(li) ?: return@forEach //no split, ignore
 
-                val entity: EntityRef = if (split.index == 1) {
-                    li.child(0).asEntity() // use the first tag as entity name
-//                } else if (split.fullTag) { TODO
-                } else {
-                    val text = li.text()
-                    val end = text.indexOf(split.token)
-                    val charName = text.substring(0, end).trim { it <= ' ' }
-                    if (charName.length >= 200) return@forEach // too long name
-                    EntityRefImpl(charName)
-                }
+                val rowEntities = getEntities(li, split)
 
                 for (i in split.index + 1 until li.childNodeSize()) {
                     val node = li.childNode(i) as? Element ?: continue
                     node.select("a").forEach { link: Element ->
-                        entities.add(
-                            DubbedEntity(
-                                dubber = dubber,
-                                movie = link.asMovie(),
-                                name = entity.name!!,
-                                ids = entity.ids,
-                                sources = mutableListOf(RawData(pageId, DataSource.DUBBER, li.html()))
+                        rowEntities.forEach { entity ->
+                            entities.add(
+                                DubbedEntity(
+                                    dubber = dubber,
+                                    movie = link.asMovie(),
+                                    name = entity.name!!,
+                                    ids = entity.ids,
+                                    sources = mutableListOf(RawData(pageId, DataSource.DUBBER, li.html()))
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
@@ -81,12 +75,45 @@ class ReadDubberSection(loader: WikiPageLoader): WikiPageTask(loader) {
             val text = node.text()
             for (sv in SPLITS) {
                 if (text.contains(sv)) {
-                    return Split(splitIndex, sv,
-                        (splitIndex != 1 || text != sv))
+                    return Split(splitIndex, sv, text == sv)
                 }
             }
         }
         return null //split not found
+    }
+
+    private fun getEntities(li: Element, split: Split): List<EntityRef> {
+        var entities: List<EntityRef>? = null
+        if (split.index == 1) {
+            // use the first tag as entity
+            entities = listOf(li.child(0).asEntity())
+        }
+
+        if (split.fullTag && (0 until split.index).map(li::childNode)
+                .all { (it is Element && it.tagName() == "a") || (it is TextNode && it.text().trim() in CHAR_SPLITS) })
+        {
+            // all elements before split are links or connectors
+            entities = (0 until split.index)
+                .mapNotNull { i -> (li.childNode(i) as? Element)?.asEntity() }
+        }
+
+        if (entities != null) {
+            // entities from tags
+            return entities.flatMap { ent ->
+                if ("/" in ent.name!!) {
+                    ent.name!!.splitToSequence("/")
+                        .map { EntityRefImpl(it.trim(), ent.ids.toMutable()) }
+                } else {
+                    sequenceOf(ent)
+                }
+            }
+        }
+
+        val text = li.text()
+        val end = text.indexOf(split.token)
+        val charName = text.substring(0, end).trim { it <= ' ' }
+        if (charName.length >= 200) return listOf() // too long name
+        return listOf(EntityRefImpl(charName))
     }
 }
 

@@ -231,6 +231,16 @@ internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
     }
 
     @Test
+    fun movieAttr_angeloMaggi() {
+        val res = run("Angelo_Maggi")
+
+        assertLinkedEntity(res, "Clark Kent", "Superman")
+        assertLinkedEntity(res, "Superman", "Superman")
+        assertSource(find(res, "Superman", "Superman"),
+            """<a href="/wiki/Superman" title="Superman">Clark Kent/Superman</a> in <i><a href="/wiki/Superman_(serie_animata_1996)" title="Superman (serie animata 1996)">Superman</a></i> (stagioni 1-2)""")
+    }
+
+    @Test
     fun ilariaStagni() {
         val res = run("Ilaria_Stagni")
         assertEntity(res, "Pocahontas (dialoghi)",
@@ -264,11 +274,22 @@ internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
 
 }
 
-@Disabled
 internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
 
     @Test
     fun linked() {
+        val res = run("Angelo_Maggi")
+
+        findMovie(res, "I Simpson - Il film").forEach {
+            assertSource(it, """<a href="/wiki/Clancy_Winchester" title="Clancy Winchester">Commissario Winchester</a> e <a href="/wiki/Tom_Hanks" title="Tom Hanks">Tom Hanks</a> in <i><a href="/wiki/I_Simpson_-_Il_film" title="I Simpson - Il film">I Simpson - Il film</a></i>""")
+        }
+        assertLinkedEntity(res, "Commissario Winchester", "I Simpson - Il film")
+        assertLinkedEntity(res, "Tom Hanks", "I Simpson - Il film")
+    }
+
+    @Disabled
+    @Test
+    fun linkedAttributes() {
         val res = run("Angelo_Maggi")
 
         findMovie(res, "I Simpson").forEach {
@@ -276,17 +297,26 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
         }
         assertLinkedEntity(res, "Commissario Winchester", "I Simpson")
         assertLinkedEntity(res, "Reverendo Lovejoy", "I Simpson")
-
-        findMovie(res, "I Simpson - Il film").forEach {
-            assertSource(it, """<a href="/wiki/Clancy_Winchester" title="Clancy Winchester">Commissario Winchester</a> e <a href="/wiki/Tom_Hanks" title="Tom Hanks">Tom Hanks</a> in <i><a href="/wiki/I_Simpson_-_Il_film" title="I Simpson - Il film">I Simpson - Il film</a></i>""")
-        }
-        assertLinkedEntity(res, "Commissario Winchester", "I Simpson - Il film")
-        assertLinkedEntity(res, "Tom Hanks", "I Simpson - Il film")
-
-        assertLinkedEntity(res, "Tony Stark", "Iron Man: Rise of Technovore")
-        assertLinkedEntity(res, "Iron Man", "Iron Man: Rise of Technovore")
     }
 
+    @Test
+    fun linkedSlash() {
+        val res = run("Angelo_Maggi")
+
+        findMovie(res, "Iron Man: Rise of Technovore").forEach {
+            assertSource(it, """<a href="/wiki/Iron_Man" title="Iron Man">Tony Stark/Iron Man</a> in <i><a href="/wiki/Iron_Man:_Rise_of_Technovore" title="Iron Man: Rise of Technovore">Iron Man: Rise of Technovore</a></i>""")
+        }
+        assertLinkedEntity(res, "Tony Stark", "Iron Man: Rise of Technovore", "What If...?")
+        assertLinkedEntity(res, "Iron Man", "Iron Man: Rise of Technovore", "What If...?")
+
+        findMovie(res, "Superman").forEach {
+            assertSource(it, """<a href="/wiki/Superman" title="Superman">Clark Kent/Superman</a> in <i><a href="/wiki/Superman_(serie_animata_1996)" title="Superman (serie animata 1996)">Superman</a></i> (stagioni 1-2)""")
+        }
+        assertLinkedEntity(res, "Clark Kent", "Superman")
+        assertLinkedEntity(res, "Superman", "Superman")
+    }
+
+    @Disabled
     @Test
     fun mixed() {
         val res = run("Sara_Labidi")
@@ -300,6 +330,7 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
         assertEntity(res, "Sedona", "Henry Danger")
     }
 
+    @Disabled
     @Test
     fun unlink() {
         val res = run("Sara_Labidi")

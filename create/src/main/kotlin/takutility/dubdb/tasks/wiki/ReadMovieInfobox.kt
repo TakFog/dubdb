@@ -4,12 +4,12 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
+import takutility.dubdb.util.splitCharacter
 import takutility.dubdb.wiki.WikiPageLoader
 import takutility.dubdb.wiki.asWikiSourceId
 import java.util.regex.Pattern
 
 private val boxElementSplit = Pattern.compile("^([^:]+): (.*)$")
-private val charnameSplit = Pattern.compile("[/;,]+")
 
 private val botTitles = sequenceOf(
     "Interpreti e personaggi" to DataSource.MOVIE_ORIG,
@@ -75,7 +75,7 @@ class ReadMovieInfobox(loader: WikiPageLoader): WikiPageTask(loader) {
         val charaNames = matcher.group(2).trim()
         val links = li.select("a").associateBy({ it.text().trim() }, { it.asWikiSourceId() })
 
-        return charnameSplit.split(charaNames).asSequence().map { charaName ->
+        return splitCharacter(charaNames).asSequence().map { charaName ->
             val name = charaName.trim()
             val link = links[name] ?: links[charaNames]
             RowValues(
