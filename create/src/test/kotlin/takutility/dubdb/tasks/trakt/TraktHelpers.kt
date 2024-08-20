@@ -4,6 +4,9 @@ import com.uwetrottmann.trakt5.entities.MovieIds
 import com.uwetrottmann.trakt5.entities.SearchResult
 import com.uwetrottmann.trakt5.entities.Show
 import com.uwetrottmann.trakt5.entities.ShowIds
+import takutility.dubdb.service.Trakt
+
+open abstract class TraktMock: Trakt {}
 
 inline fun newResult(init: SearchResult.() -> Unit) = SearchResult().apply(init)
 
