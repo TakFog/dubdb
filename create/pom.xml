@@ -15,7 +15,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <kotlin.version>1.6.10</kotlin.version>
+        <kotlin.version>1.9.20</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
     </properties>
@@ -83,6 +83,13 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- Test -->
+        <dependency>
+            <groupId>org.mockito.kotlin</groupId>
+            <artifactId>mockito-kotlin</artifactId>
+            <version>5.4.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

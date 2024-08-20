@@ -11,8 +11,8 @@ fun movieRefOf(name: String? = null, ids: SourceIds = SourceIds()): MovieRef = M
 
 class Movie(
     name: String,
-    val movieType: MovieType,
-    val year: Int,
+    var type: MovieType? = null,
+    var year: Int? = null,
     ids: SourceIds = SourceIds(),
     parsed: Boolean = false,
     sources: MutableList<RawData> = mutableListOf()

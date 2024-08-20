@@ -58,6 +58,8 @@ data class SourceId(
     }
 
     fun notUnk() : SourceId? = if (source == Source.UNK) null else this
+
+    fun toInt() = id.toIntOrNull()
 }
 
 open class ImmutableSourceIds(open val data: Map<Source, SourceId>) : Collection<SourceId> {
