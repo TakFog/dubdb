@@ -2,6 +2,7 @@ package takutility.dubdb.tasks.trakt
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
@@ -12,69 +13,11 @@ import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.Source.IMDB
 import takutility.dubdb.entities.Source.TRAKT
 import takutility.dubdb.entities.SourceIds
-import takutility.dubdb.service.Trakt
+import takutility.dubdb.service.TraktImpl
 import takutility.dubdb.service.TraktResults
 
-private val avengers: TraktResults = TraktResults(listOf(
-        newResult {
-            type = "movie"
-            score = 1000.0
-            movie = newMovie {
-                title = "Avengers: Endgame"
-                year = 2019
-                ids = newMovieIds {
-                    slug = "avengers-endgame-2019"
-                    trakt = 191798
-                    imdb = "tt4154796"
-                    tmdb = 299534
-                }
-            }
-        },
-        newResult {
-            type = "episode"
-            show = newShow {
-                ids = newShowIds {
-                    slug = "movies-are-not-allowed-2019"
-                    tvdb = 356659
-                    trakt = 141565
-                    imdb = "https://m.imdb.com/list/l"
-                }
-            }
-        }
-    )
-)
-
-private val disincanto = TraktResults(listOf(newResult {
-    type = "show"
-    score = 1000.0
-    show = newShow {
-        title = "Disenchantment"
-        year = 2018
-        ids = newShowIds {
-            slug = "disenchantment"
-            tvdb = 340234
-            trakt = 126558
-            imdb = "tt5363918"
-            tmdb = 73021
-        }
-    }
-}))
-
-internal class UpdateMovieTest {
-    lateinit var trakt: Trakt
+internal abstract class UpdateMovieBaseTest {
     lateinit var task: UpdateMovie
-
-    @BeforeEach
-    fun setup() {
-        trakt = mock<TraktMock> {
-            on { search(any()) }.thenCallRealMethod()
-            on { searchImdb("tt4154796") } doReturn avengers
-            on { searchTrakt("191798") } doReturn avengers
-            on { searchImdb("tt5363918") } doReturn disincanto
-            on { searchTrakt("126558") } doReturn disincanto
-        }
-        task = UpdateMovie(trakt)
-    }
 
     @Test
     fun movieYearFromImdb() {
@@ -157,6 +100,75 @@ internal class UpdateMovieTest {
     }
 
 }
+
+internal class UpdateMovieTest: UpdateMovieBaseTest() {
+
+    @BeforeEach
+    fun setup() {
+        val trakt = mock<TraktMock> {
+            on { search(any()) }.thenCallRealMethod()
+            on { searchImdb("tt4154796") } doReturn avengers
+            on { searchTrakt("191798") } doReturn avengers
+            on { searchImdb("tt5363918") } doReturn disincanto
+            on { searchTrakt("126558") } doReturn disincanto
+        }
+        task = UpdateMovie(trakt)
+    }
+}
+
+@Disabled
+internal class UpdateMovieIntegrationTest: UpdateMovieBaseTest() {
+
+    @BeforeEach
+    fun setup() {
+        task = UpdateMovie(TraktImpl())
+    }
+}
+
+private val avengers: TraktResults = TraktResults(listOf(
+    newResult {
+        type = "movie"
+        score = 1000.0
+        movie = newMovie {
+            title = "Avengers: Endgame"
+            year = 2019
+            ids = newMovieIds {
+                slug = "avengers-endgame-2019"
+                trakt = 191798
+                imdb = "tt4154796"
+                tmdb = 299534
+            }
+        }
+    },
+    newResult {
+        type = "episode"
+        show = newShow {
+            ids = newShowIds {
+                slug = "movies-are-not-allowed-2019"
+                tvdb = 356659
+                trakt = 141565
+                imdb = "https://m.imdb.com/list/l"
+            }
+        }
+    }
+)
+)
+
+private val disincanto = TraktResults(listOf(newResult {
+    type = "show"
+    score = 1000.0
+    show = newShow {
+        title = "Disenchantment"
+        year = 2018
+        ids = newShowIds {
+            slug = "disenchantment"
+            tvdb = 340234
+            trakt = 126558
+            imdb = "tt5363918"
+            tmdb = 73021
+        }
+    }
+}))
 
 fun assertIds(movie: Movie, vararg ids: Pair<Source, String?>) {
     ids.forEach {
