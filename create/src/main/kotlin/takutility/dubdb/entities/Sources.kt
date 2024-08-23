@@ -98,6 +98,9 @@ open class ImmutableSourceIds(open val data: Map<Source, SourceId>) : Collection
 
     open fun toImmutable(): ImmutableSourceIds = this
 
+    /**
+     * Returns a mutable copy of this SourceIds
+     */
     open fun toMutable(): SourceIds = SourceIds(data.toMutableMap())
 
 }
