@@ -13,8 +13,7 @@ import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.Source.IMDB
 import takutility.dubdb.entities.Source.TRAKT
 import takutility.dubdb.entities.SourceIds
-import takutility.dubdb.service.TraktImpl
-import takutility.dubdb.service.TraktResults
+import takutility.dubdb.service.SearchResults
 
 internal abstract class UpdateMovieBaseTest {
     lateinit var task: UpdateMovie
@@ -121,11 +120,11 @@ internal class UpdateMovieIntegrationTest: UpdateMovieBaseTest() {
 
     @BeforeEach
     fun setup() {
-        task = UpdateMovie(TraktImpl())
+        task = UpdateMovie(traktImpl)
     }
 }
 
-private val avengers: TraktResults = TraktResults(listOf(
+private val avengers: SearchResults = SearchResults(listOf(
     newResult {
         type = "movie"
         score = 1000.0
@@ -154,7 +153,7 @@ private val avengers: TraktResults = TraktResults(listOf(
 )
 )
 
-private val disincanto = TraktResults(listOf(newResult {
+private val disincanto = SearchResults(listOf(newResult {
     type = "show"
     score = 1000.0
     show = newShow {

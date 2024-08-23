@@ -1,17 +1,20 @@
 package takutility.dubdb.entities
 
 interface MovieRef: EntityRef {
+    val type: MovieType?
+
     override fun get(): Movie?
 }
 
-class MovieRefImpl(name: String? = null, ids: SourceIds = SourceIds())
+class MovieRefImpl(name: String? = null, override val type: MovieType? = null, ids: SourceIds = SourceIds())
     : BaseEntityRefImpl<Movie>(name, ids), MovieRef
 
-fun movieRefOf(name: String? = null, ids: SourceIds = SourceIds()): MovieRef = MovieRefImpl(name, ids)
+fun movieRefOf(name: String? = null, type: MovieType? = null, ids: SourceIds = SourceIds()): MovieRef
+    = MovieRefImpl(name, type, ids)
 
 class Movie(
     name: String,
-    var type: MovieType? = null,
+    override var type: MovieType? = null,
     var year: Int? = null,
     ids: SourceIds = SourceIds(),
     parsed: Boolean = false,

@@ -1,6 +1,7 @@
 package takutility.dubdb.service
 
 import com.uwetrottmann.trakt5.TraktV2
+import com.uwetrottmann.trakt5.entities.CastMember
 import com.uwetrottmann.trakt5.entities.SearchResult
 import com.uwetrottmann.trakt5.enums.IdType
 import retrofit2.Response
@@ -13,18 +14,19 @@ typealias IntPredicate = (Int) -> Boolean
 
 interface Trakt {
 
-    fun searchImdb(imdbId: String): TraktResults?
-    fun searchTrakt(traktId: String): TraktResults?
+    fun searchImdb(imdbId: String): SearchResults?
+    fun searchTrakt(traktId: String): SearchResults?
 
-    fun searchTrakt(traktId: Int): TraktResults? = searchTrakt(traktId.toString())
-    fun search(entity: EntityRef): TraktResults? = if (TRAKT in entity.ids)
+    fun searchTrakt(traktId: Int): SearchResults? = searchTrakt(traktId.toString())
+    fun search(entity: EntityRef): SearchResults? = if (TRAKT in entity.ids)
             entity.ids[TRAKT]?.id?.let(this::searchTrakt)
         else
             entity.ids[IMDB]?.id?.let(this::searchImdb)
 
+    fun personCredits(traktId: Int): CreditResults
 }
 
-class TraktResults(val results: List<SearchResult>) {
+class SearchResults(private val results: List<SearchResult>) {
 
     fun iterate(movie: IntPredicate = ::ignoreId, show: IntPredicate = ::ignoreId,
                    person: IntPredicate = ::ignoreId): Int? {
@@ -49,24 +51,32 @@ class TraktResults(val results: List<SearchResult>) {
     }
 }
 
+class CreditResults(val movies: List<CastMember>, val shows: List<CastMember>) {
+
+}
+
 class TraktImpl(private val trakt: TraktV2) : Trakt {
 
     constructor(apiKey: String): this(TraktV2(apiKey))
     constructor(config: Config): this(config.trakt.client_id)
     constructor(): this(Config.inst)
 
-    override fun searchImdb(imdbId: String): TraktResults? {
+    override fun searchImdb(imdbId: String): SearchResults? {
         return idLookup(IdType.IMDB, imdbId)
     }
 
-    override fun searchTrakt(traktId: String): TraktResults? {
+    override fun searchTrakt(traktId: String): SearchResults? {
         return idLookup(IdType.TRAKT, traktId)
     }
 
-    private fun idLookup(type: IdType, id: String): TraktResults? {
+    override fun personCredits(traktId: Int): CreditResults {
+        TODO("Not yet implemented")
+    }
+
+    private fun idLookup(type: IdType, id: String): SearchResults? {
         return try {
             trakt.search().idLookup(type, id, null, null, null, null).execute().ifSuccessful()
-                ?.body()?.let { TraktResults(it) }
+                ?.body()?.let { SearchResults(it) }
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
