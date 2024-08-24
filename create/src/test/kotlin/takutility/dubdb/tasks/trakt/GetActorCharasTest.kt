@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 import takutility.dubdb.entities.*
 import takutility.dubdb.service.CreditResults
 import takutility.dubdb.tasks.TaskResult
@@ -85,7 +84,7 @@ internal class GetActorCharasTest: GetActorCharasBaseTest() {
 
     @BeforeEach
     fun setup() {
-        val trakt = mock<TraktMock> {
+        val trakt = mockTrakt {
             on { personCredits(434958) } doReturn CreditResults(gillanMovies, gillanShows)
         }
         task = GetActorCharas(trakt)

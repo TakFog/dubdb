@@ -24,7 +24,7 @@ interface Trakt {
         else
             entity.ids[IMDB]?.id?.let(this::searchImdb)
 
-    fun personCredits(traktId: Int): CreditResults
+    fun personCredits(traktId: Int): CreditResults?
 }
 
 class SearchResults(private val results: List<SearchResult>) {
@@ -74,18 +74,24 @@ class TraktImpl(private val trakt: TraktV2) : Trakt {
         return idLookup(IdType.TRAKT, traktId)
     }
 
-    override fun personCredits(traktId: Int): CreditResults {
-        TODO("Not yet implemented")
+    override fun personCredits(traktId: Int): CreditResults? {
+        try {
+            val strId = traktId.toString()
+            val movies = trakt.people().movieCredits(strId).execute().ifSuccessful()?.body() ?: return null
+            val shows = trakt.people().showCredits(strId).execute().ifSuccessful()?.body() ?: return null
+            return CreditResults(movies.cast.toList(), shows.cast.toList())
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
     }
 
-    private fun idLookup(type: IdType, id: String): SearchResults? {
-        return try {
+    private fun idLookup(type: IdType, id: String): SearchResults? =
+        try {
             trakt.search().idLookup(type, id, null, null, null, null).execute().ifSuccessful()
                 ?.body()?.let { SearchResults(it) }
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
-    }
 
 }
 

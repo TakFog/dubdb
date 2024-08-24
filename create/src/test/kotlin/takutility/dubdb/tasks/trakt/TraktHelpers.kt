@@ -1,10 +1,14 @@
 package takutility.dubdb.tasks.trakt
 
 import com.uwetrottmann.trakt5.entities.*
+import org.mockito.internal.stubbing.answers.CallsRealMethods
+import org.mockito.kotlin.mock
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.TraktImpl
 
 abstract class TraktMock: Trakt {}
+
+fun mockTrakt(stubbing: org.mockito.kotlin.KStubbing<TraktMock>.(TraktMock) -> Unit) = mock(defaultAnswer = CallsRealMethods(), stubbing = stubbing)
 
 public val traktImpl by lazy { TraktImpl() }
 

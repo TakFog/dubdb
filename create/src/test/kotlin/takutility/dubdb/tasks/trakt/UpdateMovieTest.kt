@@ -4,9 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 import takutility.dubdb.entities.Movie
 import takutility.dubdb.entities.MovieType
 import takutility.dubdb.entities.Source
@@ -104,8 +102,7 @@ internal class UpdateMovieTest: UpdateMovieBaseTest() {
 
     @BeforeEach
     fun setup() {
-        val trakt = mock<TraktMock> {
-            on { search(any()) }.thenCallRealMethod()
+        val trakt = mockTrakt {
             on { searchImdb("tt4154796") } doReturn avengers
             on { searchTrakt("191798") } doReturn avengers
             on { searchImdb("tt5363918") } doReturn disincanto
