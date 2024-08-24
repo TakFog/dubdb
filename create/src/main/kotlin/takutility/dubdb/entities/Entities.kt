@@ -6,6 +6,8 @@ interface EntityRef {
     val name: String?
     val ids: SourceIds
 
+    fun intId(source: Source) = ids[source]?.toInt()
+
     val wiki: SourceId?
         get() = ids[Source.WIKI]
 
@@ -13,10 +15,15 @@ interface EntityRef {
         get() = wiki?.id
         set(value) { ids[Source.WIKI] = value }
 
+    var traktId: Int?
+        get() = ids[Source.TRAKT]?.toInt()
+        set(value) { ids[Source.TRAKT] = value.toString() }
+
     fun get(): EntityRef?
+    fun toRef(): EntityRef
 }
 
-open class BaseEntityRefImpl<E: EntityRef>(
+abstract class BaseEntityRefImpl<E: EntityRef>(
     override val name: String?,
     override val ids: SourceIds = SourceIds()
 ) : EntityRef {
@@ -28,6 +35,7 @@ class EntityRefImpl(name: String? = null, ids: SourceIds = SourceIds()): BaseEnt
         return name ?: wikiId
             ?: if (ids.isNotEmpty()) ids.first().toString() else super.toString()
     }
+    override fun toRef(): EntityRef = EntityRefImpl(name, ids.toMutable())
 }
 
 abstract class Entity(

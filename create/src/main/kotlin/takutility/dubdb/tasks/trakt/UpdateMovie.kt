@@ -11,7 +11,7 @@ class UpdateMovie(private val trakt: Trakt) {
         // get trakt info from imdb, if available
         val results = trakt.search(movie) ?: return
         val tid: Int? = if (movie.type == null || TRAKT !in movie.ids) {
-            // get the trakd id and discriminate between movie or series
+            // get the trakt id and discriminate between movie or series
             results.iterate(
                 movie = {
                     movie.type = MovieType.MOVIE
@@ -20,9 +20,9 @@ class UpdateMovie(private val trakt: Trakt) {
                 show = {
                     movie.type = MovieType.SERIES
                     true
-                }).also { movie.ids[TRAKT] = it }
+                }).also { movie.traktId = it }
         } else {
-            movie.ids[TRAKT]!!.toInt()
+            movie.traktId
         }
 
         if (tid != null)

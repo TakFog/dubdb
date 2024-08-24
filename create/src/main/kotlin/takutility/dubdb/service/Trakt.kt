@@ -1,9 +1,10 @@
 package takutility.dubdb.service
 
 import com.uwetrottmann.trakt5.TraktV2
-import com.uwetrottmann.trakt5.entities.CastMember
-import com.uwetrottmann.trakt5.entities.SearchResult
+import com.uwetrottmann.trakt5.entities.*
 import com.uwetrottmann.trakt5.enums.IdType
+import org.threeten.bp.LocalDate
+import org.threeten.bp.OffsetDateTime
 import retrofit2.Response
 import takutility.dubdb.Config
 import takutility.dubdb.entities.EntityRef
@@ -19,7 +20,7 @@ interface Trakt {
 
     fun searchTrakt(traktId: Int): SearchResults? = searchTrakt(traktId.toString())
     fun search(entity: EntityRef): SearchResults? = if (TRAKT in entity.ids)
-            entity.ids[TRAKT]?.id?.let(this::searchTrakt)
+            entity.traktId?.let(this::searchTrakt)
         else
             entity.ids[IMDB]?.id?.let(this::searchImdb)
 
@@ -51,7 +52,11 @@ class SearchResults(private val results: List<SearchResult>) {
     }
 }
 
-class CreditResults(val movies: List<CastMember>, val shows: List<CastMember>) {
+class CreditResults(val movies: List<CastMember>, val shows: List<CastMember>): Iterable<CastMember> {
+    override fun iterator(): Iterator<CastMember> = sequence {
+        yieldAll(movies)
+        yieldAll(shows)
+    }.iterator()
 
 }
 
@@ -84,7 +89,64 @@ class TraktImpl(private val trakt: TraktV2) : Trakt {
 
 }
 
+class MovieOrShow(
+    val base: BaseEntity,
+    val year: Int? = null,
+    val ids: BaseIds? = null,
+    val slug: String? = null,
+    val certification: String? = null,
+    val tagline: String? = null,
+    val released: LocalDate? = null,
+    val runtime: Int? = null,
+    val trailer: String? = null,
+    val homepage: String? = null,
+    val language: String? = null,
+    val genres: List<String>? = null,
+) {
+    val movie get() = base as Movie
+    val show get() = base as Show
+
+    val title: String? by base::title
+    val overview: String? by base::overview
+    val rating: Double? by base::rating
+    val votes: Int? by base::votes
+    val updated_at: OffsetDateTime? by base::updated_at
+    val available_translations: List<String>? by base::available_translations
+
+    fun isMovie() = base is Movie
+    fun isShow() = base is Show
+}
+
 fun useId(id: Int) = true
 fun ignoreId(id: Int) = false
 
 fun <T> Response<T>.ifSuccessful() = if (isSuccessful) this else null
+
+fun Movie.toEntity() = MovieOrShow(
+    base = this,
+    year = year,
+    ids = ids,
+    slug = ids.slug,
+    certification = certification,
+    runtime = runtime,
+    trailer = trailer,
+    homepage = homepage,
+    language = language,
+    genres = genres,
+)
+
+
+fun Show.toEntity() = MovieOrShow(
+    base = this,
+    year = year,
+    ids = ids,
+    slug = ids.slug,
+    certification = certification,
+    runtime = runtime,
+    trailer = trailer,
+    homepage = homepage,
+    language = language,
+    genres = genres,
+)
+
+fun CastMember.movieOrShow() = movie?.toEntity() ?: show?.toEntity()

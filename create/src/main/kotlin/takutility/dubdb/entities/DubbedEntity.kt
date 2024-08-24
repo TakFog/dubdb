@@ -11,5 +11,7 @@ class DubbedEntity(
     sources: MutableList<RawData> = mutableListOf(),
     //DubAttributes
 ): Entity(name, ids, parsed, sources) {
-    override fun get(): DubbedEntity? = this
+    override fun get(): DubbedEntity = this
+    override fun toRef(): EntityRef = EntityRefImpl(name, ids.toMutable())
+
 }

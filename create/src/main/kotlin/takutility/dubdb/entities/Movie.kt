@@ -4,6 +4,7 @@ interface MovieRef: EntityRef {
     val type: MovieType?
 
     override fun get(): Movie?
+    override fun toRef(): MovieRef = MovieRefImpl(name, type, ids.toMutable())
 }
 
 class MovieRefImpl(name: String? = null, override val type: MovieType? = null, ids: SourceIds = SourceIds())

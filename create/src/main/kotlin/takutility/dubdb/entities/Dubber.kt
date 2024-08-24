@@ -2,6 +2,7 @@ package takutility.dubdb.entities
 
 interface DubberRef: EntityRef {
     override fun get(): Dubber?
+    override fun toRef(): DubberRef = DubberRefImpl(name, ids.toMutable())
 }
 
 class DubberRefImpl(name: String? = null, ids: SourceIds = SourceIds())

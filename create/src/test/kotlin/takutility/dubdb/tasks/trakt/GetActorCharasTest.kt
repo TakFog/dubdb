@@ -34,17 +34,17 @@ internal abstract class GetActorCharasBaseTest {
             assertEquals(actor.ids, it.actor!!.ids, "actor ids in ${it.name} from ${it.movie.name}")
         }
 
-        assertChara(result, "Self", "Doctor Who", "56872", "tt0436992")
-        assertChara(result, "Amy Pond", "Doctor Who", "56872", "tt0436992")
-        assertChara(result, "Soothsayer", "Doctor Who", "56872", "tt0436992")
-        assertChara(result, "Kaylie Russell", "Oculus", "102273", "tt2388715")
-        assertChara(result, "Nebula", "Guardians of the Galaxy", "82405", "tt2015381")
-        assertChara(result, "Eliza Dooley", "Selfie", "60354", "tt3549044")
-        assertChara(result, "Evie", "The Big Short", "199563", "tt1596363")
-        assertChara(result, "Ellen", "In a Valley of Violence", "188193", "tt3608930")
-        assertChara(result, "Nebula", "Guardians of the Galaxy Vol. 2", "181256", "tt3896198")
-        assertChara(result, "Mercedes", "The Call of the Wild", "329002", "tt7504726")
-        assertChara(result, "Nebula (voice)", "What If...?", "146522", "tt10168312")
+        assertChara(result, "Self", "Doctor Who", 56872, "tt0436992")
+        assertChara(result, "Amy Pond", "Doctor Who", 56872, "tt0436992")
+        assertChara(result, "Soothsayer", "Doctor Who", 56872, "tt0436992")
+        assertChara(result, "Kaylie Russell", "Oculus", 102273, "tt2388715")
+        assertChara(result, "Nebula", "Guardians of the Galaxy", 82405, "tt2015381")
+        assertChara(result, "Eliza Dooley", "Selfie", 60354, "tt3549044")
+        assertChara(result, "Evie", "The Big Short", 199563, "tt1596363")
+        assertChara(result, "Ellen", "In a Valley of Violence", 188193, "tt3608930")
+        assertChara(result, "Nebula", "Guardians of the Galaxy Vol. 2", 181256, "tt3896198")
+        assertChara(result, "Mercedes", "The Call of the Wild", 329002, "tt7504726")
+        assertChara(result, "Nebula (voice)", "What If...?", 146522, "tt10168312")
 
         assertMissingChara(result, "Calls")
         assertMissingChara(result, "Jumanji: The Next Level")
@@ -64,7 +64,7 @@ internal abstract class GetActorCharasBaseTest {
             assertEquals(actor.ids, it.actor!!.ids, "actor ids in ${it.name} from ${it.movie.name}")
         }
 
-        assertChara(result, "Ruby Roundhouse", "Jumanji: The Next Level", "360095", "tt7975244")
+        assertChara(result, "Ruby Roundhouse", "Jumanji: The Next Level", 360095, "tt7975244")
 
         assertMissingChara(result,"Doctor Who")
         assertMissingChara(result,"Oculus")
@@ -102,19 +102,26 @@ internal class GetActorCharasIntegrationTest: GetActorCharasBaseTest() {
 }
 
 
-private fun assertChara(result: TaskResult, charaName: String, movieName: String, movieTrakt: String, movieImdb: String? = null) {
+private fun assertChara(result: TaskResult, charaName: String, movieName: String, movieTrakt: Int, movieImdb: String? = null) {
     assertNotNull(result.dubbedEntities, "charas")
     assertFalse(result.dubbedEntities!!.isEmpty(), "empty charas")
     val chara = try {
-         result.dubbedEntities!!.first { it.name == charaName }
+         result.dubbedEntities!!.first { it.name == charaName && it.movie.name == movieName }
     } catch (e: NoSuchElementException) {
         fail("$charaName not found")
     }
 
-    assertEquals(movieName, chara.movie.name)
-    assertEquals(movieTrakt, chara.movie.ids[Source.TRAKT])
+    assertEquals(1, chara.sources.size)
+    chara.sources[0].apply {
+        assertEquals(DataSource.TRAKT, dataSource, "dataSource")
+        assertEquals(Source.TRAKT, sourceId.source, "sourceId")
+        assertEquals(chara.actor?.ids?.get(Source.TRAKT), sourceId, "sourceId")
+        assertEquals(charaName, raw, "raw source")
+    }
+
+    assertEquals(movieTrakt, chara.movie.traktId)
     if (movieImdb != null)
-        assertEquals(movieImdb, chara.movie.ids[Source.IMDB])
+        assertEquals(movieImdb, chara.movie.ids[Source.IMDB]?.id)
 }
 
 private fun assertMissingChara(result: TaskResult, movieName: String) {

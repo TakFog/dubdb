@@ -115,9 +115,12 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
 
         fun mutable() = SourceIds()
 
-        fun of(vararg values: Pair<Source, String>): SourceIds {
+        fun of(vararg values: Pair<Source, String?>): SourceIds {
             return SourceIds(mutableMapOf(*values
-                .map { it.first to SourceId(it.first, it.second) }.toTypedArray()))
+                .mapNotNull {p ->
+                    p.second?.let { p.first to SourceId(p.first, it) }
+                }
+                .toTypedArray()))
         }
 
         fun of(vararg values: SourceId): SourceIds {
@@ -146,4 +149,22 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
 
     override fun toImmutable() = ImmutableSourceIds(data.toMap())
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SourceIds
+
+        if (data != other.data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return data.hashCode()
+    }
+
+    override fun toString(): String {
+        return data.entries.joinToString(", ", "{", "}") { "${it.key}: ${it.value.id}" }
+    }
 }
