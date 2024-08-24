@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import takutility.dubdb.entities.Actor
 import takutility.dubdb.entities.Source.*
@@ -52,6 +54,23 @@ internal abstract class UpdateActorBaseTest {
     }
 
     @Test
+    open fun wrongImdb() {
+        val actor = Actor(name = "Wrong Imdb",
+            ids = SourceIds.of(
+                IMDB to "wr0000000",
+                WIKIDATA to "Q165219",
+                WIKI_EN to "Robert_Downey_Jr.",
+            )
+        )
+
+        assertNull(actor.traktId)
+        task.run(actor)
+
+        assertNull(actor.traktId)
+        assertEquals(3, actor.ids.size)
+    }
+
+    @Test
     fun robertDowneyJr() {
         val actor = Actor(name = "Robert Downey Jr.",
             ids = SourceIds.of(
@@ -81,14 +100,22 @@ internal class UpdateActorTest: UpdateActorBaseTest() {
         task = UpdateActor(trakt)
     }
 
+    @Test
     override fun withTrakt() {
         super.withTrakt()
         verifyNoInteractions(trakt)
     }
 
+    @Test
     override fun noImdb() {
         super.noImdb()
         verifyNoInteractions(trakt)
+    }
+
+    @Test
+    override fun wrongImdb() {
+        super.wrongImdb()
+        verify(trakt).searchImdb(any())
     }
 }
 
