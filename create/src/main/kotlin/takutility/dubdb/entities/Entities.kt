@@ -1,5 +1,8 @@
 package takutility.dubdb.entities
 
+import org.bson.BsonType
+import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.codecs.pojo.annotations.BsonRepresentation
 import takutility.dubdb.util.bow
 
 interface EntityRef {
@@ -7,6 +10,10 @@ interface EntityRef {
     val ids: SourceIds
 
     fun intId(source: Source) = ids[source]?.toInt()
+
+    @BsonId
+    @BsonRepresentation(BsonType.OBJECT_ID)
+    fun id() = ids[Source.DUBDB]?.id
 
     val wiki: SourceId?
         get() = ids[Source.WIKI]
