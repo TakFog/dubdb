@@ -2,10 +2,10 @@ package takutility.dubdb.entities
 
 class DubbedEntity(
     name: String,
-    val movie: MovieRef,
-    val chara: Chara? = null,
-    val dubber: DubberRef? = null,
-    val actor: ActorRef? = null,
+    var movie: MovieRef,
+    var chara: Chara? = null,
+    var dubber: DubberRef? = null,
+    var actor: ActorRef? = null,
     ids: SourceIds = SourceIds(),
     parsed: Boolean = false,
     sources: MutableList<RawData> = mutableListOf(),

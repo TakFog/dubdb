@@ -5,16 +5,20 @@ import org.bson.BsonType
 import org.bson.BsonWriter
 import org.bson.codecs.*
 import org.bson.codecs.configuration.CodecRegistry
+import org.bson.types.ObjectId
 import takutility.dubdb.entities.*
 
-class SourceIdsCodec: Codec<SourceIds> {
+class SourceIdsCodec(val ignoreId: Boolean): Codec<SourceIds> {
     override fun encode(writer: BsonWriter?, value: SourceIds?, encoderContext: EncoderContext?) {
         if (value == null) {
             writer!!.writeNull()
             return
         }
         writer!!.writeStartDocument()
-        value.forEach { writer.writeString(it.source.name, it.id) }
+        value.forEach {
+            if (!ignoreId || it.source != Source.DUBDB)
+                writer.writeString(it.source.name, it.id)
+        }
         writer.writeEndDocument()
     }
 
@@ -73,11 +77,11 @@ class RawDataCodec: Codec<RawData> {
 
 }
 
-abstract class EntityBaseEncoder<E: EntityRef>(registry: CodecRegistry): Encoder<E> {
-    protected val idsCodec: Codec<SourceIds>
+abstract class EntityBaseEncoder<E: EntityRef>(registry: CodecRegistry, ignoreId: Boolean): Encoder<E> {
+    protected val idsCodec: SourceIdsCodec
 
     init {
-        idsCodec = registry[SourceIds::class.java]
+        idsCodec = SourceIdsCodec(ignoreId)
     }
 
     override fun encode(w: BsonWriter?, ref: E?, ctx: EncoderContext?) {
@@ -91,19 +95,22 @@ abstract class EntityBaseEncoder<E: EntityRef>(registry: CodecRegistry): Encoder
     }
 
     protected open fun encodeObject(w: BsonWriter, entity: E, ctx: EncoderContext?) {
-        encodeRef(w, entity, ctx)
+        entity.name?.let { w.writeString("name", it) }
+        if (containsSomething(entity.ids)) {
+            w.writeName("ids")
+            idsCodec.encode(w, entity.ids, ctx)
+        }
     }
 
-    protected fun encodeRef(w: BsonWriter, ref: EntityRef, ctx: EncoderContext?) {
-        ref.name?.let { w.writeString("name", it) }
-        if (ref.ids.isNotEmpty()) {
-            w.writeName("ids")
-            idsCodec.encode(w, ref.ids, ctx)
-        }
+    private fun containsSomething(ids: SourceIds): Boolean {
+        if (ids.isEmpty()) return false
+        if (!idsCodec.ignoreId) return true
+        if (Source.DUBDB !in ids) return true
+        return ids.size > 1
     }
 }
 
-abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncoder<E>(registry), Codec<E> {
+abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncoder<E>(registry, true), Codec<E> {
     private val srcCodec: Codec<List<RawData>>
 
     init {
@@ -112,6 +119,10 @@ abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncode
     }
 
     override fun encodeObject(w: BsonWriter, entity: E, ctx: EncoderContext?) {
+        val id = entity.id
+        if (id != null) {
+            w.writeObjectId("_id", ObjectId(id))
+        }
         super.encodeObject(w, entity, ctx)
         w.writeBoolean("parsed", entity.parsed)
         if (entity.sources.isNotEmpty()) {
@@ -135,6 +146,7 @@ abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncode
 
     protected open fun decodeField(key: String, r: BsonReader, ctx: DecoderContext?, inst: E) {
         when (key) {
+            "_id" -> inst.id = r.readObjectId().toHexString()
             "name" -> inst.name = r.readString()
             "ids" -> idsCodec.decode(r, ctx)?.let { inst.ids += it }
             "parsed" -> inst.parsed = r.readBoolean()
@@ -143,7 +155,7 @@ abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncode
     }
 }
 
-class EntityRefCodec(registry: CodecRegistry): EntityBaseEncoder<EntityRef>(registry), Codec<EntityRef> {
+class EntityRefCodec(registry: CodecRegistry): EntityBaseEncoder<EntityRef>(registry, false), Codec<EntityRef> {
     override fun getEncoderClass(): Class<EntityRef> = EntityRef::class.java
 
     override fun decode(r: BsonReader?, ctx: DecoderContext?): EntityRef {

@@ -60,6 +60,20 @@ internal class ActorCodecTest {
     }
 
     @Test
+    fun encodeWithId() {
+        val actor = Actor(
+            name = "test name",
+            ids = SourceIds.of(Source.DUBDB to "85786d0cd431d8a82be616e6", Source.WIKI to "Wiki_Name")
+        )
+        codec.encode(w, actor, EncoderContext.builder().build())
+
+        Assertions.assertEquals(
+            """{"_id": {"${'$'}oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"}, "parsed": false}""",
+            jsonWriter.toString()
+        )
+    }
+
+    @Test
     fun decode() {
         val decoded = codec.decode(
             JsonReader("""{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parsed": true, 
@@ -85,6 +99,19 @@ internal class ActorCodecTest {
 
         assertEquals("test name", decoded.name)
         assertTrue(decoded.ids.isEmpty())
+        assertEquals(false, decoded.parsed)
+        assertTrue(decoded.sources.isEmpty())
+
+    }
+
+    @Test
+    fun decodeWithId() {
+        val decoded = codec.decode(
+            JsonReader("""{"_id": {"${'$'}oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"} "parsed": false}"""),
+            DecoderContext.builder().build())
+
+        assertEquals("test name", decoded.name)
+        assertEquals(SourceIds.of(Source.DUBDB to "85786d0cd431d8a82be616e6", Source.WIKI to "Wiki_Name"), decoded.ids)
         assertEquals(false, decoded.parsed)
         assertTrue(decoded.sources.isEmpty())
 

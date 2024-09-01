@@ -19,7 +19,7 @@ internal class SourceIdsCodecTest {
 
     @BeforeEach
     fun setup() {
-        codec = SourceIdsCodec()
+        codec = SourceIdsCodec(false)
         jsonWriter = StringWriter()
         w = JsonWriter(jsonWriter)
     }
@@ -33,6 +33,50 @@ internal class SourceIdsCodecTest {
         codec.encode(w, ref, EncoderContext.builder().build())
 
         Assertions.assertEquals("""{"TRAKT": "123456", "WIKI": "Wiki_Name"}""", jsonWriter.toString())
+    }
+
+    @Test
+    fun encodeId() {
+        val ref = SourceIds.of(
+            Source.DUBDB to "85786d0cd431d8a82be616e6",
+            Source.TRAKT to "123456",
+            Source.WIKI to "Wiki_Name",
+        )
+        codec.encode(w, ref, EncoderContext.builder().build())
+
+        Assertions.assertEquals("""{"DUBDB": "85786d0cd431d8a82be616e6", "TRAKT": "123456", "WIKI": "Wiki_Name"}""", jsonWriter.toString())
+    }
+
+    @Test
+    fun encodeIdOnly() {
+        val ref = SourceIds.of(
+            Source.DUBDB to "85786d0cd431d8a82be616e6",
+        )
+        codec.encode(w, ref, EncoderContext.builder().build())
+
+        Assertions.assertEquals("""{"DUBDB": "85786d0cd431d8a82be616e6"}""", jsonWriter.toString())
+    }
+
+    @Test
+    fun encodeIgnoreId() {
+        val ref = SourceIds.of(
+            Source.DUBDB to "85786d0cd431d8a82be616e6",
+            Source.TRAKT to "123456",
+            Source.WIKI to "Wiki_Name",
+        )
+        SourceIdsCodec(true).encode(w, ref, EncoderContext.builder().build())
+
+        Assertions.assertEquals("""{"TRAKT": "123456", "WIKI": "Wiki_Name"}""", jsonWriter.toString())
+    }
+
+    @Test
+    fun encodeIgnoreIdOnly() {
+        val ref = SourceIds.of(
+            Source.DUBDB to "85786d0cd431d8a82be616e6",
+        )
+        SourceIdsCodec(true).encode(w, ref, EncoderContext.builder().build())
+
+        Assertions.assertEquals("""{}""", jsonWriter.toString())
     }
 
     @Test

@@ -43,6 +43,22 @@ internal class EntityRefCodecTest {
     }
 
     @Test
+    fun encodeInternalId() {
+        val ref = EntityRefImpl(
+            "test name",
+            SourceIds.of(
+                Source.DUBDB to "85786d0cd431d8a82be616e6",
+            ),
+        )
+        codec.encode(w, ref, EncoderContext.builder().build())
+
+        Assertions.assertEquals(
+            """{"name": "test name", "ids": {"DUBDB": "85786d0cd431d8a82be616e6"}}""",
+            jsonWriter.toString()
+        )
+    }
+
+    @Test
     fun encodeNoIds() {
         val ref = EntityRefImpl("test name")
         codec.encode(w, ref, EncoderContext.builder().build())
