@@ -134,6 +134,10 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
         element?.let { data[it.source] = it }
     }
 
+    operator fun plusAssign(other: SourceIds) {
+        data += other.data
+    }
+
     fun add(element: SourceId?) {
         element?.let { data[it.source] = it }
     }

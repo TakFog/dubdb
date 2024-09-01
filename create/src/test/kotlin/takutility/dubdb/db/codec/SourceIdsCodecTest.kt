@@ -1,11 +1,11 @@
-package takutility.dubdb.db
+package takutility.dubdb.db.codec
 
 import org.bson.BsonWriter
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.json.JsonReader
 import org.bson.json.JsonWriter
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.Source
@@ -27,19 +27,19 @@ internal class SourceIdsCodecTest {
     @Test
     fun encode() {
         val ref = SourceIds.of(
-                Source.TRAKT to "123456",
-                Source.WIKI to "Wiki_Name",
-            )
+            Source.TRAKT to "123456",
+            Source.WIKI to "Wiki_Name",
+        )
         codec.encode(w, ref, EncoderContext.builder().build())
 
-        assertEquals("""{"TRAKT": "123456", "WIKI": "Wiki_Name"}""", jsonWriter.toString())
+        Assertions.assertEquals("""{"TRAKT": "123456", "WIKI": "Wiki_Name"}""", jsonWriter.toString())
     }
 
     @Test
     fun encodeEmpty() {
         codec.encode(w, SourceIds(), EncoderContext.builder().build())
 
-        assertEquals("""{}""", jsonWriter.toString())
+        Assertions.assertEquals("""{}""", jsonWriter.toString())
     }
 
     @Test
@@ -48,7 +48,7 @@ internal class SourceIdsCodecTest {
             JsonReader("""{"TRAKT": "123456", "WIKI": "Wiki_Name"}"""),
             DecoderContext.builder().build())
 
-        assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded)
+        Assertions.assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded)
     }
 
     @Test
@@ -57,7 +57,7 @@ internal class SourceIdsCodecTest {
             JsonReader("""{}"""),
             DecoderContext.builder().build())
 
-        assertEquals(SourceIds(), decoded)
+        Assertions.assertEquals(SourceIds(), decoded)
     }
 
 }

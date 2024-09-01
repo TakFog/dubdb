@@ -31,7 +31,7 @@ interface EntityRef {
 }
 
 abstract class BaseEntityRefImpl<E: EntityRef>(
-    override val name: String?,
+    override var name: String?,
     override val ids: SourceIds = SourceIds()
 ) : EntityRef {
     override fun get(): E? = null
@@ -46,7 +46,7 @@ class EntityRefImpl(name: String? = null, ids: SourceIds = SourceIds()): BaseEnt
 }
 
 abstract class Entity(
-    final override val name: String,
+    final override var name: String,
     override val ids: SourceIds = SourceIds(),
     var parsed: Boolean = false,
     val sources: MutableList<RawData> = mutableListOf(),
