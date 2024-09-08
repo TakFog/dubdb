@@ -8,6 +8,16 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
 import takutility.dubdb.entities.*
 
+fun <T> Encoder<T>.encodeNullableField(writer: BsonWriter,
+                                       field: String,
+                                       value: T?,
+                                       encoderContext: EncoderContext?,
+) {
+    if (value == null) return
+    writer.writeName(field)
+    encode(writer, value, encoderContext)
+}
+
 class SourceIdsCodec(val ignoreId: Boolean): Codec<SourceIds> {
     override fun encode(writer: BsonWriter?, value: SourceIds?, encoderContext: EncoderContext?) {
         if (value == null) {
@@ -155,7 +165,7 @@ abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncode
     }
 }
 
-abstract class BaseEntityRefCodec<T : EntityRef>(registry: CodecRegistry): EntityBaseEncoder<T>(registry, false), Codec<T> {
+abstract class AbstractEntityRefCodec<T : EntityRef>(registry: CodecRegistry): EntityBaseEncoder<T>(registry, false), Codec<T> {
 
     override fun decode(r: BsonReader?, ctx: DecoderContext?): T {
         var name: String? = null
@@ -181,22 +191,30 @@ abstract class BaseEntityRefCodec<T : EntityRef>(registry: CodecRegistry): Entit
         return createEntityRef(name, ids ?: SourceIds(), otherFields)
     }
     protected open fun decodeAdditionalFields(fieldName: String, r: BsonReader, ctx: DecoderContext?): Any? = null
-
     protected abstract fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): T
 }
 
-class EntityRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<EntityRef>(registry) {
-    override fun getEncoderClass(): Class<EntityRef> = EntityRef::class.java
+abstract class BaseEntityRefCodec<T: EntityRef>(registry: CodecRegistry, val ctor: (String?, SourceIds) -> T) : AbstractEntityRefCodec<T>(registry) {
+    override fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): T = ctor(name, ids)
 
-    override fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): EntityRef {
-        return EntityRefImpl(name = name, ids = ids)
-    }
+}
+
+class EntityRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<EntityRef>(registry, ::EntityRefImpl) {
+    override fun getEncoderClass(): Class<EntityRef> = EntityRef::class.java
+}
+
+class ActorRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<ActorRef>(registry, ::ActorRefImpl) {
+    override fun getEncoderClass(): Class<ActorRef> = ActorRef::class.java
 }
 
 class ActorCodec(registry: CodecRegistry) : EntityCodec<Actor>(registry) {
     override fun newInstance(): Actor = Actor("")
 
     override fun getEncoderClass(): Class<Actor> = Actor::class.java
+}
+
+class DubberRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<DubberRef>(registry, ::DubberRefImpl) {
+    override fun getEncoderClass(): Class<DubberRef> = DubberRef::class.java
 }
 
 class DubberCodec(registry: CodecRegistry) : EntityCodec<Dubber>(registry) {

@@ -11,7 +11,7 @@ import takutility.dubdb.entities.*
 private const val TYPE_FIELD = "type"
 private const val YEAR_FIELD = "year"
 
-class MovieRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<MovieRef>(registry) {
+class MovieRefCodec(registry: CodecRegistry) : AbstractEntityRefCodec<MovieRef>(registry) {
     private val typeCodec: Codec<MovieType>
     init {
         typeCodec = registry[MovieType::class.java]
@@ -67,8 +67,8 @@ class MovieCodec(registry: CodecRegistry) : EntityCodec<Movie>(registry) {
         when(key) {
             TYPE_FIELD -> inst.type = typeCodec.decode(r, ctx)
             YEAR_FIELD -> inst.year = r.readInt32()
+            else -> super.decodeField(key, r, ctx, inst)
         }
-        super.decodeField(key, r, ctx, inst)
     }
 
     override fun newInstance(): Movie = Movie("")
