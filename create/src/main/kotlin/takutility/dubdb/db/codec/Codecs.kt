@@ -155,22 +155,41 @@ abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncode
     }
 }
 
-class EntityRefCodec(registry: CodecRegistry): EntityBaseEncoder<EntityRef>(registry, false), Codec<EntityRef> {
-    override fun getEncoderClass(): Class<EntityRef> = EntityRef::class.java
+abstract class BaseEntityRefCodec<T : EntityRef>(registry: CodecRegistry): EntityBaseEncoder<T>(registry, false), Codec<T> {
 
-    override fun decode(r: BsonReader?, ctx: DecoderContext?): EntityRef {
+    override fun decode(r: BsonReader?, ctx: DecoderContext?): T {
         var name: String? = null
         var ids: SourceIds? = null
+        var otherFields: MutableMap<String, Any>? = null
         r!!.readStartDocument()
         while (r.readBsonType() != BsonType.END_OF_DOCUMENT) {
-            when (r.readName()) {
+            val fieldName = r.readName()
+            when (fieldName) {
                 "name" -> name = r.readString()
                 "ids" -> ids = idsCodec.decode(r, ctx)
+                else -> {
+                    var value = decodeAdditionalFields(fieldName, r, ctx)
+                    if (value != null) {
+                        if (otherFields == null) otherFields = mutableMapOf()
+                        otherFields[fieldName] = value
+                    }
+                }
             }
         }
         r.readEndDocument()
 
-        return EntityRefImpl(name = name, ids = ids ?: SourceIds())
+        return createEntityRef(name, ids ?: SourceIds(), otherFields)
+    }
+    protected open fun decodeAdditionalFields(fieldName: String, r: BsonReader, ctx: DecoderContext?): Any? = null
+
+    protected abstract fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): T
+}
+
+class EntityRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<EntityRef>(registry) {
+    override fun getEncoderClass(): Class<EntityRef> = EntityRef::class.java
+
+    override fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): EntityRef {
+        return EntityRefImpl(name = name, ids = ids)
     }
 }
 
