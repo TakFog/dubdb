@@ -56,7 +56,7 @@ internal class DubbedEntityCodecTest {
         )
 
         codec.encode(w, entity, EncoderContext.builder().build())
-        assertEquals("""{"_id": {"${'$'}oid": "75c337a9aca64000c637ba10"}, "name": "test name","""
+        assertEquals("""{"_id": {"$oid": "75c337a9aca64000c637ba10"}, "name": "test name","""
                     +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true,"""
                     +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER", "raw": "test raw data"}],"""
                     +""" "movie": {"name": "movie name", "ids": {"WIKI": "Movie_Title"}, "type": "MOVIE"},"""
@@ -80,7 +80,7 @@ internal class DubbedEntityCodecTest {
     @Test
     fun decode() {
         val decoded = codec.decode(
-            JsonReader("""{"_id": {"${'$'}oid": "75c337a9aca64000c637ba10"}, "name": "test name","""
+            JsonReader("""{"_id": {"$oid": "75c337a9aca64000c637ba10"}, "name": "test name","""
                     +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true,"""
                     +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER", "raw": "test raw data"}],"""
                     +""" "movie": {"name": "movie name", "ids": {"WIKI": "Movie_Title"}, "type": "MOVIE"},"""

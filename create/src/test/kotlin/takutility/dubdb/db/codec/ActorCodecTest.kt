@@ -68,7 +68,7 @@ internal class ActorCodecTest {
         codec.encode(w, actor, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"_id": {"${'$'}oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"}, "parsed": false}""",
+            """{"_id": {"$oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"}, "parsed": false}""",
             jsonWriter.toString()
         )
     }
@@ -107,7 +107,7 @@ internal class ActorCodecTest {
     @Test
     fun decodeWithId() {
         val decoded = codec.decode(
-            JsonReader("""{"_id": {"${'$'}oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"} "parsed": false}"""),
+            JsonReader("""{"_id": {"$oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"} "parsed": false}"""),
             DecoderContext.builder().build())
 
         assertEquals("test name", decoded.name)
