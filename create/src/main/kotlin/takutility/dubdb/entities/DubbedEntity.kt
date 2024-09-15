@@ -3,7 +3,7 @@ package takutility.dubdb.entities
 class DubbedEntity(
     name: String,
     var movie: MovieRef,
-    var chara: Chara? = null,
+//    var chara: Chara? = null,
     var dubber: DubberRef? = null,
     var actor: ActorRef? = null,
     ids: SourceIds = SourceIds(),

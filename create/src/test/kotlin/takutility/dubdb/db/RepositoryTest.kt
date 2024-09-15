@@ -74,6 +74,11 @@ internal abstract class RepositoryTest<E: Entity> {
     }
 
     @Test
+    fun findMissing() {
+        assertNull(repo.findById("123456"))
+    }
+
+    @Test
     fun findById() {
         val newEntity = newEntity(
             "name",

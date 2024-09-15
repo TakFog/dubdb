@@ -100,7 +100,7 @@ internal class DubbedEntityCodecTest {
             assertEquals("Movie_Title", wikiId)
             assertEquals(1, ids.size)
         }
-        assertNull(decoded.chara)
+//        assertNull(decoded.chara)
         decoded.dubber!!.apply {
             assertEquals("dubber name", name)
             assertEquals("Dubber_Name", wikiId)
@@ -129,7 +129,7 @@ internal class DubbedEntityCodecTest {
             assertNull(type)
             assertTrue(ids.isEmpty())
         }
-        assertNull(decoded.chara)
+//        assertNull(decoded.chara)
         assertNull(decoded.dubber)
         assertNull(decoded.actor)
     }

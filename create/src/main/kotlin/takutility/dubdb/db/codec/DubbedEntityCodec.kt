@@ -32,9 +32,9 @@ class DubbedEntityCodec : EntityCodec<DubbedEntity>() {
         super.encodeObject(w, entity, ctx)
         w.writeName(MOVIE)
         movieRefCodec.encode(w, entity.movie, ctx)
-        if (entity.chara != null) {
-            TODO("unsupported chara encode")
-        }
+//        if (entity.chara != null) {
+//            TODO("unsupported chara encode")
+//        }
         dubberRefCodec.encodeNullableField(w, DUBBER, entity.dubber, ctx)
         actorRefCodec.encodeNullableField(w, ACTOR, entity.actor, ctx)
     }

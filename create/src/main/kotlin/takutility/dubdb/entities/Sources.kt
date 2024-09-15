@@ -103,6 +103,22 @@ open class ImmutableSourceIds(open val data: Map<Source, SourceId>) : Collection
      */
     open fun toMutable(): SourceIds = SourceIds(data.toMutableMap())
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ImmutableSourceIds) return false
+
+        if (data != other.data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return data.hashCode()
+    }
+
+    override fun toString(): String {
+        return data.entries.joinToString(", ", "{", "}") { "${it.key}: ${it.value.id}" }
+    }
 }
 
 class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSourceIds(data) {
@@ -151,22 +167,4 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
 
     override fun toImmutable() = ImmutableSourceIds(data.toMap())
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as SourceIds
-
-        if (data != other.data) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return data.hashCode()
-    }
-
-    override fun toString(): String {
-        return data.entries.joinToString(", ", "{", "}") { "${it.key}: ${it.value.id}" }
-    }
 }
