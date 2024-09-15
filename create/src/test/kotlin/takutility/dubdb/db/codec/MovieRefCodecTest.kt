@@ -21,7 +21,7 @@ internal class MovieRefCodecTest {
 
     @BeforeEach
     fun setup() {
-        codec = MovieRefCodec(codecRegistry)
+        codec = init(MovieRefCodec())
         jsonWriter = StringWriter()
         w = JsonWriter(jsonWriter)
     }

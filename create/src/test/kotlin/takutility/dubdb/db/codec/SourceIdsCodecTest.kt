@@ -19,7 +19,7 @@ internal class SourceIdsCodecTest {
 
     @BeforeEach
     fun setup() {
-        codec = SourceIdsCodec(false)
+        codec = SourceIdsCodec.getInstance(false)
         jsonWriter = StringWriter()
         w = JsonWriter(jsonWriter)
     }
@@ -64,7 +64,7 @@ internal class SourceIdsCodecTest {
             Source.TRAKT to "123456",
             Source.WIKI to "Wiki_Name",
         )
-        SourceIdsCodec(true).encode(w, ref, EncoderContext.builder().build())
+        SourceIdsCodec.getInstance(true).encode(w, ref, EncoderContext.builder().build())
 
         Assertions.assertEquals("""{"TRAKT": "123456", "WIKI": "Wiki_Name"}""", jsonWriter.toString())
     }
@@ -74,7 +74,7 @@ internal class SourceIdsCodecTest {
         val ref = SourceIds.of(
             Source.DUBDB to "85786d0cd431d8a82be616e6",
         )
-        SourceIdsCodec(true).encode(w, ref, EncoderContext.builder().build())
+        SourceIdsCodec.getInstance(true).encode(w, ref, EncoderContext.builder().build())
 
         Assertions.assertEquals("""{}""", jsonWriter.toString())
     }

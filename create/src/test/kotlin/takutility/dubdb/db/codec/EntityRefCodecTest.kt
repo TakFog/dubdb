@@ -20,7 +20,7 @@ internal class EntityRefCodecTest {
 
     @BeforeEach
     fun setup() {
-        codec = EntityRefCodec(codecRegistry)
+        codec = init(EntityRefCodec())
         jsonWriter = StringWriter()
         w = JsonWriter(jsonWriter)
     }

@@ -16,12 +16,13 @@ private const val DUBBER = "dubber"
 private const val ACTOR = "actor"
 
 
-class DubbedEntityCodec(registry: CodecRegistry) : EntityCodec<DubbedEntity>(registry) {
-    private val movieRefCodec: Codec<MovieRef>
-    private val dubberRefCodec: Codec<DubberRef>
-    private val actorRefCodec: Codec<ActorRef>
+class DubbedEntityCodec : EntityCodec<DubbedEntity>() {
+    private lateinit var movieRefCodec: Codec<MovieRef>
+    private lateinit var dubberRefCodec: Codec<DubberRef>
+    private lateinit var actorRefCodec: Codec<ActorRef>
 
-    init {
+    override fun init(registry: CodecRegistry) {
+        super.init(registry)
         movieRefCodec = registry[MovieRef::class.java]
         dubberRefCodec = registry[DubberRef::class.java]
         actorRefCodec = registry[ActorRef::class.java]

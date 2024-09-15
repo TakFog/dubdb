@@ -20,7 +20,7 @@ internal class ActorCodecTest {
 
     @BeforeEach
     fun setup() {
-        codec = ActorCodec(codecRegistry)
+        codec = init(ActorCodec())
         jsonWriter = StringWriter()
         w = JsonWriter(jsonWriter)
     }

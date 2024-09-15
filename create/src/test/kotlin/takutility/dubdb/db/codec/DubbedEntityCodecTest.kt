@@ -3,7 +3,6 @@ package takutility.dubdb.db.codec
 import org.bson.BsonWriter
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
-import org.bson.codecs.configuration.CodecRegistries
 import org.bson.json.JsonReader
 import org.bson.json.JsonWriter
 import org.junit.jupiter.api.Assertions.*
@@ -20,15 +19,10 @@ internal class DubbedEntityCodecTest {
 
     @BeforeEach
     fun setup() {
-        codec = DubbedEntityCodec(
-            CodecRegistries.fromRegistries(
-                codecRegistry,
-                CodecRegistries.fromCodecs(
-                    MovieRefCodec(codecRegistry),
-                    ActorRefCodec(codecRegistry),
-                    DubberRefCodec(codecRegistry)
-                )
-            )
+        codec = init(DubbedEntityCodec(),
+                MovieRefCodec(),
+                ActorRefCodec(),
+                DubberRefCodec()
         )
         jsonWriter = StringWriter()
         w = JsonWriter(jsonWriter)

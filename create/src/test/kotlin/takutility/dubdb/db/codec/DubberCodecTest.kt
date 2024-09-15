@@ -20,7 +20,7 @@ internal class DubberCodecTest {
 
     @BeforeEach
     fun setup() {
-        codec = DubberCodec(codecRegistry)
+        codec = init(DubberCodec())
         jsonWriter = StringWriter()
         w = JsonWriter(jsonWriter)
     }

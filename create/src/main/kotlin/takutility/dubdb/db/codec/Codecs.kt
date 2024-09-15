@@ -18,7 +18,16 @@ fun <T> Encoder<T>.encodeNullableField(writer: BsonWriter,
     encode(writer, value, encoderContext)
 }
 
-class SourceIdsCodec(val ignoreId: Boolean): Codec<SourceIds> {
+class SourceIdsCodec private constructor(val ignoreId: Boolean): Codec<SourceIds> {
+    companion object {
+        private val ignoreIdSourceIdsCodec = SourceIdsCodec(true)
+        private val keepIdSourceIdsCodec = SourceIdsCodec(false)
+
+        fun getInstance(ignoreId: Boolean) =
+            if (ignoreId) ignoreIdSourceIdsCodec
+            else keepIdSourceIdsCodec
+    }
+
     override fun encode(writer: BsonWriter?, value: SourceIds?, encoderContext: EncoderContext?) {
         if (value == null) {
             writer!!.writeNull()
@@ -87,11 +96,18 @@ class RawDataCodec: Codec<RawData> {
 
 }
 
-abstract class EntityBaseEncoder<E: EntityRef>(registry: CodecRegistry, ignoreId: Boolean): Encoder<E> {
-    protected val idsCodec: SourceIdsCodec
+interface DubDbEncoder<E>: Encoder<E> {
+    fun init(registry: CodecRegistry)
+}
 
-    init {
-        idsCodec = SourceIdsCodec(ignoreId)
+interface DubDbCodec<E>: DubDbEncoder<E>, Codec<E>
+
+
+abstract class EntityBaseEncoder<E: EntityRef>(private val ignoreId: Boolean): DubDbEncoder<E> {
+    protected lateinit var idsCodec: SourceIdsCodec
+
+    override fun init(registry: CodecRegistry) {
+        idsCodec = SourceIdsCodec.getInstance(ignoreId)
     }
 
     override fun encode(w: BsonWriter?, ref: E?, ctx: EncoderContext?) {
@@ -120,11 +136,12 @@ abstract class EntityBaseEncoder<E: EntityRef>(registry: CodecRegistry, ignoreId
     }
 }
 
-abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncoder<E>(registry, true), Codec<E> {
-    private val srcCodec: Codec<List<RawData>>
+abstract class EntityCodec<E: Entity>: EntityBaseEncoder<E>(true), DubDbCodec<E> {
+    private lateinit var srcCodec: Codec<List<RawData>>
 
-    init {
-        @Suppress("unchecked")
+    @Suppress("unchecked")
+    override fun init(registry: CodecRegistry) {
+        super.init(registry)
         srcCodec = registry[List::class.java, listOf(RawData::class.java)] as Codec<List<RawData>>
     }
 
@@ -165,7 +182,7 @@ abstract class EntityCodec<E: Entity>(registry: CodecRegistry): EntityBaseEncode
     }
 }
 
-abstract class AbstractEntityRefCodec<T : EntityRef>(registry: CodecRegistry): EntityBaseEncoder<T>(registry, false), Codec<T> {
+abstract class AbstractEntityRefCodec<T : EntityRef> : EntityBaseEncoder<T>(false), DubDbCodec<T> {
 
     override fun decode(r: BsonReader?, ctx: DecoderContext?): T {
         var name: String? = null
@@ -194,30 +211,30 @@ abstract class AbstractEntityRefCodec<T : EntityRef>(registry: CodecRegistry): E
     protected abstract fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): T
 }
 
-abstract class BaseEntityRefCodec<T: EntityRef>(registry: CodecRegistry, val ctor: (String?, SourceIds) -> T) : AbstractEntityRefCodec<T>(registry) {
+abstract class BaseEntityRefCodec<T: EntityRef>(val ctor: (String?, SourceIds) -> T) : AbstractEntityRefCodec<T>() {
     override fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): T = ctor(name, ids)
 
 }
 
-class EntityRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<EntityRef>(registry, ::EntityRefImpl) {
+class EntityRefCodec : BaseEntityRefCodec<EntityRef>(::EntityRefImpl) {
     override fun getEncoderClass(): Class<EntityRef> = EntityRef::class.java
 }
 
-class ActorRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<ActorRef>(registry, ::ActorRefImpl) {
+class ActorRefCodec : BaseEntityRefCodec<ActorRef>(::ActorRefImpl) {
     override fun getEncoderClass(): Class<ActorRef> = ActorRef::class.java
 }
 
-class ActorCodec(registry: CodecRegistry) : EntityCodec<Actor>(registry) {
+class ActorCodec : EntityCodec<Actor>() {
     override fun newInstance(): Actor = Actor("")
 
     override fun getEncoderClass(): Class<Actor> = Actor::class.java
 }
 
-class DubberRefCodec(registry: CodecRegistry) : BaseEntityRefCodec<DubberRef>(registry, ::DubberRefImpl) {
+class DubberRefCodec : BaseEntityRefCodec<DubberRef>(::DubberRefImpl) {
     override fun getEncoderClass(): Class<DubberRef> = DubberRef::class.java
 }
 
-class DubberCodec(registry: CodecRegistry) : EntityCodec<Dubber>(registry) {
+class DubberCodec : EntityCodec<Dubber>() {
     override fun newInstance(): Dubber = Dubber("")
 
     override fun getEncoderClass(): Class<Dubber> = Dubber::class.java
