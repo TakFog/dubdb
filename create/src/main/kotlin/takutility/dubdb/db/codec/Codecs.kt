@@ -233,9 +233,3 @@ class ActorCodec : EntityCodec<Actor>() {
 class DubberRefCodec : BaseEntityRefCodec<DubberRef>(::DubberRefImpl) {
     override fun getEncoderClass(): Class<DubberRef> = DubberRef::class.java
 }
-
-class DubberCodec : EntityCodec<Dubber>() {
-    override fun newInstance(): Dubber = Dubber("")
-
-    override fun getEncoderClass(): Class<Dubber> = Dubber::class.java
-}

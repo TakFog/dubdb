@@ -6,12 +6,12 @@ import org.bson.codecs.EncoderContext
 import org.bson.json.JsonReader
 import org.bson.json.JsonWriter
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.*
 import java.io.StringWriter
+import java.time.LocalDate
 
 internal class DubberCodecTest {
     lateinit var codec: DubberCodec
@@ -33,6 +33,7 @@ internal class DubberCodecTest {
                 Source.MONDO_DOPPIATORI to "voci/testname",
                 Source.WIKI to "Wiki_Name",
             ),
+            lastUpdate = LocalDate.of(2024, 10, 6),
             parsed = true,
             sources = mutableListOf(
                 RawData(SourceId(Source.WIKI, "Wiki_Name"), DataSource.DUBBER, "test raw data")
@@ -43,7 +44,7 @@ internal class DubberCodecTest {
         Assertions.assertEquals(
             """{"name": "test name", "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true,"""
                 +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER","""
-                +""" "raw": "test raw data"}]}""",
+                +""" "raw": "test raw data"}], "lastUpdate": "2024-10-06"}""",
             jsonWriter.toString()
         )
     }
@@ -64,11 +65,12 @@ internal class DubberCodecTest {
         val decoded = codec.decode(
             JsonReader("""{"name": "test name", "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true, 
                 "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER",
-                "raw": "test raw data"}]}"""),
+                "raw": "test raw data"}], "lastUpdate": "2024-10-06"}"""),
             DecoderContext.builder().build())
 
         assertEquals("test name", decoded.name)
         assertEquals(SourceIds.of(Source.MONDO_DOPPIATORI to "voci/testname", Source.WIKI to "Wiki_Name"), decoded.ids)
+        assertEquals(LocalDate.of(2024, 10, 6), decoded.lastUpdate)
         assertEquals(true, decoded.parsed)
         assertEquals(1, decoded.sources.size)
         val source = decoded.sources[0]
@@ -85,6 +87,7 @@ internal class DubberCodecTest {
 
         assertEquals("test name", decoded.name)
         assertTrue(decoded.ids.isEmpty())
+        assertNull(decoded.lastUpdate)
         assertEquals(false, decoded.parsed)
         assertTrue(decoded.sources.isEmpty())
 
