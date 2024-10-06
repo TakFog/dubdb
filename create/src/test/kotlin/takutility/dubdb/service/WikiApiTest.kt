@@ -12,15 +12,14 @@ internal class WikiApiTest {
         val api = WikiApiImpl()
         val result = api.dubbersFromCat(10)
 
-        assertEquals(10, result.size)
-        for (i in result.indices) {
-            val dub = result[i]
-            assertNotNull(dub.wikiId, "wikiId $i")
-            assertNotNull(dub.lastUpdate, "update $i")
-            if (i > 0) {
-                val prev = result[i-1].lastUpdate
-                assertFalse(dub.lastUpdate!! > result[i - 1].lastUpdate, "$i: ${dub.lastUpdate} > $prev")
-            }
+        assertNotNull(result)
+        val value = result.queryValue()
+        assertEquals(10, value.size)
+        for (i in value.indices) {
+            if (i == 0) continue
+            val dub = value[i]
+            val prev = value[i-1].timestamp
+            assertFalse(dub.timestamp > prev, "$i: ${dub.timestamp} > $prev")
         }
     }
 }
