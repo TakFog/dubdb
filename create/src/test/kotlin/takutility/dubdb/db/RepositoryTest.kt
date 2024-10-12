@@ -6,15 +6,15 @@ import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.*
 
 
-internal abstract class RepositoryTest<E: Entity> {
-    lateinit var repo: EntityRepository<E>
+internal abstract class RepositoryTest<E: Entity, R: EntityRepository<E>> {
+    lateinit var repo: R
 
     @BeforeEach
     open fun setup() {
         repo = newRepo()
     }
 
-    abstract fun newRepo(): EntityRepository<E>
+    abstract fun newRepo(): R
 
     abstract fun newEntity(
         name: String,

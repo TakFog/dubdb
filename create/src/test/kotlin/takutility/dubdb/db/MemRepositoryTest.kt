@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test
 import takutility.dubdb.assertRefEquals
 import takutility.dubdb.entities.*
 
-internal class MemMovieRepositoryTest: RepositoryTest<Movie>() {
-    override fun newRepo(): EntityRepository<Movie> = MemMovieRepository()
+internal class MemMovieRepositoryTest: RepositoryTest<Movie, MemMovieRepository>() {
+    override fun newRepo() = MemMovieRepository()
 
     override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = Movie(
         name = name, ids = ids, parsed = parsed, sources = sources
@@ -54,24 +54,20 @@ internal class MemMovieRepositoryTest: RepositoryTest<Movie>() {
     }
 }
 
-internal class MemActorRepositoryTest: RepositoryTest<Actor>() {
-    override fun newRepo(): EntityRepository<Actor> = MemActorRepository()
+internal class MemActorRepositoryTest: RepositoryTest<Actor, MemActorRepository>() {
+    override fun newRepo() = MemActorRepository()
 
     override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = Actor(
         name = name, ids = ids, parsed = parsed, sources = sources
     )
 }
 
-internal class MemDubberRepositoryTest: RepositoryTest<Dubber>() {
-    override fun newRepo(): EntityRepository<Dubber> = MemDubberRepository()
-
-    override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = Dubber(
-        name = name, ids = ids, parsed = parsed, sources = sources
-    )
+internal class MemDubberRepositoryTest: DubberRepositoryTest<MemDubberRepository>() {
+    override fun newRepo() = MemDubberRepository()
 }
 
-internal class MemDubbedEntityRepositoryTest: RepositoryTest<DubbedEntity>() {
-    override fun newRepo(): EntityRepository<DubbedEntity> = MemDubbedEntityRepository()
+internal class MemDubbedEntityRepositoryTest: RepositoryTest<DubbedEntity, MemDubbedEntityRepository>() {
+    override fun newRepo() = MemDubbedEntityRepository()
 
     override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = DubbedEntity(
         name = name, ids = ids, parsed = parsed, sources = sources,

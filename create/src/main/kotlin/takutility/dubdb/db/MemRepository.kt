@@ -1,10 +1,33 @@
 package takutility.dubdb.db
 
+import org.bson.codecs.DecoderContext
+import org.bson.codecs.EncoderContext
+import org.bson.json.JsonReader
+import org.bson.json.JsonWriter
+import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.*
+import java.io.Writer
 import java.util.*
 
-open class MemRepository<E: Entity>: EntityRepository<E> {
+open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepository<E> {
     val db = mutableMapOf<String, E>()
+
+    fun loadFromJson(jsons: List<String>) {
+        val codec = codecRegistry.get(type)
+        jsons.forEach {
+            val value = codec.decode(JsonReader(it), DecoderContext.builder().build())
+            save(value)
+        }
+    }
+
+    fun saveToJson(writer: Writer) {
+        val codec = codecRegistry.get(type)
+        val jsonWriter = JsonWriter(writer)
+        db.values.forEach {
+            codec.encode(jsonWriter, it, EncoderContext.builder().build())
+            writer.write("\n")
+        }
+    }
 
     override fun save(entity: E): E {
         var id = entity.id
@@ -19,7 +42,11 @@ open class MemRepository<E: Entity>: EntityRepository<E> {
     override fun findById(dubdbId: String): E? = db[dubdbId]
 }
 
-class MemMovieRepository: MemRepository<Movie>(), MovieRepository
-class MemActorRepository: MemRepository<Actor>(), ActorRepository
-class MemDubberRepository: MemRepository<Dubber>(), DubberRepository
-class MemDubbedEntityRepository: MemRepository<DubbedEntity>(), DubbedEntityRepository
+class MemMovieRepository: MemRepository<Movie>(Movie::class.java), MovieRepository
+class MemActorRepository: MemRepository<Actor>(Actor::class.java), ActorRepository
+class MemDubberRepository: MemRepository<Dubber>(Dubber::class.java), DubberRepository {
+    override fun findMostRecent(limit: Int): List<Dubber> {
+        TODO("Not yet implemented")
+    }
+}
+class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class.java), DubbedEntityRepository
