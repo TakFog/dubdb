@@ -46,7 +46,11 @@ class MemMovieRepository: MemRepository<Movie>(Movie::class.java), MovieReposito
 class MemActorRepository: MemRepository<Actor>(Actor::class.java), ActorRepository
 class MemDubberRepository: MemRepository<Dubber>(Dubber::class.java), DubberRepository {
     override fun findMostRecent(limit: Int): List<Dubber> {
-        TODO("Not yet implemented")
+        return db.values.asSequence()
+            .filter { it.lastUpdate != null }
+            .sortedByDescending { it.lastUpdate }
+            .take(limit)
+            .toList()
     }
 }
 class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class.java), DubbedEntityRepository
