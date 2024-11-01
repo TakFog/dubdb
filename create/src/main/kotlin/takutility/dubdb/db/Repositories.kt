@@ -15,4 +15,6 @@ interface ActorRepository: EntityRepository<Actor>
 interface DubberRepository: EntityRepository<Dubber> {
     fun findMostRecent(limit: Int): List<Dubber>
 }
-interface DubbedEntityRepository: EntityRepository<DubbedEntity>
+interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
+    fun findMostCommonMovies(limit: Int): List<MovieRef>
+}

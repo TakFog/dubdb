@@ -53,4 +53,8 @@ class MemDubberRepository: MemRepository<Dubber>(Dubber::class.java), DubberRepo
             .toList()
     }
 }
-class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class.java), DubbedEntityRepository
+class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class.java), DubbedEntityRepository {
+    override fun findMostCommonMovies(limit: Int): List<MovieRef> {
+        TODO("Not yet implemented")
+    }
+}

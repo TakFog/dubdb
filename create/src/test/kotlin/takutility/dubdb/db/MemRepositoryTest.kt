@@ -66,13 +66,8 @@ internal class MemDubberRepositoryTest: DubberRepositoryTest<MemDubberRepository
     override fun newRepo() = MemDubberRepository()
 }
 
-internal class MemDubbedEntityRepositoryTest: RepositoryTest<DubbedEntity, MemDubbedEntityRepository>() {
+internal class MemDubbedEntityRepositoryTest: DubbedEntityRepositoryTest<MemDubbedEntityRepository>() {
     override fun newRepo() = MemDubbedEntityRepository()
-
-    override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = DubbedEntity(
-        name = name, ids = ids, parsed = parsed, sources = sources,
-        movie = movieRefOf()
-    )
 
     @Test
     fun insertFull() {
