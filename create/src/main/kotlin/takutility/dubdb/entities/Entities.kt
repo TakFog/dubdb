@@ -25,6 +25,10 @@ interface EntityRef {
 
     fun get(): EntityRef?
     fun toRef(): EntityRef
+    fun equalIds(other: EntityRef?): Boolean {
+        if (other == null) return false
+        return ids == other.ids
+    }
 }
 
 abstract class BaseEntityRefImpl<E: EntityRef>(
@@ -32,6 +36,22 @@ abstract class BaseEntityRefImpl<E: EntityRef>(
     override val ids: SourceIds = SourceIds()
 ) : EntityRef {
     override fun get(): E? = null
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BaseEntityRefImpl<*>
+
+        if (name != other.name) return false
+        if (ids != other.ids) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return ids.hashCode()
+    }
 }
 
 class EntityRefImpl(name: String? = null, ids: SourceIds = SourceIds()): BaseEntityRefImpl<EntityRefImpl>(name, ids) {
@@ -52,5 +72,44 @@ abstract class Entity(
 
     override fun toString(): String {
         return name
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Entity
+
+        if (name != other.name) return false
+        if (parsed != other.parsed) return false
+        if (ids != other.ids) return false
+        if (sources != other.sources) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return ids.hashCode()
+    }
+}
+
+class EntityIds<T: EntityRef>(val entity: T) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as EntityIds<*>
+
+        if (!entity.equalIds(other.entity)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return entity.ids.hashCode()
+    }
+
+    override fun toString(): String {
+        return entity.ids.toString()
     }
 }

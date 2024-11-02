@@ -55,6 +55,14 @@ class MemDubberRepository: MemRepository<Dubber>(Dubber::class.java), DubberRepo
 }
 class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class.java), DubbedEntityRepository {
     override fun findMostCommonMovies(limit: Int): List<MovieRef> {
-        TODO("Not yet implemented")
+        return db.values.asSequence()
+            .filter { it.movie.id == null }
+            .map { EntityIds(it.movie) }
+            .groupingBy { it }
+            .eachCount()
+            .entries
+            .sortedByDescending { it.value }
+            .take(limit)
+            .map { it.key.entity }
     }
 }

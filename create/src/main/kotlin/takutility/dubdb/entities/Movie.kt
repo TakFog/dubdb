@@ -8,7 +8,9 @@ interface MovieRef: EntityRef {
 }
 
 class MovieRefImpl(name: String? = null, override val type: MovieType? = null, ids: SourceIds = SourceIds())
-    : BaseEntityRefImpl<Movie>(name, ids), MovieRef
+    : BaseEntityRefImpl<Movie>(name, ids), MovieRef {
+    override fun toString(): String = name ?: ids.toString()
+}
 
 fun movieRefOf(name: String? = null, type: MovieType? = null, ids: SourceIds = SourceIds()): MovieRef
     = MovieRefImpl(name, type, ids)
