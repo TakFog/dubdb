@@ -14,4 +14,7 @@ class DubbedEntity(
     override fun get(): DubbedEntity = this
     override fun toRef(): EntityRef = EntityRefImpl(name, ids.toMutable())
 
+    override fun toString(): String {
+        return "$name (${movie.name})"
+    }
 }

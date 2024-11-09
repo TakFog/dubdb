@@ -18,9 +18,9 @@ class TestContext(
 ) : DubDbContext {
 
     companion object {
-        fun mocked(init: (TestContext.() -> Unit)? = null): TestContext {
+        fun mocked(init: ((TestContext) -> Unit)? = null): TestContext {
             val ctx = TestContext(mock(), mock(), mock(), mock(), mock(), mock())
-            init?.let { ctx.apply(it) }
+            init?.let { ctx.also(it) }
             return ctx
         }
     }
