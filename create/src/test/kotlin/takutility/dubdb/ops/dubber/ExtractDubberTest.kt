@@ -42,33 +42,49 @@ internal class ExtractDubberTest {
     }
 
     @Test
-    fun angeloMaggi() {
-        val wikiTitle = "Angelo_Maggi"
-        val dubber = op.run(WikiPage(wikiTitle))
+    fun angeloMaggi_savedDubber() {
+        val dubber = op.run(WikiPage("Angelo_Maggi"))
 
         assertNotNull(dubber.id)
         val id = dubber.id!!
         val dbDubber = ctx.dubberDb.findById(id)
         assertEquals(dubber, dbDubber)
+    }
+
+    @Test
+    fun angeloMaggi_ids() {
+        val dubber = op.run(WikiPage("Angelo_Maggi"))
 
         val ids = SourceIds.of(
-            Source.WIKI to wikiTitle,
+            Source.WIKI to "Angelo_Maggi",
             Source.MONDO_DOPPIATORI to "doppiaggio/voci/vociamag.htm",
             Source.IMDB to "nm0535947",
             Source.WIKIDATA to "Q3617056",
             Source.WIKI_EN to "Angelo_Maggi",
         )
         ids.forEach { assertEquals(it, dubber.ids[it.source]) }
+    }
+
+    @Test
+    fun angeloMaggi_photo() {
+        val dubber = op.run(WikiPage("Angelo_Maggi"))
 
         assertEquals("Angelo_Maggi_20240113.jpg", dubber.ids[Source.WIKIMEDIA]?.id, "photo")
+    }
+
+    @Test
+    fun angeloMaggi_entities() {
+        val dubber = op.run(WikiPage("Angelo_Maggi"))
+
 
         val entities = dubEntityDb.db.values
         entities.forEach {
-            assertEquals(id, it.dubber?.id, "$it invalid dubber")
+            assertEquals(dubber.id, it.dubber?.id, "$it invalid dubber")
             assertEquals(1, it.sources.size, "$it entity source")
             assertEquals(dubber.wiki, it.sources[0].sourceId, "$it entity source id")
         }
-        assertEntity(entities, "Tom Hanks",
+        assertEntity(
+            entities, "Tom Hanks",
             "Lo schermo velato",
             "Cast Away",
             "Prova a prendermi",
@@ -90,13 +106,13 @@ internal class ExtractDubberTest {
         )
         assertEntity(entities, "Ted Levine", "Shutter Island")
         assertEntity(entities, "Jack Coleman", "Castle")
-        assertEntity(entities, "Ryo Nagare",
+        assertEntity(
+            entities, "Ryo Nagare",
             "Il Grande Mazinga contro Getta Robot",
             "Il Grande Mazinga contro Getta Robot G",
             "UFO Robot Goldrake, il Grande Mazinga e Getta Robot G contro il Dragosauro",
         )
         assertEntity(entities, "Guile", "Street Fighter II V")
-
     }
 }
 
