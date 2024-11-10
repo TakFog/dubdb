@@ -10,6 +10,8 @@ import java.security.MessageDigest
 
 interface WikiPageLoader {
 
+    fun page(title: String) = WikiPage(title, load(title))
+
     fun load(title: String): Document?
 
     fun setAsDefault() = WikiPageLoader.set(this)

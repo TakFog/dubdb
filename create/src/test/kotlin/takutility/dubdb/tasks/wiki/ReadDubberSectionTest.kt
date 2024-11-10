@@ -3,12 +3,12 @@ package takutility.dubdb.tasks.wiki
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPageLoader
 
 internal open class ReadDubberSectionBaseTest: WikiPageTest<ReadDubberSection>() {
-    override fun newTask(loader: WikiPageLoader) = ReadDubberSection(loader)
+    override fun newTask(context: DubDbContext) = ReadDubberSection(context)
 
     var dubber: DubberRef = DubberRefImpl()
 

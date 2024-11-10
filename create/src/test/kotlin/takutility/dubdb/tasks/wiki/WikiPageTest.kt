@@ -1,34 +1,23 @@
 package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import takutility.dubdb.DubDbContext
+import takutility.dubdb.TestContext
 import takutility.dubdb.entities.EntityRef
 import takutility.dubdb.entities.ImmutableSourceIds
 import takutility.dubdb.entities.Source
-import takutility.dubdb.wiki.CachedWikiPageLoader
-import takutility.dubdb.wiki.WikiPageLoader
 
 abstract class WikiPageTest<T: WikiPageTask> {
-    companion object {
-
-        private lateinit var loader: CachedWikiPageLoader
-
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            loader = CachedWikiPageLoader("src/test/resources/cache")
-        }
-    }
-
     protected lateinit var task: T
 
     @BeforeEach
     fun before() {
-        task = newTask(loader)
+        val context = TestContext.mocked()
+        task = newTask(context)
     }
 
-    abstract fun newTask(loader: WikiPageLoader): T
+    abstract fun newTask(context: DubDbContext): T
 
     fun assertWikimedia(entity: EntityRef?, expected: String? = null) {
         assertNotNull(entity, "missing entity")

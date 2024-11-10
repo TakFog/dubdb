@@ -2,10 +2,10 @@ package takutility.dubdb.tasks.wiki
 
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
 import takutility.dubdb.util.splitCharacter
-import takutility.dubdb.wiki.WikiPageLoader
 import takutility.dubdb.wiki.asWikiSourceId
 import java.util.regex.Pattern
 
@@ -23,7 +23,7 @@ private fun isActor(dataSource: DataSource) = when(dataSource) {
     else -> false
 }
 
-class ReadMovieInfobox(loader: WikiPageLoader): WikiPageTask(loader) {
+class ReadMovieInfobox(context: DubDbContext): WikiPageTask(context) {
 
     fun run(movie: MovieRef): TaskResult {
         val movieId = movie.wiki

@@ -1,20 +1,25 @@
 package takutility.dubdb.tasks.wiki
 
 import org.jsoup.nodes.Document
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceId
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPageLoader
+import takutility.dubdb.wiki.WikiPage
 
 private val EXTERNAL = listOf(Source.IMDB, Source.MONDO_DOPPIATORI)
 
 
-class ReadIds(loader: WikiPageLoader) : WikiPageTask(loader) {
+class ReadIds(context: DubDbContext) : WikiPageTask(context) {
 
     fun run(wikiSource: SourceId?): TaskResult {
-        val doc = load(wikiSource) ?: return TaskResult.empty
-        
+        return loadPage(wikiSource)?.let(this::run) ?: return TaskResult.empty
+    }
+
+    fun run(page: WikiPage): TaskResult {
+        val doc = page.doc ?: return TaskResult.empty
+
         val ids = SourceIds.mutable()
 
         loadWikidata(doc, ids)

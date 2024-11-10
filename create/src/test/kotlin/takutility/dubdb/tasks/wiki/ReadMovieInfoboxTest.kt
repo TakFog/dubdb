@@ -2,12 +2,12 @@ package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPageLoader
 
 internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
-    override fun newTask(loader: WikiPageLoader) = ReadMovieInfobox(loader)
+    override fun newTask(context: DubDbContext) = ReadMovieInfobox(context)
     fun run(title: String): TaskResult = task.run(movieRefOf(ids = SourceIds.of(Source.WIKI to title)))
 
     @Test

@@ -3,15 +3,15 @@ package takutility.dubdb.tasks.wiki
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.Source.*
 import takutility.dubdb.entities.SourceId
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPageLoader
 
 internal class ReadIdsTest: WikiPageTest<ReadIds>() {
 
-    override fun newTask(loader: WikiPageLoader) = ReadIds(loader)
+    override fun newTask(context: DubDbContext) = ReadIds(context)
     fun run(title: String): TaskResult = task.run(SourceId(WIKI, title))
 
     @Test

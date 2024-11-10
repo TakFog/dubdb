@@ -62,7 +62,22 @@ data class SourceId(
     fun toInt() = id.toIntOrNull()
 }
 
-open class ImmutableSourceIds(open val data: Map<Source, SourceId>) : Collection<SourceId> {
+interface AnySourceIds: Collection<SourceId> {
+    val data: Map<Source, SourceId>
+    fun containsAllSrc(sources: Collection<Source>): Boolean
+    operator fun contains(source: Source): Boolean
+    operator fun get(source: Source): SourceId?
+    fun getId(source: Source): String?
+    fun allMatch(other: AnySourceIds): Boolean
+    fun anyMatch(other: AnySourceIds): Boolean
+    fun toImmutable(): ImmutableSourceIds
+    /**
+     * Returns a mutable copy of this SourceIds
+     */
+    fun toMutable(): SourceIds
+}
+
+open class ImmutableSourceIds(override val data: Map<Source, SourceId>) : AnySourceIds {
 
     override val size: Int
         get() = data.size
@@ -73,35 +88,35 @@ open class ImmutableSourceIds(open val data: Map<Source, SourceId>) : Collection
 
     override fun containsAll(elements: Collection<SourceId>) = data.keys.containsAll(elements.map { it.source })
 
-    fun containsAllSrc(sources: Collection<Source>) = data.keys.containsAll(sources)
+    override fun containsAllSrc(sources: Collection<Source>) = data.keys.containsAll(sources)
 
     override fun contains(element: SourceId) = data.keys.contains(element.source)
 
-    operator fun contains(source: Source) = data.keys.contains(source)
+    override operator fun contains(source: Source) = data.keys.contains(source)
 
-    operator fun get(source: Source) = data[source]
+    override operator fun get(source: Source) = data[source]
 
-    fun getId(source: Source) = data[source]?.id
+    override fun getId(source: Source) = data[source]?.id
 
-    fun allMatch(other: ImmutableSourceIds): Boolean {
+    override fun allMatch(other: AnySourceIds): Boolean {
         if (isEmpty() || other.isEmpty()) return false
 
         return data.keys == other.data.keys
                 && data.all { e -> other.data[e.key]?.id == e.value.id }
     }
 
-    fun anyMatch(other: ImmutableSourceIds): Boolean {
+    override fun anyMatch(other: AnySourceIds): Boolean {
         if (isEmpty() || other.isEmpty()) return false
 
         return data.any { e -> other.data[e.key]?.id == e.value.id }
     }
 
-    open fun toImmutable(): ImmutableSourceIds = this
+    override fun toImmutable(): ImmutableSourceIds = this
 
     /**
      * Returns a mutable copy of this SourceIds
      */
-    open fun toMutable(): SourceIds = SourceIds(data.toMutableMap())
+    override fun toMutable(): SourceIds = SourceIds(data.toMutableMap())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -150,7 +165,7 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
         element?.let { data[it.source] = it }
     }
 
-    operator fun plusAssign(other: SourceIds) {
+    operator fun plusAssign(other: AnySourceIds) {
         data += other.data
     }
 

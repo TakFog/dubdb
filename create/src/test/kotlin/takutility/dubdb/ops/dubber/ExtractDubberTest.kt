@@ -2,7 +2,6 @@ package takutility.dubdb.ops.dubber
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import takutility.dubdb.DubDbContext
@@ -12,24 +11,11 @@ import takutility.dubdb.db.MemDubberRepository
 import takutility.dubdb.entities.DubbedEntity
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
-import takutility.dubdb.wiki.CachedWikiPageLoader
-import takutility.dubdb.wiki.WikiPage
 
 internal class ExtractDubberTest {
     lateinit var dubEntityDb: MemDubbedEntityRepository
     lateinit var ctx: DubDbContext
     lateinit var op: ExtractDubber
-
-    companion object {
-        private lateinit var loader: CachedWikiPageLoader
-
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            loader = CachedWikiPageLoader("src/test/resources/cache")
-            loader.setAsDefault()
-        }
-    }
 
     @BeforeEach
     fun setUp() {
@@ -43,7 +29,7 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_savedDubber() {
-        val dubber = op.run(WikiPage("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         assertNotNull(dubber.id)
         val id = dubber.id!!
@@ -53,7 +39,7 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_ids() {
-        val dubber = op.run(WikiPage("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         val ids = SourceIds.of(
             Source.WIKI to "Angelo_Maggi",
@@ -67,14 +53,14 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_photo() {
-        val dubber = op.run(WikiPage("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         assertEquals("Angelo_Maggi_20240113.jpg", dubber.ids[Source.WIKIMEDIA]?.id, "photo")
     }
 
     @Test
     fun angeloMaggi_entities() {
-        val dubber = op.run(WikiPage("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
 
         val entities = dubEntityDb.db.values
@@ -114,6 +100,9 @@ internal class ExtractDubberTest {
         )
         assertEntity(entities, "Guile", "Street Fighter II V")
     }
+
+    fun page(title: String) = ctx.wikiPageLoader.page(title)
+
 }
 
 fun assertEntity(entities: Collection<DubbedEntity>, name: String, vararg movies: String) {

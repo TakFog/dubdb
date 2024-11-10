@@ -2,16 +2,16 @@ package takutility.dubdb.tasks.wiki
 
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPageLoader
 import takutility.dubdb.wiki.asEntity
 import takutility.dubdb.wiki.asMovie
 
 private val SPLITS = listOf(" in ", " ne ")
 private val CHAR_SPLITS = setOf(",", "e")
 
-class ReadDubberSection(loader: WikiPageLoader): WikiPageTask(loader) {
+class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
 
     fun run(dubber: DubberRef): TaskResult {
         val pageId = dubber.wiki ?: return TaskResult.empty

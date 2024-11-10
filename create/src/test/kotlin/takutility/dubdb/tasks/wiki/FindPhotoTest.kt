@@ -2,13 +2,13 @@ package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPageLoader
 
 
 internal class FindPhotoTest: WikiPageTest<FindPhoto>() {
-    override fun newTask(loader: WikiPageLoader) = FindPhoto(loader)
+    override fun newTask(context: DubDbContext) = FindPhoto(context)
     fun run(name: String): TaskResult = task.run(EntityRefImpl(ids = SourceIds.of(Source.WIKI to name)))
 
     @Test
