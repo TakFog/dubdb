@@ -6,9 +6,8 @@ import takutility.dubdb.db.DubberRepository
 import takutility.dubdb.db.MovieRepository
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.WikiApi
-import takutility.dubdb.tasks.wiki.ReadDubberSection
-import takutility.dubdb.tasks.wiki.ReadIds
 import takutility.dubdb.wiki.WikiPageLoader
+import kotlin.reflect.KClass
 
 interface DubDbContext {
     val movieDb: MovieRepository
@@ -19,8 +18,7 @@ interface DubDbContext {
     val wikiApi: WikiApi
     val wikiPageLoader: WikiPageLoader
 
-    val readIds: ReadIds
-    val readDubberSection: ReadDubberSection
+    operator fun <T :Any> get(clazz: KClass<T>): T
 }
 
 open class DubDbContextBase(
@@ -32,6 +30,24 @@ open class DubDbContextBase(
     override val wikiApi: WikiApi,
     override val wikiPageLoader: WikiPageLoader,
 ): DubDbContext {
-    override val readIds by lazy { ReadIds(this) }
-    override val readDubberSection by lazy { ReadDubberSection(this) }
+    private val objects = HashMap<KClass<*>, Any>()
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(clazz: KClass<T>): T {
+        var inst = objects[clazz] as T?
+        if (inst == null) {
+            inst = createInstance(clazz)
+            objects[clazz] = inst
+        }
+        return inst
+    }
+
+    protected operator fun <T : Any> set(clazz: KClass<T>, value: T) {
+        objects[clazz] = value
+    }
+
+    private fun <T : Any> createInstance(clazz: KClass<T>): T = clazz.constructors
+            .find { c ->  c.parameters.size == 1 && c.parameters[0].type.classifier == DubDbContext::class}
+            ?.call(this)
+            ?: throw IllegalArgumentException("No suitable constructor found")
 }
