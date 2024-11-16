@@ -5,6 +5,7 @@ import takutility.dubdb.entities.*
 interface EntityRepository<E: Entity> {
 
     fun save(entity: E): E
+    fun save(entities: Iterable<E>): List<E> = entities.map(this::save)
 
     fun findById(dubdbId: String): E?
 

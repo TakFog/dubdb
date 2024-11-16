@@ -5,6 +5,7 @@ import org.jsoup.nodes.TextNode
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
+import takutility.dubdb.wiki.WikiPage
 import takutility.dubdb.wiki.asEntity
 import takutility.dubdb.wiki.asMovie
 
@@ -13,9 +14,14 @@ private val CHAR_SPLITS = setOf(",", "e")
 
 class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
 
-    fun run(dubber: DubberRef): TaskResult {
+    fun run(dubber: DubberRef): TaskResult = dubber.wiki
+        ?.let(this::loadPage)
+        ?.let { run(dubber, it) }
+        ?: TaskResult.empty
+
+    fun run(dubber: DubberRef, page: WikiPage): TaskResult {
         val pageId = dubber.wiki ?: return TaskResult.empty
-        val title = load(pageId.id)?.selectFirst("#Doppiaggio")
+        val title = page.doc?.selectFirst("#Doppiaggio")
             ?: return TaskResult.empty
 
         val entities = mutableListOf<DubbedEntity>()
@@ -51,7 +57,7 @@ class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
                                     dubber = dubber,
                                     movie = link.asMovie(),
                                     name = entity.name!!,
-                                    ids = entity.ids,
+                                    ids = entity.ids.toMutable(),
                                     sources = mutableListOf(RawData(pageId, DataSource.DUBBER, li.html()))
                                 )
                             )

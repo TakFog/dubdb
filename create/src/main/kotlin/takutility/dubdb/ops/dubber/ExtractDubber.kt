@@ -20,8 +20,13 @@ class ExtractDubber(val context: DubDbContext) {
         val ids = SourceIds.of(Source.WIKI to page.title)
         ids += context.readIds.run(page).sourceIds
 
-        return Dubber("",
-            ids = ids
-        )
+        val dubber = Dubber("", ids = ids)
+
+        context.dubberDb.save(dubber)
+
+        context.readDubberSection.run(dubber, page).dubbedEntities
+            ?.let(context.dubEntityDb::save)
+
+        return dubber
     }
 }

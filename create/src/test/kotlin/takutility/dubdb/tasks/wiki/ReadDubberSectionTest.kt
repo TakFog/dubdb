@@ -372,6 +372,7 @@ fun find(res: TaskResult, name: String, movie: String): DubbedEntity {
 
 fun assertEntity(res: TaskResult, dubber: DubberRef, name: String, linked: Boolean, vararg movies: String) {
     val entities = find(res, name)
+    entities.drop(1).forEach { assertNotSame(entities[0].ids, it.ids) }
     entities.forEach { assertEquals(dubber, it.dubber, it.name) }
     entities.forEach { assertEquals(entities[0].actor, it.actor, "$name actor refs") }
     if (linked)

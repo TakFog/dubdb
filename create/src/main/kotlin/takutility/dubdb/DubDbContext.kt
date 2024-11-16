@@ -6,6 +6,7 @@ import takutility.dubdb.db.DubberRepository
 import takutility.dubdb.db.MovieRepository
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.WikiApi
+import takutility.dubdb.tasks.wiki.ReadDubberSection
 import takutility.dubdb.tasks.wiki.ReadIds
 import takutility.dubdb.wiki.WikiPageLoader
 
@@ -19,6 +20,7 @@ interface DubDbContext {
     val wikiPageLoader: WikiPageLoader
 
     val readIds: ReadIds
+    val readDubberSection: ReadDubberSection
 }
 
 open class DubDbContextBase(
@@ -30,5 +32,6 @@ open class DubDbContextBase(
     override val wikiApi: WikiApi,
     override val wikiPageLoader: WikiPageLoader,
 ): DubDbContext {
-    override val readIds: ReadIds by lazy { ReadIds(this) }
+    override val readIds by lazy { ReadIds(this) }
+    override val readDubberSection by lazy { ReadDubberSection(this) }
 }

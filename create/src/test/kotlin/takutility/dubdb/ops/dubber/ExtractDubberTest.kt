@@ -62,7 +62,6 @@ internal class ExtractDubberTest {
     fun angeloMaggi_entities() {
         val dubber = op.run(page("Angelo_Maggi"))
 
-
         val entities = dubEntityDb.db.values
         entities.forEach {
             assertEquals(dubber.id, it.dubber?.id, "$it invalid dubber")
