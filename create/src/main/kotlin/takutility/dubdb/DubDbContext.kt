@@ -22,32 +22,58 @@ interface DubDbContext {
 }
 
 open class DubDbContextBase(
-    override val movieDb: MovieRepository,
-    override val actorDb: ActorRepository,
-    override val dubberDb: DubberRepository,
-    override val dubEntityDb: DubbedEntityRepository,
-    override val trakt: Trakt,
-    override val wikiApi: WikiApi,
-    override val wikiPageLoader: WikiPageLoader,
+    movieDb: MovieRepository,
+    actorDb: ActorRepository,
+    dubberDb: DubberRepository,
+    dubEntityDb: DubbedEntityRepository,
+    trakt: Trakt,
+    wikiApi: WikiApi,
+    wikiPageLoader: WikiPageLoader,
 ): DubDbContext {
-    private val objects = HashMap<KClass<*>, Any>()
+    private val objects = mutableMapOf<KClass<*>, Any>()
+
+    init {
+        objects[MovieRepository::class] = movieDb
+        objects[ActorRepository::class] = actorDb
+        objects[DubberRepository::class] = dubberDb
+        objects[DubbedEntityRepository::class] = dubEntityDb
+        objects[Trakt::class] = trakt
+        objects[WikiApi::class] = wikiApi
+        objects[WikiPageLoader::class] = wikiPageLoader
+    }
+
+    override val movieDb: MovieRepository
+        get() = get(MovieRepository::class)
+    override val actorDb: ActorRepository
+        get() = get(ActorRepository::class)
+    override val dubberDb: DubberRepository
+        get() = get(DubberRepository::class)
+    override val dubEntityDb: DubbedEntityRepository
+        get() = get(DubbedEntityRepository::class)
+    override val trakt: Trakt
+        get() = get(Trakt::class)
+    override val wikiApi: WikiApi
+        get() = get(WikiApi::class)
+    override val wikiPageLoader: WikiPageLoader
+        get() = get(WikiPageLoader::class)
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(clazz: KClass<T>): T {
-        var inst = objects[clazz] as T?
-        if (inst == null) {
-            inst = createInstance(clazz)
-            objects[clazz] = inst
-        }
-        return inst
+        return objects.getOrPut(clazz) { createInstance(clazz) } as T
     }
 
-    protected operator fun <T : Any> set(clazz: KClass<T>, value: T) {
+    protected operator fun contains(clazz: KClass<*>) = objects.contains(clazz)
+
+    protected open operator fun <T : Any> set(clazz: KClass<T>, value: T) {
         objects[clazz] = value
     }
 
-    private fun <T : Any> createInstance(clazz: KClass<T>): T = clazz.constructors
-            .find { c ->  c.parameters.size == 1 && c.parameters[0].type.classifier == DubDbContext::class}
+    private fun <T : Any> createInstance(clazz: KClass<T>): T {
+        return clazz.constructors
+            .find { constructor ->
+                constructor.parameters.size == 1 && constructor.parameters[0].type.classifier == DubDbContext::class
+            }
             ?.call(this)
-            ?: throw IllegalArgumentException("No suitable constructor found")
+            ?: throw IllegalArgumentException("No suitable constructor found for class: \${clazz.simpleName}")
+    }
 }

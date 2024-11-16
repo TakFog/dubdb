@@ -9,23 +9,56 @@ import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.WikiApi
 import takutility.dubdb.wiki.CachedWikiPageLoader
 import takutility.dubdb.wiki.WikiPageLoader
+import kotlin.reflect.KClass
 
 class TestContext(
-    override var movieDb: MovieRepository,
-    override var actorDb: ActorRepository,
-    override var dubberDb: DubberRepository,
-    override var dubEntityDb: DubbedEntityRepository,
-    override var trakt: Trakt,
-    override var wikiApi: WikiApi,
-    override var wikiPageLoader: WikiPageLoader
+    movieDb: MovieRepository,
+    actorDb: ActorRepository,
+    dubberDb: DubberRepository,
+    dubEntityDb: DubbedEntityRepository,
+    trakt: Trakt,
+    wikiApi: WikiApi,
+    wikiPageLoader: WikiPageLoader,
 ) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikiPageLoader) {
-
     companion object {
         fun mocked(init: ((TestContext) -> Unit)? = null): TestContext {
-            val wikiPageLoader = CachedWikiPageLoader("src/test/resources/cache")
-            val ctx = TestContext(mock(), mock(), mock(), mock(), mock(), mock(), wikiPageLoader)
+            val ctx = TestContext(
+                movieDb = mock(),
+                actorDb = mock(),
+                dubberDb = mock(),
+                dubEntityDb = mock(),
+                trakt = mock(),
+                wikiApi = mock(),
+                wikiPageLoader = CachedWikiPageLoader("src/test/resources/cache"),
+            )
             init?.let { ctx.also(it) }
             return ctx
         }
+    }
+
+    override var movieDb
+        get() = super.movieDb
+        set(value) = set(MovieRepository::class, value)
+    override var actorDb
+        get() = super.actorDb
+        set(value) = set(ActorRepository::class, value)
+    override var dubberDb
+        get() = super.dubberDb
+        set(value) = set(DubberRepository::class, value)
+    override var dubEntityDb
+        get() = super.dubEntityDb
+        set(value) = set(DubbedEntityRepository::class, value)
+    override var trakt
+        get() = super.trakt
+        set(value) = set(Trakt::class, value)
+    override var wikiApi
+        get() = super.wikiApi
+        set(value) = set(WikiApi::class, value)
+    override var wikiPageLoader
+        get() = super.wikiPageLoader
+        set(value) = set(WikiPageLoader::class, value)
+
+    public override fun <T : Any> set(clazz: KClass<T>, value: T) {
+        super.set(clazz, value)
     }
 }
