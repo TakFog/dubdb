@@ -20,4 +20,8 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     fun findMostCommonMovies(limit: Int): List<MovieRef>
     fun findMostCommonDubbers(limit: Int): List<DubberRef>
     fun findMostCommonActors(limit: Int): List<ActorRef>
+
+    fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int>
+    fun countDubber(dubber: DubberRef) = countDubbers(listOf(dubber))[dubber]
+
 }

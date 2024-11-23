@@ -180,6 +180,62 @@ internal abstract class DubbedEntityRepositoryTest<R: DubbedEntityRepository>: R
         assertEquals(actors[4].ids, result[1].ids)
         assertEquals(actors[0].ids, result[2].ids)
     }
+
+
+    @Test
+    fun countDubbers() {
+        val dubbers = listOf<DubberRef>(
+            /* 0 */ DubberRefImpl("Luca Ward", ids = SourceIds.of(WIKI to "Luca_Ward")),
+            /* 1 */ DubberRefImpl("Roberto Pedicini", ids = SourceIds.of(WIKI to "Roberto_Pedicini")),
+            /* 2 */ DubberRefImpl("Laura Boccanera", ids = SourceIds.of(WIKI to "Laura_Boccanera", DUBDB to "d2a1e3df-9396-4df9-822f-5497a2ad3164")),
+            /* 3 */ DubberRefImpl("Francesco Pannofino", ids = SourceIds.of(WIKI to "Francesco_Pannofino")),
+            /* 4 */ DubberRefImpl("Emanuela Rossi", ids = SourceIds.of(WIKI to "Emanuela_Rossi")),
+            /* 5 */ DubberRefImpl("Massimo Corvo", ids = SourceIds.of(WIKI to "Massimo_Corvo")),
+            /* 6 */ DubberRefImpl("Ilaria Stagni", ids = SourceIds.of(WIKI to "Ilaria_Stagni", DUBDB to "ac9bd1db-cf3a-40f3-8adc-b5f1218a3b29")),
+            /* 7 */ DubberRefImpl("Gil Baroni", ids = SourceIds.of(WIKI to "Gil_Baroni")),
+        )
+
+        val movie = Movie("Alice in Wonderland", ids = SourceIds.of(WIKI to "Alice_in_Wonderland"))
+
+        repo.save(DubbedEntity("Alan", movie, dubber = clone(dubbers[0])))
+        repo.save(DubbedEntity("Lilly", movie, dubber = clone(dubbers[5])))
+        repo.save(DubbedEntity("Leroi", movie, dubber = clone(dubbers[3])))
+        repo.save(DubbedEntity("Bridie", movie, dubber = clone(dubbers[4])))
+        repo.save(DubbedEntity("Cherrita", movie, dubber = clone(dubbers[3])))
+        repo.save(DubbedEntity("Lanie", movie, dubber = clone(dubbers[4])))
+        repo.save(DubbedEntity("Frieda", movie, dubber = clone(dubbers[0])))
+        repo.save(DubbedEntity("Shurwood", movie))
+        repo.save(DubbedEntity("Merilee", movie, dubber = clone(dubbers[2])))
+        repo.save(DubbedEntity("Des", movie, dubber = clone(dubbers[4])))
+        repo.save(DubbedEntity("Finlay", movie))
+        repo.save(DubbedEntity("Lane", movie, dubber = clone(dubbers[6])))
+        repo.save(DubbedEntity("Melisse", movie, dubber = clone(dubbers[0])))
+        repo.save(DubbedEntity("Amii", movie, dubber = clone(dubbers[6])))
+        repo.save(DubbedEntity("Marie-ann", movie, dubber = clone(dubbers[3])))
+        repo.save(DubbedEntity("Lincoln", movie, dubber = clone(dubbers[4])))
+        repo.save(DubbedEntity("Ewan", movie))
+        repo.save(DubbedEntity("Briny", movie, dubber = clone(dubbers[1])))
+        repo.save(DubbedEntity("Silva", movie, dubber = clone(dubbers[2])))
+        repo.save(DubbedEntity("Moises", movie, dubber = clone(dubbers[6])))
+        repo.save(DubbedEntity("Trent", movie))
+        repo.save(DubbedEntity("Udale", movie, dubber = clone(dubbers[3])))
+        repo.save(DubbedEntity("Rania", movie, dubber = clone(dubbers[6])))
+        repo.save(DubbedEntity("Wyatt", movie, dubber = clone(dubbers[6])))
+        repo.save(DubbedEntity("Inna", movie, dubber = clone(dubbers[3])))
+
+        val result = repo.countDubbers(dubbers)
+
+        assertEquals(5, result[dubbers[3]], dubbers[3].name)
+        assertEquals(5, result[dubbers[6]], dubbers[6].name)
+        assertEquals(4, result[dubbers[4]], dubbers[4].name)
+        assertEquals(3, result[dubbers[0]], dubbers[0].name)
+        assertEquals(2, result[dubbers[2]], dubbers[2].name)
+        assertEquals(1, result[dubbers[1]], dubbers[1].name)
+        assertEquals(1, result[dubbers[5]], dubbers[5].name)
+        assertEquals(0, result[dubbers[7]], dubbers[7].name)
+        assertEquals(dubbers.size, result.size)
+    }
+
 }
 
 fun clone(movie: MovieRef) = movieRefOf(name = movie.name, type = movie.type, ids = movie.ids.toMutable())

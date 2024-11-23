@@ -71,4 +71,8 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun findMostCommonMovies(limit: Int) = findMostCommon(limit) { it.movie }
     override fun findMostCommonDubbers(limit: Int) = findMostCommon(limit) { it.dubber }
     override fun findMostCommonActors(limit: Int) = findMostCommon(limit) { it.actor }
+
+    override fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int> {
+        TODO("Not yet implemented")
+    }
 }
