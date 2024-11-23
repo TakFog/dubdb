@@ -21,6 +21,8 @@ interface DubDbContext {
     operator fun <T :Any> get(clazz: KClass<T>): T
 }
 
+inline fun <reified T : kotlin.Any> DubDbContext.m(): T = get(T::class)
+
 open class DubDbContextBase(
     movieDb: MovieRepository,
     actorDb: ActorRepository,
