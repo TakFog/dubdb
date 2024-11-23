@@ -1,5 +1,6 @@
 package takutility.dubdb.tasks.wikiapi
 
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.Dubber
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
@@ -7,9 +8,10 @@ import takutility.dubdb.service.WikiApi
 import java.time.LocalDate
 import java.time.ZoneOffset
 
-class DubbersFromCategory(private val api: WikiApi, val limit: Int) {
+class DubbersFromCategory(context: DubDbContext) {
+    private val api: WikiApi = context.wikiApi
 
-    fun run(): List<Dubber> {
+    fun run(limit: Int): List<Dubber> {
         return api.dubbersFromCat(limit).queryValue()
             .map { Dubber(
                 name = cleanWikiTitle(it.title),

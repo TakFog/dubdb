@@ -76,6 +76,6 @@ open class DubDbContextBase(
                 constructor.parameters.size == 1 && constructor.parameters[0].type.classifier == DubDbContext::class
             }
             ?.call(this)
-            ?: throw IllegalArgumentException("No suitable constructor found for class: \${clazz.simpleName}")
+            ?: throw IllegalArgumentException("No suitable constructor found for class: ${clazz.simpleName}")
     }
 }

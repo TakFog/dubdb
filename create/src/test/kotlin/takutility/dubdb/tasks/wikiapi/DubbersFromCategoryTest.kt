@@ -6,6 +6,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import takutility.dubdb.TestContext
 import takutility.dubdb.service.CategoryMember
 import takutility.dubdb.service.CategoryMemberResponse
 import takutility.dubdb.service.WikiApi
@@ -23,8 +24,9 @@ internal class DubbersFromCategoryTest {
                 CategoryMember(1224733, "Riccardo Garrone (attore)", Instant.parse("2024-07-18T19:01:25Z")),
             ))))
         }
+        val context = TestContext.mocked { it.wikiApi = api }
 
-        val result = DubbersFromCategory(api, 3).run()
+        val result = DubbersFromCategory(context).run(3)
 
         verify(api).dubbersFromCat(3)
         assertEquals(3, result.size)
