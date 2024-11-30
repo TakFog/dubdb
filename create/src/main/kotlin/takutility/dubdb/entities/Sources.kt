@@ -70,6 +70,7 @@ interface AnySourceIds: Collection<SourceId> {
     fun getId(source: Source): String?
     fun allMatch(other: AnySourceIds): Boolean
     fun anyMatch(other: AnySourceIds): Boolean
+    fun noMismatch(other: AnySourceIds): Boolean
     fun toImmutable(): ImmutableSourceIds
     /**
      * Returns a mutable copy of this SourceIds
@@ -109,6 +110,12 @@ open class ImmutableSourceIds(override val data: Map<Source, SourceId>) : AnySou
         if (isEmpty() || other.isEmpty()) return false
 
         return data.any { e -> other.data[e.key]?.id == e.value.id }
+    }
+
+    override fun noMismatch(other: AnySourceIds): Boolean {
+        if (isEmpty() || other.isEmpty()) return true
+
+        return data.none { e -> e.key in other.data && other.data[e.key]?.id != e.value.id }
     }
 
     override fun toImmutable(): ImmutableSourceIds = this

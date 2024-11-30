@@ -29,6 +29,11 @@ interface EntityRef {
         if (other == null) return false
         return ids == other.ids
     }
+    fun matches(other: EntityRef): Boolean {
+        if (id != null && other.id != null)
+            return id == other.id
+        return ids.anyMatch(other.ids) && ids.noMismatch(other.ids)
+    }
 }
 
 abstract class BaseEntityRefImpl<E: EntityRef>(
@@ -51,6 +56,10 @@ abstract class BaseEntityRefImpl<E: EntityRef>(
 
     override fun hashCode(): Int {
         return ids.hashCode()
+    }
+
+    override fun toString(): String {
+        return "$name ($ids)"
     }
 }
 

@@ -1,5 +1,6 @@
 package takutility.dubdb.db
 
+import okhttp3.internal.toImmutableMap
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.json.JsonReader
@@ -73,6 +74,13 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun findMostCommonActors(limit: Int) = findMostCommon(limit) { it.actor }
 
     override fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int> {
-        TODO("Not yet implemented")
+        val map: MutableMap<DubberRef, Int> = dubbers.associateWithTo(mutableMapOf()) { 0 }
+
+        db.values.asSequence()
+            .mapNotNull { it.dubber }
+            .flatMap { d -> dubbers.filter { d.matches(it) } }
+            .forEach { map[it] = map.getOrDefault(it, 0) + 1 }
+
+        return map.toImmutableMap()
     }
 }
