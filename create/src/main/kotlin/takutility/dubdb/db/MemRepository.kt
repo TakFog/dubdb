@@ -58,12 +58,15 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
 
     override fun findById(dubdbId: String): E? = db[dubdbId]
 
-    override fun findBySource(id: SourceId): List<E> {
-        TODO("Not yet implemented")
-    }
+    override fun findBySource(id: SourceId): List<E> = db.values.filter { it.ids.containsId(id) }
 
     override fun findBySources(ids: SourceIds): List<E> {
-        TODO("Not yet implemented")
+        if (Source.IMDB in ids) return findBySource(ids[Source.IMDB]!!)
+        if (Source.WIKIDATA in ids) return findBySource(ids[Source.WIKIDATA]!!)
+
+        val subIds = SourceIds.of(ids
+            .filter { it.source in listOf<Source>(Source.WIKI, Source.WIKI_EN, Source.WIKI_MISSING) })
+        return db.values.filter { it.ids.noMismatch(subIds) }
     }
 }
 

@@ -10,7 +10,7 @@ class Dubbers(val context: DubDbContext) {
     fun run(num: Int) {
         var dubbers = context.dubEntityDb.findMostCommonDubbers(num)
         if (notEnoughDubbers(num, dubbers)) {
-            context.m<DubbersFromCategory>().run(num)
+            context.dubberDb.save(context.m<DubbersFromCategory>().run(num))
             dubbers = context.dubberDb.findMostRecent(num)
             val pop = context.dubEntityDb.countDubbers(dubbers)
             dubbers = dubbers.sortedByDescending { pop.getOrDefault(it, 0) }

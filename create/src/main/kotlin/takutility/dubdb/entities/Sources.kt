@@ -68,6 +68,7 @@ interface AnySourceIds: Collection<SourceId> {
     operator fun contains(source: Source): Boolean
     operator fun get(source: Source): SourceId?
     fun getId(source: Source): String?
+    fun containsId(sourceId: SourceId): Boolean
     fun allMatch(other: AnySourceIds): Boolean
     fun anyMatch(other: AnySourceIds): Boolean
     fun noMismatch(other: AnySourceIds): Boolean
@@ -98,6 +99,8 @@ open class ImmutableSourceIds(override val data: Map<Source, SourceId>) : AnySou
     override operator fun get(source: Source) = data[source]
 
     override fun getId(source: Source) = data[source]?.id
+
+    override fun containsId(sourceId: SourceId): Boolean = sourceId == data[sourceId.source]
 
     override fun allMatch(other: AnySourceIds): Boolean {
         if (isEmpty() || other.isEmpty()) return false
