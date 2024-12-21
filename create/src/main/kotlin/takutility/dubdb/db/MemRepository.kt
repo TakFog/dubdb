@@ -8,10 +8,26 @@ import org.bson.json.JsonWriter
 import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.*
 import java.io.Writer
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
 
 open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepository<E> {
     val db = mutableMapOf<String, E>()
+
+    fun saveToFile(file: Path) {
+        if (db.isEmpty()) {
+            Files.deleteIfExists(file)
+            return
+        }
+        Files.createDirectories(file)
+        Files.newBufferedWriter(file).use(this::saveToJson)
+    }
+
+    fun loadFromFile(file: Path) {
+        if (Files.exists(file))
+            loadFromJson(Files.readAllLines(file))
+    }
 
     fun loadFromJson(jsons: List<String>) {
         val codec = codecRegistry.get(type)
@@ -41,6 +57,14 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
     }
 
     override fun findById(dubdbId: String): E? = db[dubdbId]
+
+    override fun findBySource(id: SourceId): List<E> {
+        TODO("Not yet implemented")
+    }
+
+    override fun findBySources(ids: SourceIds): List<E> {
+        TODO("Not yet implemented")
+    }
 }
 
 class MemMovieRepository: MemRepository<Movie>(Movie::class.java), MovieRepository

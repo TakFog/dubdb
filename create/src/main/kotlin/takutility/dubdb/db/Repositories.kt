@@ -8,7 +8,9 @@ interface EntityRepository<E: Entity> {
     fun save(entities: Iterable<E>): List<E> = entities.map(this::save)
 
     fun findById(dubdbId: String): E?
-
+    fun findBySource(id: SourceId): List<E>
+    fun findBySources(ids: SourceIds): List<E>
+    fun findBySources(entity: Entity) = findBySources(entity.ids)
 }
 
 interface MovieRepository: EntityRepository<Movie>
