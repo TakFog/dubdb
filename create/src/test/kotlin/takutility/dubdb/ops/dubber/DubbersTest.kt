@@ -37,7 +37,6 @@ internal class DubbersTest {
 
         verify(ctx.dubEntityDb).findMostCommonDubbers(size)
         verify(ctx.m<DubbersFromCategory>(), never()).run(size)
-        verify(ctx.dubberDb, never()).findMostRecent(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
         verify(extractDubber, times(size)).run(any())
@@ -52,17 +51,15 @@ internal class DubbersTest {
         val pages = dubbers2pages(mostRecent)
 
         whenever(ctx.dubEntityDb.findMostCommonDubbers(any())).thenReturn(IntRange(0, size - 2).map { mock<DubberRef>() }.toList())
-        whenever(ctx.dubberDb.findMostRecent(any())).thenReturn(mostRecent)
+        whenever(ctx.m<DubbersFromCategory>().run(any())).thenReturn(mostRecent)
 
         op.run(size)
 
         verify(ctx.dubEntityDb).findMostCommonDubbers(size)
         verify(ctx.dubEntityDb, never()).countDubber(any())
         verify(ctx.m<DubbersFromCategory>()).run(size)
-        verify(ctx.dubberDb).findMostRecent(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).run(any())
         val inOrder = inOrder(extractDubber)
         mostRecent.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
     }
@@ -83,7 +80,7 @@ internal class DubbersTest {
         val pages = dubbers2pages(mostRecent)
 
         whenever(ctx.dubEntityDb.findMostCommonDubbers(any())).thenReturn(mostCommon)
-        whenever(ctx.dubberDb.findMostRecent(any())).thenReturn(mostRecent)
+        whenever(ctx.m<DubbersFromCategory>().run(any())).thenReturn(mostRecent)
         whenever(ctx.dubEntityDb.countDubber(any())).thenReturn(500)
         whenever(ctx.dubEntityDb.countDubber(mostCommon.last())).thenReturn(9)
         whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(mapOf(
@@ -102,7 +99,6 @@ internal class DubbersTest {
 
         verify(ctx.dubEntityDb).findMostCommonDubbers(size)
         verify(ctx.m<DubbersFromCategory>()).run(size)
-        verify(ctx.dubberDb).findMostRecent(size)
         verify(ctx.m<ExtractDubber>(), times(size)).run(any())
 
         val extractDubber = ctx.m<ExtractDubber>()
@@ -127,7 +123,7 @@ internal class DubbersTest {
         val pages = dubbers2pages(mostRecent)
 
         whenever(ctx.dubEntityDb.findMostCommonDubbers(any())).thenReturn(mostCommon)
-        whenever(ctx.dubberDb.findMostRecent(any())).thenReturn(mostRecent)
+        whenever(ctx.m<DubbersFromCategory>().run(any())).thenReturn(mostRecent)
         whenever(ctx.dubEntityDb.countDubber(any())).thenReturn(500)
         whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(mapOf(
             reordered[0] to 1000,
@@ -145,7 +141,6 @@ internal class DubbersTest {
 
         verify(ctx.dubEntityDb).findMostCommonDubbers(size)
         verify(ctx.m<DubbersFromCategory>()).run(size)
-        verify(ctx.dubberDb).findMostRecent(size)
         verify(ctx.m<ExtractDubber>(), times(size)).run(any())
 
         val extractDubber = ctx.m<ExtractDubber>()
@@ -161,13 +156,12 @@ internal class DubbersTest {
         val pages = dubbers2pages(mostRecent)
 
         whenever(ctx.dubEntityDb.findMostCommonDubbers(any())).thenReturn(listOf())
-        whenever(ctx.dubberDb.findMostRecent(any())).thenReturn(mostRecent)
+        whenever(ctx.m<DubbersFromCategory>().run(any())).thenReturn(mostRecent)
 
         op.run(size)
 
         verify(ctx.dubEntityDb).findMostCommonDubbers(size)
         verify(ctx.m<DubbersFromCategory>()).run(size)
-        verify(ctx.dubberDb).findMostRecent(size)
         verify(ctx.m<ExtractDubber>(), times(mostRecent.size)).run(any())
         mostRecent.forEach { verify(ctx.m<ExtractDubber>()).run(pages[it.wikiId]!!) }
     }

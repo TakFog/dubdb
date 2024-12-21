@@ -14,6 +14,7 @@ class ExtractDubber(val context: DubDbContext) {
     fun run(page: WikiPage): Dubber {
         /*
         Leggi id wiki
+        Leggi titolo wiki
         Leggi pagina wiki
         Leggi foto wiki
         Salva doppiatore
