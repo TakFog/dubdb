@@ -24,7 +24,7 @@ class ExtractDubber(val context: DubDbContext) {
         val ids = SourceIds.of(Source.WIKI to page.title)
         ids += context[ReadIds::class].run(page).sourceIds
 
-        val dubber = Dubber("", ids = ids)
+        val dubber = getDubber(ids)
         dubber.ids += context[FindPhoto::class].run(dubber).sourceIds
 
         context.dubberDb.save(dubber)
@@ -33,5 +33,17 @@ class ExtractDubber(val context: DubDbContext) {
             ?.let(context.dubEntityDb::save)
 
         return dubber
+    }
+
+    private fun getDubber(ids: SourceIds): Dubber {
+        val results = context.dubberDb.findBySources(ids)
+
+        return if (results.size == 1) {
+            val found = results[0]
+            found.ids += ids
+            found
+        } else {
+            Dubber("", ids = ids)
+        }
     }
 }

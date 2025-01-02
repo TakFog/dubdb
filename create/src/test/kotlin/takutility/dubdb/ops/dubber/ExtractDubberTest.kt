@@ -9,10 +9,12 @@ import takutility.dubdb.TestContext
 import takutility.dubdb.db.MemDubbedEntityRepository
 import takutility.dubdb.db.MemDubberRepository
 import takutility.dubdb.entities.DubbedEntity
+import takutility.dubdb.entities.Dubber
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
 
 internal class ExtractDubberTest {
+    lateinit var dubberDb: MemDubberRepository
     lateinit var dubEntityDb: MemDubbedEntityRepository
     lateinit var ctx: DubDbContext
     lateinit var op: ExtractDubber
@@ -20,8 +22,9 @@ internal class ExtractDubberTest {
     @BeforeEach
     fun setUp() {
         dubEntityDb = MemDubbedEntityRepository()
+        dubberDb = MemDubberRepository()
         ctx = TestContext.mocked {
-            it.dubberDb = MemDubberRepository()
+            it.dubberDb = dubberDb
             it.dubEntityDb = dubEntityDb
         }
         op = ExtractDubber(ctx)
@@ -31,6 +34,24 @@ internal class ExtractDubberTest {
     fun angeloMaggi_savedDubber() {
         val dubber = op.run(page("Angelo_Maggi"))
 
+        assertNotNull(dubber.id)
+        val id = dubber.id!!
+        val dbDubber = ctx.dubberDb.findById(id)
+        assertEquals(dubber, dbDubber)
+    }
+
+    @Test
+    fun angeloMaggi_updateDubber() {
+        val name = "Angelo Maggi Test"
+        val title = "Angelo_Maggi"
+
+        val old = dubberDb.save(Dubber(name, ids = SourceIds.of(Source.WIKI to title, Source.TRAKT to "angelo-maggi")))
+        val oldIds = old.ids.toImmutable()
+
+        val dubber = op.run(page(title))
+
+        oldIds.forEach { assertEquals(it, dubber.ids[it.source], "old ${it.source}") }
+        assertEquals(name, dubber.name)
         assertNotNull(dubber.id)
         val id = dubber.id!!
         val dbDubber = ctx.dubberDb.findById(id)
