@@ -149,6 +149,21 @@ internal abstract class RepositoryTest<E: Entity, R: EntityRepository<E>> {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("sourceMissingGenerator")
+    fun findBySources_missing(missingSource: Source, source: Source, otherSources: Array<Source>) {
+        val values = initRepo(source, *otherSources)
+        val ids = SourceIds.mutable()
+        values.values.flatten().forEach { ids += it.ids }
+        ids[missingSource] = "missing-value"
+
+        values.forEach { (k, entities) ->
+            ids[source] = k
+            val found = repo.findBySources(ids).sortedBy { it.name }
+            assertEquals(entities, found, k)
+        }
+    }
+
     @Test
     fun findBySources_duplicated() {
         val entity1 = newEntity(name = "e1", ids = SourceIds.of(Source.WIKI to "wiki", Source.WIKI_EN to "wikien"))
@@ -166,10 +181,18 @@ internal abstract class RepositoryTest<E: Entity, R: EntityRepository<E>> {
 
     companion object {
         @JvmStatic
-        fun sourceGenerator() = Stream.of(
+        fun sourceGenerator(): Stream<Arguments> = Stream.of(
+            Arguments.of(Source.TRAKT, arrayOf(Source.WIKI, Source.WIKI_EN, Source.IMDB, Source.WIKIDATA)),
             Arguments.of(Source.IMDB, arrayOf(Source.WIKI, Source.WIKI_EN, Source.WIKIDATA)),
             Arguments.of(Source.WIKIDATA, arrayOf(Source.WIKI, Source.WIKI_EN)),
             Arguments.of(Source.WIKI, arrayOf(Source.MONDO_DOPPIATORI)),
+        )
+
+        @JvmStatic
+        fun sourceMissingGenerator(): Stream<Arguments> = Stream.of(
+            Arguments.of(Source.TRAKT, Source.IMDB, arrayOf(Source.WIKI, Source.WIKI_EN, Source.WIKIDATA)),
+            Arguments.of(Source.IMDB, Source.WIKIDATA, arrayOf(Source.WIKI, Source.WIKI_EN)),
+            Arguments.of(Source.WIKIDATA, Source.WIKI, arrayOf(Source.MONDO_DOPPIATORI)),
         )
     }
 

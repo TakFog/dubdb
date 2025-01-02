@@ -61,11 +61,14 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
     override fun findBySource(id: SourceId): List<E> = db.values.filter { it.ids.containsId(id) }
 
     override fun findBySources(ids: SourceIds): List<E> {
-        if (Source.IMDB in ids) return findBySource(ids[Source.IMDB]!!)
-        if (Source.WIKIDATA in ids) return findBySource(ids[Source.WIKIDATA]!!)
+        sequenceOf(Source.TRAKT, Source.IMDB, Source.WIKIDATA)
+            .filter { it in ids }
+            .map { findBySource(ids[it]!!) }
+            .filter { it.isNotEmpty() }
+            .firstOrNull()?.let { return it }
 
         val subIds = SourceIds.of(ids
-            .filter { it.source in listOf<Source>(Source.WIKI, Source.WIKI_EN, Source.WIKI_MISSING) })
+            .filter { it.source in listOf(Source.WIKI, Source.WIKI_EN, Source.WIKI_MISSING) })
         return db.values.filter { it.ids.noMismatch(subIds) }
     }
 }
