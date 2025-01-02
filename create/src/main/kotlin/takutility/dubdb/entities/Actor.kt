@@ -1,5 +1,7 @@
 package takutility.dubdb.entities
 
+import java.time.Instant
+
 interface ActorRef: EntityRef {
     override fun get(): Actor?
     override fun toRef(): ActorRef = ActorRefImpl(name, ids.toMutable())
@@ -11,8 +13,8 @@ class ActorRefImpl(name: String? = null, ids: SourceIds = SourceIds())
 class Actor(
     name: String,
     ids: SourceIds = SourceIds(),
-    parsed: Boolean = false,
+    parseTs: Instant? = null,
     sources: MutableList<RawData> = mutableListOf()
-): ActorRef, Entity(name, ids, parsed, sources) {
+): ActorRef, Entity(name, ids, parseTs, sources) {
     override fun get(): Actor = this
 }

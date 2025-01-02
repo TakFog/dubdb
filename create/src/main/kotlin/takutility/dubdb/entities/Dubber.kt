@@ -1,5 +1,6 @@
 package takutility.dubdb.entities
 
+import java.time.Instant
 import java.time.LocalDate
 
 interface DubberRef: EntityRef {
@@ -14,8 +15,8 @@ class Dubber(
     name: String,
     ids: SourceIds = SourceIds(),
     var lastUpdate: LocalDate? = null,
-    parsed: Boolean = false,
+    parseTs: Instant? = null,
     sources: MutableList<RawData> = mutableListOf()
-): DubberRef, Entity(name, ids, parsed, sources) {
+): DubberRef, Entity(name, ids, parseTs, sources) {
     override fun get(): Dubber = this
 }

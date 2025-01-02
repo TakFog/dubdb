@@ -1,6 +1,7 @@
 package takutility.dubdb.entities
 
 import takutility.dubdb.util.bow
+import java.time.Instant
 
 interface EntityRef {
     val name: String?
@@ -74,10 +75,16 @@ class EntityRefImpl(name: String? = null, ids: SourceIds = SourceIds()): BaseEnt
 abstract class Entity(
     final override var name: String,
     override val ids: SourceIds = SourceIds(),
-    var parsed: Boolean = false,
+    var parseTs: Instant? = null,
     val sources: MutableList<RawData> = mutableListOf(),
 ): EntityRef {
     val tokens: List<String> = bow(name).toList()
+
+    var parsed: Boolean
+        get() = parseTs != null
+        set(value) {
+            parseTs = if (value) Instant.now() else null
+        }
 
     override fun toString(): String {
         return name
@@ -90,7 +97,7 @@ abstract class Entity(
         other as Entity
 
         if (name != other.name) return false
-        if (parsed != other.parsed) return false
+        if (parseTs != other.parseTs) return false
         if (ids != other.ids) return false
         if (sources != other.sources) return false
 

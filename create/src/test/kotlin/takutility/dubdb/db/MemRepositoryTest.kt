@@ -4,12 +4,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import takutility.dubdb.assertRefEquals
 import takutility.dubdb.entities.*
+import java.time.Instant
 
 internal class MemMovieRepositoryTest: RepositoryTest<Movie, MemMovieRepository>() {
     override fun newRepo() = MemMovieRepository()
 
     override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = Movie(
-        name = name, ids = ids, parsed = parsed, sources = sources
+        name = name, ids = ids, parseTs = if (parsed) Instant.now() else null, sources = sources
     )
 
     @Test
@@ -19,7 +20,7 @@ internal class MemMovieRepositoryTest: RepositoryTest<Movie, MemMovieRepository>
             type = MovieType.MOVIE,
             year = 2014,
             ids = SourceIds.of(Source.WIKI to "Wiki_Name"),
-            parsed = true,
+            parseTs = Instant.now(),
             sources = mutableListOf(RawData(SourceId(Source.WIKI, "Wiki_src"), DataSource.MOVIE_DUB, "raw text"))
         ))
     }
@@ -29,13 +30,13 @@ internal class MemMovieRepositoryTest: RepositoryTest<Movie, MemMovieRepository>
         val saved = save(Movie(
             "name",
             ids = SourceIds.of(Source.WIKI to "Wiki_Name"),
-            parsed = false,
+            parseTs = null,
             sources = mutableListOf(RawData(SourceId(Source.WIKI_EN, "En_wiki"), DataSource.MOVIE_DUB, "raw text"))
         ))
         saved.type = MovieType.SERIES
         saved.year = 2019
         saved.ids[Source.TRAKT] = 123456
-        saved.parsed = true
+        saved.parseTs = Instant.now()
         saved.sources.add(RawData(SourceId(Source.WIKI, "Wiki_dub"), DataSource.DUBBER, "raw dub text"))
 
         save(saved)
@@ -58,7 +59,7 @@ internal class MemActorRepositoryTest: RepositoryTest<Actor, MemActorRepository>
     override fun newRepo() = MemActorRepository()
 
     override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = Actor(
-        name = name, ids = ids, parsed = parsed, sources = sources
+        name = name, ids = ids, parseTs = if (parsed) Instant.now() else null, sources = sources
     )
 }
 
@@ -77,7 +78,7 @@ internal class MemDubbedEntityRepositoryTest: DubbedEntityRepositoryTest<MemDubb
             dubber = DubberRefImpl("dubber", SourceIds.of(Source.MONDO_DOPPIATORI to "voci/dub")),
             actor = ActorRefImpl("actor", SourceIds.of(Source.WIKI_EN to "Wiki_actor")),
             ids = SourceIds.of(Source.WIKI to "Wiki_Name"),
-            parsed = true,
+            parseTs = Instant.now(),
             sources = mutableListOf(RawData(SourceId(Source.WIKI, "Wiki_src"), DataSource.MOVIE_DUB, "raw text"))
         ))
     }
@@ -88,13 +89,13 @@ internal class MemDubbedEntityRepositoryTest: DubbedEntityRepositoryTest<MemDubb
             "name",
             movie = movieRefOf("movie", MovieType.SERIES, SourceIds.of(Source.TRAKT to "12345")),
             ids = SourceIds.of(Source.WIKI to "Wiki_Name"),
-            parsed = false,
+            parseTs = null,
             sources = mutableListOf(RawData(SourceId(Source.WIKI_EN, "En_wiki"), DataSource.MOVIE_DUB, "raw text"))
         ))
         saved.dubber = DubberRefImpl("dubber", SourceIds.of(Source.MONDO_DOPPIATORI to "voci/dub"))
         saved.actor = ActorRefImpl("actor", SourceIds.of(Source.WIKI_EN to "Wiki_actor"))
         saved.ids[Source.TRAKT] = 123456
-        saved.parsed = true
+        saved.parseTs = Instant.now()
         saved.sources.add(RawData(SourceId(Source.WIKI, "Wiki_dub"), DataSource.DUBBER, "raw dub text"))
 
         save(saved)

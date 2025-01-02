@@ -1,5 +1,7 @@
 package takutility.dubdb.entities
 
+import java.time.Instant
+
 class DubbedEntity(
     name: String,
     var movie: MovieRef,
@@ -7,10 +9,10 @@ class DubbedEntity(
     var dubber: DubberRef? = null,
     var actor: ActorRef? = null,
     ids: SourceIds = SourceIds(),
-    parsed: Boolean = false,
+    parseTs: Instant? = null,
     sources: MutableList<RawData> = mutableListOf(),
     //DubAttributes
-): Entity(name, ids, parsed, sources) {
+): Entity(name, ids, parseTs, sources) {
     override fun get(): DubbedEntity = this
     override fun toRef(): EntityRef = EntityRefImpl(name, ids.toMutable())
 

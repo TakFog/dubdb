@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.*
 import java.io.StringWriter
+import java.time.Instant
 
 internal class ActorCodecTest {
     lateinit var codec: ActorCodec
@@ -27,13 +28,14 @@ internal class ActorCodecTest {
 
     @Test
     fun encode() {
+        val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
         val actor = Actor(
             name = "test name",
             ids = SourceIds.of(
                 Source.TRAKT to "123456",
                 Source.WIKI to "Wiki_Name",
             ),
-            parsed = true,
+            parseTs = parseTs,
             sources = mutableListOf(
                 RawData(SourceId(Source.WIKI, "MovieName"), DataSource.MOVIE_ORIG, "test raw data")
             )
@@ -41,7 +43,7 @@ internal class ActorCodecTest {
         codec.encode(w, actor, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parsed": true,"""
+            """{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},"""
                 +""" "sources": [{"source": "WIKI", "sourceId": "MovieName", "dataSource": "MOVIE_ORIG","""
                 +""" "raw": "test raw data"}]}""",
             jsonWriter.toString()
@@ -54,7 +56,7 @@ internal class ActorCodecTest {
         codec.encode(w, actor, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"name": "test name", "parsed": false}""",
+            """{"name": "test name"}""",
             jsonWriter.toString()
         )
     }
@@ -68,15 +70,16 @@ internal class ActorCodecTest {
         codec.encode(w, actor, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"_id": {"$oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"}, "parsed": false}""",
+            """{"_id": {"$oid": "85786d0cd431d8a82be616e6"}, "name": "test name", "ids": {"WIKI": "Wiki_Name"}}""",
             jsonWriter.toString()
         )
     }
 
     @Test
     fun decode() {
+        val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
         val decoded = codec.decode(
-            JsonReader("""{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parsed": true, 
+            JsonReader("""{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)}, 
                 "sources": [{"source": "WIKI", "sourceId": "MovieName", "dataSource": "MOVIE_ORIG",
                 "raw": "test raw data"}]}"""),
             DecoderContext.builder().build())
@@ -84,6 +87,7 @@ internal class ActorCodecTest {
         assertEquals("test name", decoded.name)
         assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded.ids)
         assertEquals(true, decoded.parsed)
+        assertEquals(parseTs, decoded.parseTs)
         assertEquals(1, decoded.sources.size)
         val source = decoded.sources[0]
         assertEquals(SourceId(Source.WIKI, "MovieName"), source.sourceId)

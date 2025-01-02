@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.*
 import java.io.StringWriter
+import java.time.Instant
 import java.time.LocalDate
 
 internal class DubberCodecTest {
@@ -27,6 +28,7 @@ internal class DubberCodecTest {
 
     @Test
     fun encode() {
+        val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
         val dubber = Dubber(
             name = "test name",
             ids = SourceIds.of(
@@ -34,7 +36,7 @@ internal class DubberCodecTest {
                 Source.WIKI to "Wiki_Name",
             ),
             lastUpdate = LocalDate.of(2024, 10, 6),
-            parsed = true,
+            parseTs = parseTs,
             sources = mutableListOf(
                 RawData(SourceId(Source.WIKI, "Wiki_Name"), DataSource.DUBBER, "test raw data")
             )
@@ -42,7 +44,7 @@ internal class DubberCodecTest {
         codec.encode(w, dubber, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"name": "test name", "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true,"""
+            """{"name": "test name", "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},"""
                 +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER","""
                 +""" "raw": "test raw data"}], "lastUpdate": "2024-10-06"}""",
             jsonWriter.toString()
@@ -55,15 +57,16 @@ internal class DubberCodecTest {
         codec.encode(w, dubber, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"name": "test name", "parsed": false}""",
+            """{"name": "test name"}""",
             jsonWriter.toString()
         )
     }
 
     @Test
     fun decode() {
+        val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
         val decoded = codec.decode(
-            JsonReader("""{"name": "test name", "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true, 
+            JsonReader("""{"name": "test name", "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)}, 
                 "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER",
                 "raw": "test raw data"}], "lastUpdate": "2024-10-06"}"""),
             DecoderContext.builder().build())
@@ -72,6 +75,7 @@ internal class DubberCodecTest {
         assertEquals(SourceIds.of(Source.MONDO_DOPPIATORI to "voci/testname", Source.WIKI to "Wiki_Name"), decoded.ids)
         assertEquals(LocalDate.of(2024, 10, 6), decoded.lastUpdate)
         assertEquals(true, decoded.parsed)
+        assertEquals(parseTs, decoded.parseTs)
         assertEquals(1, decoded.sources.size)
         val source = decoded.sources[0]
         assertEquals(SourceId(Source.WIKI, "Wiki_Name"), source.sourceId)
@@ -82,7 +86,7 @@ internal class DubberCodecTest {
     @Test
     fun decodeMinimal() {
         val decoded = codec.decode(
-            JsonReader("""{"name": "test name", "parsed": false}"""),
+            JsonReader("""{"name": "test name"}"""),
             DecoderContext.builder().build())
 
         assertEquals("test name", decoded.name)

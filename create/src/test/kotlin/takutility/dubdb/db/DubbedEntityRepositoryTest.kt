@@ -5,11 +5,12 @@ import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.*
 import takutility.dubdb.entities.Source.DUBDB
 import takutility.dubdb.entities.Source.WIKI
+import java.time.Instant
 
 internal abstract class DubbedEntityRepositoryTest<R: DubbedEntityRepository>: RepositoryTest<DubbedEntity, R>() {
 
     override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = DubbedEntity(
-        name = name, ids = ids, parsed = parsed, sources = sources,
+        name = name, ids = ids, parseTs = if (parsed) Instant.now() else null, sources = sources,
         movie = movieRefOf()
     )
 

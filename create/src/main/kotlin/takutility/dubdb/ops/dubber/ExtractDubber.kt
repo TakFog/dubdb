@@ -8,6 +8,7 @@ import takutility.dubdb.tasks.wiki.FindPhoto
 import takutility.dubdb.tasks.wiki.ReadDubberSection
 import takutility.dubdb.tasks.wiki.ReadIds
 import takutility.dubdb.wiki.WikiPage
+import java.time.Instant
 
 class ExtractDubber(val context: DubDbContext) {
 
@@ -27,6 +28,7 @@ class ExtractDubber(val context: DubDbContext) {
         val dubber = getDubber(ids)
         dubber.ids += context[FindPhoto::class].run(dubber).sourceIds
 
+        dubber.parseTs = Instant.now()
         context.dubberDb.save(dubber)
 
         context[ReadDubberSection::class].run(dubber, page).dubbedEntities

@@ -5,12 +5,13 @@ import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.Dubber
 import takutility.dubdb.entities.RawData
 import takutility.dubdb.entities.SourceIds
+import java.time.Instant
 import java.time.LocalDate
 
 internal abstract class DubberRepositoryTest<R: DubberRepository>: RepositoryTest<Dubber, R>() {
 
     override fun newEntity(name: String, ids: SourceIds, parsed: Boolean, sources: MutableList<RawData>) = Dubber(
-        name = name, ids = ids, parsed = parsed, sources = sources
+        name = name, ids = ids, parseTs = if (parsed) Instant.now() else null, sources = sources
     )
 
     @Test

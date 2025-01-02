@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 import takutility.dubdb.entities.*
+import java.time.Instant
 import java.util.*
 import java.util.stream.Stream
 
@@ -75,7 +76,7 @@ internal abstract class RepositoryTest<E: Entity, R: EntityRepository<E>> {
             )
         )
         saved.ids[Source.TRAKT] = 123456
-        saved.parsed = true
+        saved.parseTs = Instant.now()
         saved.sources.add(RawData(SourceId(Source.WIKI, "Wiki_dub"), DataSource.DUBBER, "raw dub text"))
 
         save(saved)
@@ -114,7 +115,7 @@ internal abstract class RepositoryTest<E: Entity, R: EntityRepository<E>> {
 
         val findById = repo.findById(saved.id!!)
         saved.ids[Source.TRAKT] = 123456
-        saved.parsed = true
+        saved.parseTs = Instant.now()
         saved.sources.add(RawData(SourceId(Source.WIKI, "Wiki_dub"), DataSource.DUBBER, "raw dub text"))
 
         val updated = save(saved)

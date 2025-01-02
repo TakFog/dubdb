@@ -7,6 +7,7 @@ import org.bson.codecs.*
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
 import takutility.dubdb.entities.*
+import java.time.Instant
 
 fun <T> Encoder<T>.encodeNullableField(writer: BsonWriter,
                                        field: String,
@@ -151,7 +152,7 @@ abstract class EntityCodec<E: Entity>: EntityBaseEncoder<E>(true), DubDbCodec<E>
             w.writeObjectId("_id", ObjectId(id))
         }
         super.encodeObject(w, entity, ctx)
-        w.writeBoolean("parsed", entity.parsed)
+        entity.parseTs?.toEpochMilli()?.let { w.writeDateTime("parseTs", it) }
         if (entity.sources.isNotEmpty()) {
             w.writeName("sources")
             srcCodec.encode(w, entity.sources, ctx)
@@ -176,8 +177,9 @@ abstract class EntityCodec<E: Entity>: EntityBaseEncoder<E>(true), DubDbCodec<E>
             "_id" -> inst.id = r.readObjectId().toHexString()
             "name" -> inst.name = r.readString()
             "ids" -> idsCodec.decode(r, ctx)?.let { inst.ids += it }
-            "parsed" -> inst.parsed = r.readBoolean()
+            "parseTs" -> inst.parseTs = Instant.ofEpochMilli(r.readDateTime())
             "sources" -> inst.sources += srcCodec.decode(r, ctx) as List<RawData>
+            else -> r.skipValue()
         }
     }
 }

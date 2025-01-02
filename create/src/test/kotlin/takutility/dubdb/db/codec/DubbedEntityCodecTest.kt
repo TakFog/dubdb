@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import takutility.dubdb.entities.*
 import takutility.dubdb.entities.Source.*
 import java.io.StringWriter
+import java.time.Instant
 
 internal class DubbedEntityCodecTest {
     lateinit var codec: DubbedEntityCodec
@@ -30,6 +31,7 @@ internal class DubbedEntityCodecTest {
 
     @Test
     fun encode() {
+        val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
         val entity = DubbedEntity(
             name = "test name",
             movie = movieRefOf("movie name",
@@ -43,7 +45,7 @@ internal class DubbedEntityCodecTest {
                 WIKI to "Wiki_Name",
                 DUBDB to "75c337a9aca64000c637ba10",
             ),
-            parsed = true,
+            parseTs = parseTs,
             sources = mutableListOf(
                 RawData(SourceId(WIKI, "Wiki_Name"), DataSource.DUBBER, "test raw data")
             )
@@ -51,7 +53,7 @@ internal class DubbedEntityCodecTest {
 
         codec.encode(w, entity, EncoderContext.builder().build())
         assertEquals("""{"_id": {"$oid": "75c337a9aca64000c637ba10"}, "name": "test name","""
-                    +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true,"""
+                    +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},"""
                     +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER", "raw": "test raw data"}],"""
                     +""" "movie": {"name": "movie name", "ids": {"WIKI": "Movie_Title"}, "type": "MOVIE"},"""
                     +""" "dubber": {"name": "dubber name", "ids": {"WIKI": "Dubber_Name", "DUBDB": "85786d0cd431d8a82be616e6"}},"""
@@ -65,7 +67,7 @@ internal class DubbedEntityCodecTest {
         val dubber = DubbedEntity(name = "test name", movieRefOf())
         codec.encode(w, dubber, EncoderContext.builder().build())
 
-        assertEquals("""{"name": "test name", "parsed": false, "movie": {}}""",
+        assertEquals("""{"name": "test name", "movie": {}}""",
             jsonWriter.toString()
         )
     }
@@ -73,9 +75,10 @@ internal class DubbedEntityCodecTest {
 
     @Test
     fun decode() {
+        val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
         val decoded = codec.decode(
             JsonReader("""{"_id": {"$oid": "75c337a9aca64000c637ba10"}, "name": "test name","""
-                    +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parsed": true,"""
+                    +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},"""
                     +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER", "raw": "test raw data"}],"""
                     +""" "movie": {"name": "movie name", "ids": {"WIKI": "Movie_Title"}, "type": "MOVIE"},"""
                     +""" "dubber": {"name": "dubber name", "ids": {"WIKI": "Dubber_Name", "DUBDB": "85786d0cd431d8a82be616e6"}},"""
@@ -117,7 +120,7 @@ internal class DubbedEntityCodecTest {
     @Test
     fun decodeMinimal() {
         val decoded = codec.decode(
-            JsonReader("""{"name": "test name", "parsed": false, "movie": {}}"""),
+            JsonReader("""{"name": "test name", "movie": {}}"""),
             DecoderContext.builder().build())
 
         assertEquals("test name", decoded.name)

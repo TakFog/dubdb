@@ -1,5 +1,7 @@
 package takutility.dubdb.entities
 
+import java.time.Instant
+
 interface MovieRef: EntityRef {
     val type: MovieType?
 
@@ -20,9 +22,9 @@ class Movie(
     override var type: MovieType? = null,
     var year: Int? = null,
     ids: SourceIds = SourceIds(),
-    parsed: Boolean = false,
+    parseTs: Instant? = null,
     sources: MutableList<RawData> = mutableListOf()
-): MovieRef, Entity(name, ids, parsed, sources) {
+): MovieRef, Entity(name, ids, parseTs, sources) {
     override fun get(): Movie = this
 }
 
