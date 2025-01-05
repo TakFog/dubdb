@@ -57,4 +57,55 @@ internal abstract class DubberRepositoryTest<R: DubberRepository>: RepositoryTes
         assertEquals(3, mostRecent.size)
         assertEquals(listOf(top1, top2, top3), mostRecent)
     }
+
+    @Test
+    fun findMostRecentUpdated() {
+        repo.save(Dubber("Tatiana Glass", parseTs = Instant.parse("2024-07-18T12:45:00Z")))
+        repo.save(Dubber("Colette Kirk"))
+        repo.save(Dubber("Zelenia Miller", lastUpdate = LocalDate.parse("2024-10-25")))
+        val top4 = repo.save(Dubber("Beatrice Cherry", parseTs = Instant.parse("2022-07-18T12:45:00Z"), lastUpdate = LocalDate.parse("2024-03-13")))
+        repo.save(Dubber("Wilma Lee"))
+        repo.save(Dubber("Yuri Browning"))
+        val top2 = repo.save(Dubber("Harding Wiley", parseTs = Instant.parse("2024-07-18T12:45:00Z"), lastUpdate = LocalDate.parse("2024-08-18")))
+        repo.save(Dubber("Wing Raymond"))
+        repo.save(Dubber("Dalton Slater"))
+        val top3 = repo.save(Dubber("Lenore Munoz", parseTs = Instant.parse("2024-08-15T12:45:00Z"), lastUpdate = LocalDate.parse("2024-08-16")))
+        repo.save(Dubber("Boris David"))
+        repo.save(Dubber("Bert Clark", parseTs = Instant.parse("2024-07-18T12:45:00Z"), lastUpdate = LocalDate.parse("2024-05-25")))
+        val top1 = repo.save(Dubber("Brody Stewart", parseTs = Instant.parse("2023-07-18T12:45:00Z"), lastUpdate = LocalDate.parse("2024-09-22")))
+        repo.save(Dubber("Matthew Roberson"))
+
+        val mostRecent = repo.findMostRecent(3, unparsed = false, updated = true)
+        val allMostRecent = repo.findMostRecent(5, unparsed = false, updated = true)
+
+        assertEquals(3, mostRecent.size)
+        assertEquals(listOf(top1, top2, top3), mostRecent)
+        assertEquals(4, allMostRecent.size)
+        assertEquals(listOf(top1, top2, top3, top4), allMostRecent)
+    }
+
+    @Test
+    fun findMostRecentUnparsedOrUpdated() {
+        repo.save(Dubber("Tatiana Glass", parseTs = Instant.parse("2024-07-18T12:45:00Z")))
+        repo.save(Dubber("Colette Kirk"))
+        val top4 = repo.save(Dubber("Zelenia Miller", lastUpdate = LocalDate.parse("2024-06-25")))
+        repo.save(Dubber("Wilma Lee"))
+        repo.save(Dubber("Yuri Browning"))
+        val top2 = repo.save(Dubber("Harding Wiley", lastUpdate = LocalDate.parse("2024-08-18")))
+        repo.save(Dubber("Wing Raymond"))
+        repo.save(Dubber("Dalton Slater"))
+        val top3 = repo.save(Dubber("Lenore Munoz", parseTs = Instant.parse("2024-08-15T12:45:00Z"), lastUpdate = LocalDate.parse("2024-08-16")))
+        repo.save(Dubber("Boris David"))
+        repo.save(Dubber("Bert Clark", parseTs = Instant.parse("2024-07-18T12:45:00Z"), lastUpdate = LocalDate.parse("2024-05-25")))
+        val top1 = repo.save(Dubber("Brody Stewart", parseTs = Instant.parse("2023-07-18T12:45:00Z"), lastUpdate = LocalDate.parse("2024-09-22")))
+        repo.save(Dubber("Matthew Roberson"))
+
+        val mostRecent = repo.findMostRecent(3, unparsed = true, updated = true)
+        val allMostRecent = repo.findMostRecent(5, unparsed = true, updated = true)
+
+        assertEquals(3, mostRecent.size)
+        assertEquals(listOf(top1, top2, top3), mostRecent)
+        assertEquals(4, allMostRecent.size)
+        assertEquals(listOf(top1, top2, top3, top4), allMostRecent)
+    }
 }

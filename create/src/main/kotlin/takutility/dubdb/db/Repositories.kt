@@ -16,7 +16,15 @@ interface EntityRepository<E: Entity> {
 interface MovieRepository: EntityRepository<Movie>
 interface ActorRepository: EntityRepository<Actor>
 interface DubberRepository: EntityRepository<Dubber> {
-    fun findMostRecent(limit: Int): List<Dubber>
+    /**
+     * Finds the most recently updated dubbers in the database.
+     *
+     * @param limit The maximum number of recent entries to return.
+     * @param unparsed If true, includes entries that have not been parsed.
+     * @param updated If true, includes entries that have been updated.
+     * @return A list of the most recent dubbers that match the criteria.
+     */
+    fun findMostRecent(limit: Int, unparsed: Boolean = true, updated: Boolean = false): List<Dubber>
 }
 interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     fun findMostCommonMovies(limit: Int): List<MovieRef>

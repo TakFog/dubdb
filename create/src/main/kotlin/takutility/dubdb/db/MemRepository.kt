@@ -7,6 +7,7 @@ import org.bson.json.JsonReader
 import org.bson.json.JsonWriter
 import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.*
+import takutility.dubdb.util.isBefore
 import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
@@ -76,9 +77,9 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
 class MemMovieRepository: MemRepository<Movie>(Movie::class.java), MovieRepository
 class MemActorRepository: MemRepository<Actor>(Actor::class.java), ActorRepository
 class MemDubberRepository: MemRepository<Dubber>(Dubber::class.java), DubberRepository {
-    override fun findMostRecent(limit: Int): List<Dubber> {
+    override fun findMostRecent(limit: Int, unparsed: Boolean, updated: Boolean): List<Dubber> {
         return db.values.asSequence()
-            .filter { it.lastUpdate != null }
+            .filter { it.lastUpdate != null && ((unparsed && !it.parsed) || (updated && it.parseTs.isBefore(it.lastUpdate))) }
             .sortedByDescending { it.lastUpdate }
             .take(limit)
             .toList()
