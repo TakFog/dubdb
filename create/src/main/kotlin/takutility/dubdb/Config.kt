@@ -7,14 +7,14 @@ data class TraktConfig(val client_id: String)
 
 data class MongoDBConfig(val url: String, val db: String)
 
-data class WikiConfig(val cache: String?)
+data class WikiConfig(val cache: String?, val categoryLimit : Int = 500)
 
 data class BootstrapConfig(val movie: String, val dub: String)
 
 data class Config(
         val trakt: TraktConfig,
         val mongodb: MongoDBConfig,
-        val wiki: WikiConfig?,
+        val wiki: WikiConfig = WikiConfig(null),
         val bootstrap: BootstrapConfig,
         val retry: Int = 3) {
 

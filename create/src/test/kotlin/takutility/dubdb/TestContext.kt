@@ -19,8 +19,9 @@ class TestContext(
     trakt: Trakt,
     wikiApi: WikiApi,
     wikiPageLoader: WikiPageLoader,
+    config: Config?,
     val fullMock: Boolean = false
-) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikiPageLoader) {
+) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikiPageLoader, config) {
     companion object {
         fun mocked(fullMock: Boolean = false, init: ((TestContext) -> Unit)? = null): TestContext {
             val ctx = TestContext(
@@ -31,6 +32,7 @@ class TestContext(
                 trakt = mock(),
                 wikiApi = mock(),
                 wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader("src/test/resources/cache"),
+                config = Config(mock(), mock(), mock(), mock()),
                 fullMock = fullMock
             )
             init?.let { ctx.also(it) }
@@ -68,5 +70,8 @@ class TestContext(
     }
     public override fun <T : Any> set(clazz: KClass<T>, value: T) {
         super.set(clazz, value)
+    }
+    inline fun <reified T : Any> set(value: T) {
+        set(T::class, value)
     }
 }

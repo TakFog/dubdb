@@ -104,6 +104,13 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun findMostCommonDubbers(limit: Int) = findMostCommon(limit) { it.dubber }
     override fun findMostCommonActors(limit: Int) = findMostCommon(limit) { it.actor }
 
+    override fun updateRefIds(refs: List<DubberRef>) {
+        db.values.forEach { de ->
+            val dubber = de.dubber ?: return@forEach
+            refs.forEach { if (dubber.matches(it)) dubber.ids += it.ids }
+        }
+    }
+
     override fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int> {
         val map: MutableMap<DubberRef, Int> = dubbers.associateWithTo(mutableMapOf()) { 0 }
 

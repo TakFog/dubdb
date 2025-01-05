@@ -10,6 +10,7 @@ import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.reflect.KClass
 
 interface DubDbContext {
+    val config: Config
     val movieDb: MovieRepository
     val actorDb: ActorRepository
     val dubberDb: DubberRepository
@@ -31,10 +32,12 @@ open class DubDbContextBase(
     trakt: Trakt,
     wikiApi: WikiApi,
     wikiPageLoader: WikiPageLoader,
+    config: Config? = null,
 ): DubDbContext {
     private val objects = mutableMapOf<KClass<*>, Any>()
 
     init {
+        objects[Config::class] = config ?: Config.inst
         objects[MovieRepository::class] = movieDb
         objects[ActorRepository::class] = actorDb
         objects[DubberRepository::class] = dubberDb
@@ -44,6 +47,8 @@ open class DubDbContextBase(
         objects[WikiPageLoader::class] = wikiPageLoader
     }
 
+    override val config: Config
+        get() = get(Config::class)
     override val movieDb: MovieRepository
         get() = get(MovieRepository::class)
     override val actorDb: ActorRepository
