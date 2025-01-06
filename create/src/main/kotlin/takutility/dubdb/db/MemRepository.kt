@@ -12,17 +12,22 @@ import java.io.Writer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.moveTo
+import kotlin.io.path.name
 
 open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepository<E> {
     val db = mutableMapOf<String, E>()
 
     fun saveToFile(file: Path) {
         if (db.isEmpty()) {
-            Files.deleteIfExists(file)
+            file.deleteIfExists()
             return
         }
-        Files.createDirectories(file)
-        Files.newBufferedWriter(file).use(this::saveToJson)
+        Files.createDirectories(file.parent)
+        val temp = file.resolveSibling(file.name + ".tmp")
+        Files.newBufferedWriter(temp).use(this::saveToJson)
+        temp.moveTo(file, true)
     }
 
     fun loadFromFile(file: Path) {
@@ -40,9 +45,8 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
 
     fun saveToJson(writer: Writer) {
         val codec = codecRegistry.get(type)
-        val jsonWriter = JsonWriter(writer)
         db.values.forEach {
-            codec.encode(jsonWriter, it, EncoderContext.builder().build())
+            codec.encode(JsonWriter(writer), it, EncoderContext.builder().build())
             writer.write("\n")
         }
     }
@@ -50,7 +54,7 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
     override fun save(entity: E): E {
         var id = entity.id
         if (id == null) {
-            id = UUID.randomUUID().toString()
+            id = UUID.randomUUID().toString().replace("-","").let { it.substring(it.length - 24) }
             entity.id = id
         }
         db[id] = entity
