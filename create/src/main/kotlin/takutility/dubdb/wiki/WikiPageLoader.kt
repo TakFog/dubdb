@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base32
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import takutility.dubdb.Config
+import takutility.dubdb.loadConfig
 import java.io.File
 import java.security.MessageDigest
 
@@ -25,7 +26,7 @@ interface WikiPageLoader {
             return inst!!
         }
 
-        fun fromConfig(config: Config = Config.inst) {
+        fun fromConfig(config: Config = loadConfig()) {
             val cachePath = config.wiki?.cache
             if (cachePath != null)
                 inst = CachedWikiPageLoader(cachePath)

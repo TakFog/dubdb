@@ -37,7 +37,7 @@ open class DubDbContextBase(
     private val objects = mutableMapOf<KClass<*>, Any>()
 
     init {
-        objects[Config::class] = config ?: Config.inst
+        objects[Config::class] = config ?: loadConfig()
         objects[MovieRepository::class] = movieDb
         objects[ActorRepository::class] = actorDb
         objects[DubberRepository::class] = dubberDb

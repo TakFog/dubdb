@@ -16,12 +16,7 @@ data class Config(
         val mongodb: MongoDBConfig,
         val wiki: WikiConfig = WikiConfig(null),
         val bootstrap: BootstrapConfig,
-        val retry: Int = 3) {
-
-    companion object {
-        val inst: Config = loadConfig()
-    }
-}
+        val retry: Int = 3)
 
 fun loadConfig() = ConfigLoaderBuilder.default()
         .addResourceOrFileSource("config_local.yml", optional = true)

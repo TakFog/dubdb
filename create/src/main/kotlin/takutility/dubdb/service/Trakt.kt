@@ -64,7 +64,6 @@ class TraktImpl(private val trakt: TraktV2) : Trakt {
 
     constructor(apiKey: String): this(TraktV2(apiKey))
     constructor(config: Config): this(config.trakt.client_id)
-    constructor(): this(Config.inst)
 
     override fun searchImdb(imdbId: String): SearchResults? {
         return idLookup(IdType.IMDB, imdbId)
