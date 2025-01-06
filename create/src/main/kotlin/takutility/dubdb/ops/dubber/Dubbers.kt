@@ -3,16 +3,13 @@ package takutility.dubdb.ops.dubber
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.DubberRef
 import takutility.dubdb.m
-import takutility.dubdb.tasks.wikiapi.DubbersFromCategory
 
 class Dubbers(val context: DubDbContext) {
 
     fun run(num: Int) {
         var dubbers = context.dubEntityDb.findMostCommonDubbers(num)
         if (notEnoughDubbers(num, dubbers)) {
-            dubbers = context.m<DubbersFromCategory>().run(num)
-            val pop = context.dubEntityDb.countDubbers(dubbers)
-            dubbers = dubbers.sortedByDescending { pop.getOrDefault(it, 0) }
+            dubbers = context.m<LatestDubbers>().run(num)
         }
 
         dubbers.asSequence()
