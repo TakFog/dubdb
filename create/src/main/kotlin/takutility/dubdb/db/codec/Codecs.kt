@@ -176,7 +176,7 @@ abstract class EntityCodec<E: Entity>: EntityBaseEncoder<E>(true), DubDbCodec<E>
         when (key) {
             "_id" -> inst.id = r.readObjectId().toHexString()
             "name" -> inst.name = r.readString()
-            "ids" -> idsCodec.decode(r, ctx)?.let { inst.ids += it }
+            "ids" -> idsCodec.decode(r, ctx).also { inst.ids += it }
             "parseTs" -> inst.parseTs = Instant.ofEpochMilli(r.readDateTime())
             "sources" -> inst.sources += srcCodec.decode(r, ctx) as List<RawData>
             else -> r.skipValue()
@@ -186,9 +186,15 @@ abstract class EntityCodec<E: Entity>: EntityBaseEncoder<E>(true), DubDbCodec<E>
 
 abstract class AbstractEntityRefCodec<T : EntityRef> : EntityBaseEncoder<T>(false), DubDbCodec<T> {
 
+    override fun encodeObject(w: BsonWriter, entity: T, ctx: EncoderContext?) {
+        super.encodeObject(w, entity, ctx)
+        entity.parsed?.let { w.writeBoolean("parsed", it) }
+    }
+
     override fun decode(r: BsonReader?, ctx: DecoderContext?): T {
         var name: String? = null
         var ids: SourceIds? = null
+        var parsed: Boolean? = null
         var otherFields: MutableMap<String, Any>? = null
         r!!.readStartDocument()
         while (r.readBsonType() != BsonType.END_OF_DOCUMENT) {
@@ -196,6 +202,7 @@ abstract class AbstractEntityRefCodec<T : EntityRef> : EntityBaseEncoder<T>(fals
             when (fieldName) {
                 "name" -> name = r.readString()
                 "ids" -> ids = idsCodec.decode(r, ctx)
+                "parsed" -> parsed = r.readBoolean()
                 else -> {
                     var value = decodeAdditionalFields(fieldName, r, ctx)
                     if (value != null) {
@@ -207,14 +214,15 @@ abstract class AbstractEntityRefCodec<T : EntityRef> : EntityBaseEncoder<T>(fals
         }
         r.readEndDocument()
 
-        return createEntityRef(name, ids ?: SourceIds(), otherFields)
+        return createEntityRef(name, ids ?: SourceIds(), parsed, otherFields)
     }
     protected open fun decodeAdditionalFields(fieldName: String, r: BsonReader, ctx: DecoderContext?): Any? = null
-    protected abstract fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): T
+    protected abstract fun createEntityRef(name: String?, ids: SourceIds, parsed: Boolean?, fields: Map<String, Any>?): T
 }
 
 abstract class BaseEntityRefCodec<T: EntityRef>(val ctor: (String?, SourceIds) -> T) : AbstractEntityRefCodec<T>() {
-    override fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): T = ctor(name, ids)
+    override fun createEntityRef(name: String?, ids: SourceIds, parsed: Boolean?, fields: Map<String, Any>?): T
+        = ctor(name, ids).also { e -> parsed?.let { e.parsed = it } }
 
 }
 

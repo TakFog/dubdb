@@ -83,7 +83,7 @@ class MemActorRepository: MemRepository<Actor>(Actor::class.java), ActorReposito
 class MemDubberRepository: MemRepository<Dubber>(Dubber::class.java), DubberRepository {
     override fun findMostRecent(limit: Int, unparsed: Boolean, updated: Boolean): List<Dubber> {
         return db.values.asSequence()
-            .filter { it.lastUpdate != null && ((unparsed && !it.parsed) || (updated && it.parseTs.isBefore(it.lastUpdate))) }
+            .filter { it.lastUpdate != null && ((unparsed && !it.isParsed) || (updated && it.parseTs.isBefore(it.lastUpdate))) }
             .sortedByDescending { it.lastUpdate }
             .take(limit)
             .toList()
@@ -94,7 +94,7 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     private fun <T: EntityRef> findMostCommon(limit: Int, transform: (DubbedEntity) -> T?): List<T> {
         return db.values.asSequence()
             .mapNotNull(transform)
-            .filter { it.id == null }
+            .filter { !it.isParsed }
             .map { EntityIds(it) }
             .groupingBy { it }
             .eachCount()
@@ -111,7 +111,12 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun updateRefIds(refs: List<DubberRef>) {
         db.values.forEach { de ->
             val dubber = de.dubber ?: return@forEach
-            refs.forEach { if (dubber.matches(it)) dubber.ids += it.ids }
+            refs.forEach {
+                if (dubber.matches(it)) {
+                    dubber.ids += it.ids
+                    it.parsed?.apply { dubber.parsed = this }
+                }
+            }
         }
     }
 

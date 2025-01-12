@@ -32,10 +32,11 @@ class MovieRefCodec : AbstractEntityRefCodec<MovieRef>() {
         return null
     }
 
-    override fun createEntityRef(name: String?, ids: SourceIds, fields: Map<String, Any>?): MovieRef {
+    override fun createEntityRef(name: String?, ids: SourceIds, parsed: Boolean?, fields: Map<String, Any>?): MovieRef {
         return movieRefOf(
             name = name,
             ids = ids,
+            parsed = parsed,
             type = fields?.get(TYPE_FIELD) as? MovieType
         )
     }

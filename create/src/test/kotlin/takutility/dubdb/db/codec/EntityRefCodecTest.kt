@@ -5,9 +5,11 @@ import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.json.JsonReader
 import org.bson.json.JsonWriter
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import takutility.dubdb.entities.EntityRefImpl
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
@@ -36,8 +38,27 @@ internal class EntityRefCodecTest {
         )
         codec.encode(w, ref, EncoderContext.builder().build())
 
-        Assertions.assertEquals(
+        assertEquals(
             """{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}}""",
+            jsonWriter.toString()
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun encodeParsed(parsedVal: Boolean) {
+        val ref = EntityRefImpl(
+            "test name",
+            SourceIds.of(
+                Source.TRAKT to "123456",
+                Source.WIKI to "Wiki_Name",
+            ),
+            parsed = parsedVal
+        )
+        codec.encode(w, ref, EncoderContext.builder().build())
+
+        assertEquals(
+            """{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parsed": $parsedVal}""",
             jsonWriter.toString()
         )
     }
@@ -52,7 +73,7 @@ internal class EntityRefCodecTest {
         )
         codec.encode(w, ref, EncoderContext.builder().build())
 
-        Assertions.assertEquals(
+        assertEquals(
             """{"name": "test name", "ids": {"DUBDB": "85786d0cd431d8a82be616e6"}}""",
             jsonWriter.toString()
         )
@@ -63,7 +84,7 @@ internal class EntityRefCodecTest {
         val ref = EntityRefImpl("test name")
         codec.encode(w, ref, EncoderContext.builder().build())
 
-        Assertions.assertEquals(
+        assertEquals(
             """{"name": "test name"}""",
             jsonWriter.toString()
         )
@@ -79,7 +100,7 @@ internal class EntityRefCodecTest {
         )
         codec.encode(w, ref, EncoderContext.builder().build())
 
-        Assertions.assertEquals(
+        assertEquals(
             """{"ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}}""",
             jsonWriter.toString()
         )
@@ -91,8 +112,21 @@ internal class EntityRefCodecTest {
             JsonReader("""{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}}"""),
             DecoderContext.builder().build())
 
-        Assertions.assertEquals("test name", decoded.name)
-        Assertions.assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded.ids)
+        assertEquals("test name", decoded.name)
+        assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded.ids)
+        assertNull(decoded.parsed)
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    fun decodeParsed(parsedVal: Boolean) {
+        val decoded = codec.decode(
+            JsonReader("""{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parsed": $parsedVal}"""),
+            DecoderContext.builder().build())
+
+        assertEquals("test name", decoded.name)
+        assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded.ids)
+        assertEquals(parsedVal, decoded.parsed)
     }
 
     @Test
@@ -101,8 +135,8 @@ internal class EntityRefCodecTest {
             JsonReader("""{"name": "test name"}"""),
             DecoderContext.builder().build())
 
-        Assertions.assertEquals("test name", decoded.name)
-        Assertions.assertTrue(decoded.ids.isEmpty())
+        assertEquals("test name", decoded.name)
+        assertTrue(decoded.ids.isEmpty())
     }
 
     @Test
@@ -111,7 +145,7 @@ internal class EntityRefCodecTest {
             JsonReader("""{"ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}}"""),
             DecoderContext.builder().build())
 
-        Assertions.assertNull(decoded.name)
-        Assertions.assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded.ids)
+        assertNull(decoded.name)
+        assertEquals(SourceIds.of(Source.TRAKT to "123456", Source.WIKI to "Wiki_Name"), decoded.ids)
     }
 }

@@ -9,13 +9,13 @@ interface MovieRef: EntityRef {
     override fun toRef(): MovieRef = MovieRefImpl(name, type, ids.toMutable())
 }
 
-class MovieRefImpl(name: String? = null, override val type: MovieType? = null, ids: SourceIds = SourceIds())
-    : BaseEntityRefImpl<Movie>(name, ids), MovieRef {
+class MovieRefImpl(name: String? = null, override val type: MovieType? = null, ids: SourceIds = SourceIds(), parsed: Boolean? = null)
+    : BaseEntityRefImpl<Movie>(name, ids, parsed), MovieRef {
     override fun toString(): String = name ?: ids.toString()
 }
 
-fun movieRefOf(name: String? = null, type: MovieType? = null, ids: SourceIds = SourceIds()): MovieRef
-    = MovieRefImpl(name, type, ids)
+fun movieRefOf(name: String? = null, type: MovieType? = null, ids: SourceIds = SourceIds(), parsed: Boolean? = null): MovieRef
+    = MovieRefImpl(name, type, ids, parsed)
 
 class Movie(
     name: String,

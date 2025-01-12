@@ -38,7 +38,7 @@ internal class DubbedEntityCodecTest {
                 type = MovieType.MOVIE,
                 ids = SourceIds.of(WIKI to "Movie_Title"),
             ),
-            dubber = Dubber("dubber name", ids = SourceIds.of(WIKI to "Dubber_Name", DUBDB to "85786d0cd431d8a82be616e6")),
+            dubber = Dubber("dubber name", ids = SourceIds.of(WIKI to "Dubber_Name", DUBDB to "85786d0cd431d8a82be616e6"), parseTs = Instant.now()),
             actor = Actor("actor name", ids = SourceIds.of(WIKI to "Actor_Name")),
             ids = SourceIds.of(
                 MONDO_DOPPIATORI to "voci/testname",
@@ -56,8 +56,8 @@ internal class DubbedEntityCodecTest {
                     +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},"""
                     +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER", "raw": "test raw data"}],"""
                     +""" "movie": {"name": "movie name", "ids": {"WIKI": "Movie_Title"}, "type": "MOVIE"},"""
-                    +""" "dubber": {"name": "dubber name", "ids": {"WIKI": "Dubber_Name", "DUBDB": "85786d0cd431d8a82be616e6"}},"""
-                    +""" "actor": {"name": "actor name", "ids": {"WIKI": "Actor_Name"}}}""",
+                    +""" "dubber": {"name": "dubber name", "ids": {"WIKI": "Dubber_Name", "DUBDB": "85786d0cd431d8a82be616e6"}, "parsed": true},"""
+                    +""" "actor": {"name": "actor name", "ids": {"WIKI": "Actor_Name"}, "parsed": false}}""",
             jsonWriter.toString()
         )
     }
@@ -72,7 +72,6 @@ internal class DubbedEntityCodecTest {
         )
     }
 
-
     @Test
     fun decode() {
         val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
@@ -81,8 +80,8 @@ internal class DubbedEntityCodecTest {
                     +""" "ids": {"MONDO_DOPPIATORI": "voci/testname", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},"""
                     +""" "sources": [{"source": "WIKI", "sourceId": "Wiki_Name", "dataSource": "DUBBER", "raw": "test raw data"}],"""
                     +""" "movie": {"name": "movie name", "ids": {"WIKI": "Movie_Title"}, "type": "MOVIE"},"""
-                    +""" "dubber": {"name": "dubber name", "ids": {"WIKI": "Dubber_Name", "DUBDB": "85786d0cd431d8a82be616e6"}},"""
-                    +""" "actor": {"name": "actor name", "ids": {"WIKI": "Actor_Name"}}}"""),
+                    +""" "dubber": {"name": "dubber name", "ids": {"WIKI": "Dubber_Name", "DUBDB": "85786d0cd431d8a82be616e6"}, "parsed": true},"""
+                    +""" "actor": {"name": "actor name", "ids": {"WIKI": "Actor_Name"}, "parsed": false}}"""),
             DecoderContext.builder().build())
 
         assertEquals("test name", decoded.name)
@@ -102,6 +101,7 @@ internal class DubbedEntityCodecTest {
             assertEquals("movie name", name)
             assertEquals("Movie_Title", wikiId)
             assertEquals(1, ids.size)
+            assertNull(parsed)
         }
 //        assertNull(decoded.chara)
         decoded.dubber!!.apply {
@@ -109,11 +109,13 @@ internal class DubbedEntityCodecTest {
             assertEquals("Dubber_Name", wikiId)
             assertEquals("85786d0cd431d8a82be616e6", id)
             assertEquals(2, ids.size)
+            assertEquals(true, parsed)
         }
         decoded.actor!!.apply {
             assertEquals("actor name", name)
             assertEquals("Actor_Name", wikiId)
             assertEquals(1, ids.size)
+            assertEquals(false, parsed)
         }
     }
 

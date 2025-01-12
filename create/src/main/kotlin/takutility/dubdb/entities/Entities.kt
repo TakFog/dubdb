@@ -6,6 +6,10 @@ import java.time.Instant
 interface EntityRef {
     val name: String?
     val ids: SourceIds
+    var parsed: Boolean?
+
+    val isParsed: Boolean
+        get() = parsed == true
 
     fun intId(source: Source) = ids[source]?.toInt()
 
@@ -39,7 +43,8 @@ interface EntityRef {
 
 abstract class BaseEntityRefImpl<E: EntityRef>(
     override var name: String?,
-    override val ids: SourceIds = SourceIds()
+    override val ids: SourceIds = SourceIds(),
+    override var parsed: Boolean? = null,
 ) : EntityRef {
     override fun get(): E? = null
 
@@ -64,7 +69,7 @@ abstract class BaseEntityRefImpl<E: EntityRef>(
     }
 }
 
-class EntityRefImpl(name: String? = null, ids: SourceIds = SourceIds()): BaseEntityRefImpl<EntityRefImpl>(name, ids) {
+class EntityRefImpl(name: String? = null, ids: SourceIds = SourceIds(), parsed: Boolean? = null): BaseEntityRefImpl<EntityRefImpl>(name, ids, parsed) {
     override fun toString(): String {
         return name ?: wikiId
             ?: if (ids.isNotEmpty()) ids.first().toString() else super.toString()
@@ -80,10 +85,10 @@ abstract class Entity(
 ): EntityRef {
     val tokens: List<String> = bow(name).toList()
 
-    var parsed: Boolean
+    override var parsed: Boolean?
         get() = parseTs != null
         set(value) {
-            parseTs = if (value) Instant.now() else null
+            value?.apply { parseTs = if (this) Instant.now() else null }
         }
 
     override fun toString(): String {
