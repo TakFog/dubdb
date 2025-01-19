@@ -19,11 +19,11 @@ internal abstract class DubbedEntityRepositoryTest<R: DubbedEntityRepository>: R
         val movies = listOf<MovieRef>(
             /* 0 */ movieRefOf("Everest", ids = SourceIds.of(WIKI to "Everest")),
             /* 1 */ movieRefOf("Most Wanted", ids = SourceIds.of(WIKI to "Most_Wanted")),
-            /* 2 */ movieRefOf("Rules of Engagement", ids = SourceIds.of(WIKI to "Rules_of_Engagement", DUBDB to "d2a1e3df-9396-4df9-822f-5497a2ad3164")),
-            /* 3 */ movieRefOf("Mogambo", ids = SourceIds.of(WIKI to "Mogambo")),
+            /* 2 */ movieRefOf("Rules of Engagement", ids = SourceIds.of(WIKI to "Rules_of_Engagement", DUBDB to "d2a1e3df-9396-4df9-822f-5497a2ad3164"), parsed = true),
+            /* 3 */ movieRefOf("Mogambo", ids = SourceIds.of(WIKI to "Mogambo", DUBDB to "A072ED29A834E40208F6F69D ")),
             /* 4 */ movieRefOf("Alice in Wonderland", ids = SourceIds.of(WIKI to "Alice_in_Wonderland")),
             /* 5 */ movieRefOf("Everyone Else", ids = SourceIds.of(WIKI to "Everyone_Else_(Alle_Anderen)")),
-            /* 6 */ movieRefOf("Aladdin", ids = SourceIds.of(WIKI to "Aladdin", DUBDB to "ac9bd1db-cf3a-40f3-8adc-b5f1218a3b29")),
+            /* 6 */ movieRefOf("Aladdin", ids = SourceIds.of(WIKI to "Aladdin", DUBDB to "ac9bd1db-cf3a-40f3-8adc-b5f1218a3b29"), parsed = true),
         )
 
         repo.save(DubbedEntity("Alan", clone(movies[0])))
@@ -71,11 +71,11 @@ internal abstract class DubbedEntityRepositoryTest<R: DubbedEntityRepository>: R
         val dubbers = listOf<DubberRef>(
             /* 0 */ DubberRefImpl("Luca Ward", ids = SourceIds.of(WIKI to "Luca_Ward")),
             /* 1 */ DubberRefImpl("Roberto Pedicini", ids = SourceIds.of(WIKI to "Roberto_Pedicini")),
-            /* 2 */ DubberRefImpl("Laura Boccanera", ids = SourceIds.of(WIKI to "Laura_Boccanera", DUBDB to "d2a1e3df-9396-4df9-822f-5497a2ad3164")),
+            /* 2 */ DubberRefImpl("Laura Boccanera", ids = SourceIds.of(WIKI to "Laura_Boccanera", DUBDB to "d2a1e3df-9396-4df9-822f-5497a2ad3164"), parsed=true),
             /* 3 */ DubberRefImpl("Francesco Pannofino", ids = SourceIds.of(WIKI to "Francesco_Pannofino")),
             /* 4 */ DubberRefImpl("Emanuela Rossi", ids = SourceIds.of(WIKI to "Emanuela_Rossi")),
             /* 5 */ DubberRefImpl("Massimo Corvo", ids = SourceIds.of(WIKI to "Massimo_Corvo")),
-            /* 6 */ DubberRefImpl("Ilaria Stagni", ids = SourceIds.of(WIKI to "Ilaria_Stagni", DUBDB to "ac9bd1db-cf3a-40f3-8adc-b5f1218a3b29")),
+            /* 6 */ DubberRefImpl("Ilaria Stagni", ids = SourceIds.of(WIKI to "Ilaria_Stagni", DUBDB to "ac9bd1db-cf3a-40f3-8adc-b5f1218a3b29"), parsed=true),
         )
 
         val movie = Movie("Alice in Wonderland", ids = SourceIds.of(WIKI to "Alice_in_Wonderland"))
@@ -129,11 +129,11 @@ internal abstract class DubbedEntityRepositoryTest<R: DubbedEntityRepository>: R
         val actors = listOf<ActorRef>(
             /* 0 */ ActorRefImpl("Leonardo DiCaprio", ids = SourceIds.of(WIKI to "Leonardo_DiCaprio")),
             /* 1 */ ActorRefImpl("Meryl Streep", ids = SourceIds.of(WIKI to "Meryl_Streep")),
-            /* 2 */ ActorRefImpl("Tom Hanks", ids = SourceIds.of(WIKI to "Tom_Hanks", DUBDB to "d2a1e3df-9396-4df9-822f-5497a2ad3164")),
+            /* 2 */ ActorRefImpl("Tom Hanks", ids = SourceIds.of(WIKI to "Tom_Hanks", DUBDB to "d2a1e3df-9396-4df9-822f-5497a2ad3164"), parsed=true),
             /* 3 */ ActorRefImpl("Scarlett Johansson", ids = SourceIds.of(WIKI to "Scarlett_Johansson")),
             /* 4 */ ActorRefImpl("Denzel Washington", ids = SourceIds.of(WIKI to "Denzel_Washington")),
             /* 5 */ ActorRefImpl("Cate Blanchett", ids = SourceIds.of(WIKI to "Cate_Blanchett")),
-            /* 6 */ ActorRefImpl("Morgan Freeman", ids = SourceIds.of(WIKI to "Morgan_Freeman", DUBDB to "ac9bd1db-cf3a-40f3-8adc-b5f1218a3b29")),
+            /* 6 */ ActorRefImpl("Morgan Freeman", ids = SourceIds.of(WIKI to "Morgan_Freeman", DUBDB to "ac9bd1db-cf3a-40f3-8adc-b5f1218a3b29"), parsed=true),
         )
 
         val movie = Movie("Alice in Wonderland", ids = SourceIds.of(WIKI to "Alice_in_Wonderland"))
@@ -239,6 +239,6 @@ internal abstract class DubbedEntityRepositoryTest<R: DubbedEntityRepository>: R
 
 }
 
-fun clone(movie: MovieRef) = movieRefOf(name = movie.name, type = movie.type, ids = movie.ids.toMutable())
-fun clone(dubberRef: DubberRef) = DubberRefImpl(name = dubberRef.name, ids = dubberRef.ids.toMutable())
-fun clone(actorRef: ActorRef) = ActorRefImpl(name = actorRef.name, ids = actorRef.ids.toMutable())
+fun clone(movie: MovieRef) = movieRefOf(name = movie.name, type = movie.type, ids = movie.ids.toMutable(), parsed = movie.parsed)
+fun clone(dubberRef: DubberRef) = DubberRefImpl(name = dubberRef.name, ids = dubberRef.ids.toMutable(), parsed = dubberRef.parsed)
+fun clone(actorRef: ActorRef) = ActorRefImpl(name = actorRef.name, ids = actorRef.ids.toMutable(), parsed = actorRef.parsed)
