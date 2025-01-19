@@ -207,6 +207,22 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
         assertEntity(res, "Juno", "Beastars")
     }
 
+    @Test
+    fun maurizioMerluzzo() {
+        val res = run("Maurizio_Merluzzo")
+        assertNotNull(res.dubbedEntities)
+        assertFalse(res.dubbedEntities!!.isEmpty())
+
+        assertLinkedEntity(res, "Zachary Levi",
+            "Shazam!",
+            "The Mauritanian",
+            "Shazam! Furia degli dei",
+            "Il magico mondo di Harold",
+            "La fantastica signora Maisel",
+        )
+        val levi = find(res, "Zachary Levi")
+        assertEquals(5, levi.size, levi.map { it.movie.name }.toString())
+    }
 }
 
 @Disabled
