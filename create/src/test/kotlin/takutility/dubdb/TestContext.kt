@@ -31,7 +31,7 @@ class TestContext(
                 dubEntityDb = mock(),
                 trakt = mock(),
                 wikiApi = mock(),
-                wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader("src/test/resources/cache"),
+                wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader("create/src/test/resources/cache"),
                 config = Config(mock(), mock(), mock(), mock()),
                 fullMock = fullMock
             )
