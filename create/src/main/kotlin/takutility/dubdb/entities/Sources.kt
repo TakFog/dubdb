@@ -72,6 +72,7 @@ interface AnySourceIds: Collection<SourceId> {
     fun allMatch(other: AnySourceIds): Boolean
     fun anyMatch(other: AnySourceIds): Boolean
     fun noMismatch(other: AnySourceIds): Boolean
+    fun isCompatible(other: AnySourceIds): Boolean
     fun toImmutable(): ImmutableSourceIds
     /**
      * Returns a mutable copy of this SourceIds
@@ -119,6 +120,21 @@ open class ImmutableSourceIds(override val data: Map<Source, SourceId>) : AnySou
         if (isEmpty() || other.isEmpty()) return true
 
         return data.none { e -> e.key in other.data && other.data[e.key]?.id != e.value.id }
+    }
+
+    override fun isCompatible(other: AnySourceIds): Boolean {
+        if (isEmpty() || other.isEmpty()) return true
+
+        var match = false
+        data.forEach { e ->
+            if (e.key in other.data) {
+                if (e.value.id == other.data[e.key]?.id)
+                    match = true
+                else
+                    return false
+            }
+        }
+        return match
     }
 
     override fun toImmutable(): ImmutableSourceIds = this

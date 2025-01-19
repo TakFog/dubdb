@@ -74,7 +74,7 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
 
         val subIds = SourceIds.of(ids
             .filter { it.source in listOf(Source.WIKI, Source.WIKI_EN, Source.WIKI_MISSING) })
-        return db.values.filter { it.ids.noMismatch(subIds) }
+        return db.values.filter { it.ids.isCompatible(subIds) }
     }
 }
 
@@ -107,6 +107,8 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun findMostCommonMovies(limit: Int) = findMostCommon(limit) { it.movie }
     override fun findMostCommonDubbers(limit: Int) = findMostCommon(limit) { it.dubber }
     override fun findMostCommonActors(limit: Int) = findMostCommon(limit) { it.actor }
+
+    override fun findByRef(ref: DubberRef) = db.values.filter { it.dubber?.matches(ref) ?: false }
 
     override fun updateRefIds(refs: List<DubberRef>) {
         db.values.forEach { de ->

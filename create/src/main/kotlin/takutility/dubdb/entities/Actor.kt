@@ -7,8 +7,8 @@ interface ActorRef: EntityRef {
     override fun toRef(): ActorRef = ActorRefImpl(name, ids.toMutable())
 }
 
-class ActorRefImpl(name: String? = null, ids: SourceIds = SourceIds())
-    : BaseEntityRefImpl<Actor>(name, ids), ActorRef
+class ActorRefImpl(name: String? = null, ids: SourceIds = SourceIds(), parsed: Boolean? = null)
+    : BaseEntityRefImpl<Actor>(name, ids, parsed), ActorRef
 
 class Actor(
     name: String,

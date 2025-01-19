@@ -37,7 +37,7 @@ interface EntityRef {
     fun matches(other: EntityRef): Boolean {
         if (id != null && other.id != null)
             return id == other.id
-        return ids.anyMatch(other.ids) && ids.noMismatch(other.ids)
+        return ids.isCompatible(other.ids)
     }
 }
 

@@ -8,8 +8,8 @@ interface DubberRef: EntityRef {
     override fun toRef(): DubberRef = DubberRefImpl(name, ids.toMutable())
 }
 
-class DubberRefImpl(name: String? = null, ids: SourceIds = SourceIds())
-    : BaseEntityRefImpl<Dubber>(name, ids), DubberRef
+class DubberRefImpl(name: String? = null, ids: SourceIds = SourceIds(), parsed: Boolean? = null)
+    : BaseEntityRefImpl<Dubber>(name, ids, parsed), DubberRef
 
 class Dubber(
     name: String,

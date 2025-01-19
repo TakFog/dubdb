@@ -1,6 +1,7 @@
 package takutility.dubdb.ops.dubber
 
 import takutility.dubdb.DubDbContext
+import takutility.dubdb.entities.DubbedEntity
 import takutility.dubdb.entities.Dubber
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
@@ -30,9 +31,10 @@ class ExtractDubber(val context: DubDbContext) {
 
         dubber.parseTs = Instant.now()
         context.dubberDb.save(dubber)
+        context.dubEntityDb.updateRefIds(listOf(dubber))
 
         context[ReadDubberSection::class].run(dubber, page).dubbedEntities
-            ?.let(context.dubEntityDb::save)
+            ?.let { saveEntities(dubber, it) }
 
         return dubber
     }
@@ -48,4 +50,20 @@ class ExtractDubber(val context: DubDbContext) {
             Dubber("", ids = ids)
         }
     }
+
+    private fun saveEntities(dubber: Dubber, entities: List<DubbedEntity>) {
+        val oldEntities = context.dubEntityDb.findByRef(dubber).groupBy { it.movie }
+
+        val toSave = if (oldEntities.isEmpty()) entities
+        else
+            // select entities not already present in the db
+            entities.filter { e -> oldEntities[e.movie]?.none { o ->
+                if (e.name == o.name) return@none true
+                o.actor?.let { if (e.name == it.name || (e.ids.isNotEmpty() && it.matches(e))) return@none true }
+                return@none false
+            } ?: true }
+
+        context.dubEntityDb.save(toSave)
+    }
+
 }
