@@ -22,8 +22,6 @@ internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
         assertActor(res,
             "Chris Hemsworth" to "Thor",
             "Cobie Smulders" to "Maria Hill",
-            "Paul Bettany" to "Visione",
-            "Paul Bettany" to "J.A.R.V.I.S.",
         )
         assertDubber(res,
             "Massimiliano Manfredi" to "Thor",
@@ -60,6 +58,8 @@ internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
             "Mark Ruffalo" to "Bruce Banner",
             "Mark Ruffalo" to "Hulk",
             "Lou Ferrigno" to "Hulk",
+            "Paul Bettany" to "Visione",
+            "Paul Bettany" to "J.A.R.V.I.S.",
         )
         assertDubber(res,
             "Angelo Maggi" to "Tony Stark",

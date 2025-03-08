@@ -9,6 +9,7 @@ import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.WikiApi
 import takutility.dubdb.wiki.CachedWikiPageLoader
 import takutility.dubdb.wiki.WikiPageLoader
+import kotlin.io.path.toPath
 import kotlin.reflect.KClass
 
 class TestContext(
@@ -31,7 +32,8 @@ class TestContext(
                 dubEntityDb = mock(),
                 trakt = mock(),
                 wikiApi = mock(),
-                wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader("create/src/test/resources/cache"),
+                wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader(TestContext::class.java
+                    .getResource("/cache")?.toURI()?.toPath()?.toFile()),
                 config = Config(mock(), mock(), mock(), mock()),
                 fullMock = fullMock
             )
