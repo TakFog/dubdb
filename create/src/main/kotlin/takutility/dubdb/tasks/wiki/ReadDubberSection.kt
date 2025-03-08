@@ -43,7 +43,8 @@ class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
                 element = element.nextElementSibling()
                 continue
             }
-            element.select("li").forEach { li: Element ->
+            element.select("li").clone().forEach { li: Element ->
+                li.select("sup").remove()
                 val split = findSplit(li) ?: return@forEach //no split, ignore
 
                 val rowEntities = getEntities(li, split)
