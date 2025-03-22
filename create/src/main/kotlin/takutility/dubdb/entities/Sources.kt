@@ -67,6 +67,7 @@ interface AnySourceIds: Collection<SourceId> {
     fun containsAllSrc(sources: Collection<Source>): Boolean
     operator fun contains(source: Source): Boolean
     operator fun get(source: Source): SourceId?
+    operator fun plus(other: AnySourceIds): AnySourceIds
     fun getId(source: Source): String?
     fun containsId(sourceId: SourceId): Boolean
     fun allMatch(other: AnySourceIds): Boolean
@@ -98,6 +99,7 @@ open class ImmutableSourceIds(override val data: Map<Source, SourceId>) : AnySou
     override operator fun contains(source: Source) = data.keys.contains(source)
 
     override operator fun get(source: Source) = data[source]
+    override fun plus(other: AnySourceIds) = ImmutableSourceIds(data + other.data)
 
     override fun getId(source: Source) = data[source]?.id
 
@@ -187,6 +189,8 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
 
     constructor() : this(mutableMapOf())
 
+    override fun plus(other: AnySourceIds) = SourceIds(data.toMutableMap().apply { this += other.data})
+
     operator fun plusAssign(element: SourceId?) {
         element?.let { data[it.source] = it }
     }
@@ -198,6 +202,8 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
     fun add(element: SourceId?) {
         element?.let { data[it.source] = it }
     }
+
+    fun remove(source: Source) = data.remove(source)
 
     operator fun set(source: Source, id: Any?) {
         if (id == null)
