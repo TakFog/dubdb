@@ -9,7 +9,7 @@ import takutility.dubdb.tasks.TaskResult
 
 
 internal class MergeEntityByNameTest {
-    val movieRef = movieRefOf()
+    val movieRef = movieRefOf(ids = SourceIds.of(Source.WIKI to "movie", Source.TRAKT to "123456"))
 
     protected lateinit var task: MergeEntityByName
 
@@ -101,6 +101,64 @@ internal class MergeEntityByNameTest {
     }
 
     @Test
+    fun trakt_ultron() {
+        val starkActor = act("Robert Downey Jr." to "Tony Stark")
+        val ironmanActor = act("Robert Downey Jr." to "Iron Man")
+        val bartonActor = act("Jeremy Renner" to "Clint Barton")
+        val falcoActor = act("Jeremy Renner" to "Occhio di Falco")
+        val visioneActor = act("Paul Bettany" to "Visione")
+        val jarvisActor = act("Paul Bettany" to "J.A.R.V.I.S.")
+        val starkDubber = dub("Angelo Maggi" to "Tony Stark")
+        val ironmanDubber = dub("Angelo Maggi" to "Iron Man")
+        val bartonDubber = dub("Christian Iansante" to "Clint Barton")
+        val falcoDubber = dub("Christian Iansante" to "Occhio di Falco")
+        val visioneDubber = dub("Nino D'Agata" to "Visione")
+        val jarvisDubber = dub("Nino D'Agata" to "J.A.R.V.I.S.")
+        val starkTrakt = trk("Robert Downey Jr." to "Tony Stark")
+        val ironmanTrakt = trk("Robert Downey Jr." to "Iron Man")
+        val bartonTrakt = trk("Jeremy Renner" to "Clint Barton")
+        val falcoTrakt = trk("Jeremy Renner" to "Hawkeye")
+        val visioneTrakt = trk("Paul Bettany" to "Vision")
+        val jarvisTrakt = trk("Paul Bettany" to "Jarvis")
+
+        val res = run(
+            starkActor,
+            ironmanActor,
+            bartonActor,
+            falcoActor,
+            visioneActor,
+            jarvisActor,
+            starkDubber,
+            ironmanDubber,
+            bartonDubber,
+            falcoDubber,
+            visioneDubber,
+            jarvisDubber,
+            starkTrakt,
+            ironmanTrakt,
+            bartonTrakt,
+            falcoTrakt,
+            visioneTrakt,
+            jarvisTrakt,
+        )
+
+        val stark = assertMergeNoActor(res, starkDubber, starkActor, starkTrakt)
+        assertEquals(starkActor.actor, stark.actor)
+        val ironman = assertMergeNoActor(res, ironmanDubber, ironmanActor, ironmanTrakt)
+        assertEquals(ironmanActor.actor, ironman.actor)
+
+        val barton = assertMergeNoActor(res, bartonDubber, bartonActor, bartonTrakt)
+        assertEquals(bartonActor.actor, barton.actor)
+        assertMerge(res, falcoDubber, falcoActor)
+        assertMissing(res, falcoTrakt.name)
+
+        assertMerge(res, visioneDubber, visioneActor)
+        assertMissing(res, visioneTrakt.name)
+        assertMerge(res, jarvisDubber, jarvisActor)
+        assertMissing(res, jarvisTrakt.name)
+    }
+
+    @Test
     fun multi_teamAmerica() {
         val pennDubber = dub("Massimo Rossi" to "Sean Penn")
         val johnstonDubber = dub("Massimiliano Alto" to "Gary Johnston")
@@ -170,18 +228,106 @@ internal class MergeEntityByNameTest {
         assertMissing(res, "char5")
     }
 
+    @Test
+    fun tooManyDubbers() {
+        val actor1 = act("actor1" to "char1")
+        val actor2 = act("actor2" to "char2")
+        val dubber1 = dub("dubber1" to "char1")
+        val dubber2a = dub("dubber2a" to "char2")
+        val dubber2b = dub("dubber2b" to "char2")
+
+        val res = run(
+            actor1,
+            actor2,
+            dubber1,
+            dubber2a,
+            dubber2b,
+        )
+
+        assertMerge(res, dubber1, actor1)
+        assertMissing(res, "char2")
+    }
+
+    @Test
+    fun tooManyActors() {
+        val actor1 = act("actor1" to "char1")
+        val actor2a = act("actor2a" to "char2")
+        val actor2b = act("actor2b" to "char2")
+        val dubber1 = dub("dubber1" to "char1")
+        val dubber2 = dub("dubber2" to "char2")
+
+        val res = run(
+            actor1,
+            actor2a,
+            actor2b,
+            dubber1,
+            dubber2,
+        )
+
+        assertMerge(res, dubber1, actor1)
+        assertMissing(res, "char2")
+    }
+
+    @Test
+    fun withTrakt() {
+        val actor1 = act("actor1" to "char1")
+        val actor2 = act("actor2" to "char2")
+        val actor4 = act("actor4" to "char4")
+        val actor5 = act("actor5" to "char5")
+        val dubber1 = dub("dubber1" to "char1")
+        val dubber3 = dub("dubber3" to "char3")
+        val dubber4 = dub("dubber4" to "char4")
+        val dubber6 = dub("dubber6" to "char6")
+        val trakt1 = trk("trakt1" to "char1")
+        val trakt3 = trk("trakt3" to "char3")
+        val trakt5 = trk("trakt5" to "char5")
+        val trakt7 = trk("trakt7" to "char7")
+
+        val res = run(
+            trakt1,
+            actor1,
+            actor2,
+            actor4,
+            actor5,
+            dubber1,
+            dubber3,
+            dubber4,
+            dubber6,
+            trakt3,
+            trakt5,
+            trakt7,
+        )
+
+        val e1 = assertMergeNoActor(res, dubber1, actor1, trakt1)
+        assertEquals(actor1.actor, e1.actor)
+        assertMissing(res, "char2")
+        assertMerge(res, dubber3, trakt3)
+        assertMerge(res, dubber4, actor4)
+        assertMissing(res, "char5")
+        assertMissing(res, "char6")
+        assertMissing(res, "char7")
+    }
+
     /// utility functions
 
     fun assertMerge(res: TaskResult, vararg sources: DubbedEntity) {
+        val entity = assertMergeNoActor(res, *sources)
+        sources.forEach { s ->
+            s.actor?.apply { assertEquals(this, entity.actor, "actor") }
+        }
+    }
+
+    fun assertMergeNoActor(res: TaskResult, vararg sources: DubbedEntity): DubbedEntity {
         val name = sources[0].name
         val entity = res.dubbedEntities?.find { it.name == name } ?: fail("$name not found")
         assertNull(entity.id, "id")
         sources.forEach { s ->
-            s.actor?.apply { assertEquals(this, entity.actor, "actor") }
             s.dubber?.apply { assertEquals(this, entity.dubber, "dubber") }
             assertTrue(entity.ids.containsAll(s.ids.filter { it.source != Source.DUBDB }), "${s.ids} in ${entity.ids}")
             assertTrue(entity.sources.containsAll(s.sources), "${s.sources} in ${entity.sources}")
         }
+        assertEquals(sources.sumOf { it.sources.size }, entity.sources.size, "sources count")
+        return entity
     }
 
     fun assertMissing(res: TaskResult, name: String)
@@ -189,25 +335,34 @@ internal class MergeEntityByNameTest {
 
     fun act(pair: Pair<String,String>) = act(pair.second, pair.first)
     fun act(name: String, actor: String): DubbedEntity {
-        val actorId = SourceId(Source.DUBDB, actor)
         return DubbedEntity(
             name = name,
-            actor = ActorRefImpl(actor, SourceIds.of(actorId)),
+            actor = ActorRefImpl(actor, SourceIds.of(Source.DUBDB to actor, Source.WIKI to actor)),
             ids = SourceIds.of(Source.DUBDB to "$name|a:${actor}", Source.WIKI_EN to actor),
             movie = movieRef,
-            sources = mutableListOf(RawData(actorId, DataSource.MOVIE_ORIG, "<li> $name: $actor")),
+            sources = mutableListOf(RawData(movieRef.wiki!!, DataSource.MOVIE_ORIG, "<li> $name: $actor")),
+        )
+    }
+
+    fun trk(pair: Pair<String,String>) = trk(pair.second, pair.first)
+    fun trk(name: String, actor: String): DubbedEntity {
+        return DubbedEntity(
+            name = name,
+            actor = ActorRefImpl(actor, SourceIds.of(Source.TRAKT to actor)),
+            ids = SourceIds.of(Source.TRAKT to name),
+            movie = movieRef,
+            sources = mutableListOf(RawData(movieRef.ids[Source.TRAKT]!!, DataSource.TRAKT, name)),
         )
     }
 
     fun dub(pair: Pair<String,String>) = dub(pair.second, pair.first)
     fun dub(name: String, dubber: String): DubbedEntity {
-        val dubberId = SourceId(Source.DUBDB, dubber)
         return DubbedEntity(
             name = name,
-            dubber = DubberRefImpl(dubber, SourceIds.of(dubberId)),
+            dubber = DubberRefImpl(dubber, SourceIds.of(Source.DUBDB to dubber, Source.WIKI to dubber)),
             ids = SourceIds.of(Source.DUBDB to "$name|d:${dubber}", Source.MONDO_DOPPIATORI to dubber),
             movie = movieRef,
-            sources = mutableListOf(RawData(dubberId, DataSource.MOVIE_DUB, "<li> $name: $dubber")),
+            sources = mutableListOf(RawData(movieRef.wiki!!, DataSource.MOVIE_DUB, "<li> $name: $dubber")),
         )
     }
 }
