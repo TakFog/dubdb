@@ -110,13 +110,25 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
 
     override fun findByRef(ref: DubberRef) = db.values.filter { it.dubber?.matches(ref) ?: false }
 
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("updateDubberRefIds")
     override fun updateRefIds(refs: List<DubberRef>) {
+        updateRefIds(refs, DubbedEntity::dubber)
+    }
+
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("updateMovieRefIds")
+    override fun updateRefIds(refs: List<MovieRef>) {
+        updateRefIds(refs, DubbedEntity::movie)
+    }
+
+    private fun <T: EntityRef> updateRefIds(refs: List<T>, extractor: (DubbedEntity) -> T?) {
         db.values.forEach { de ->
-            val dubber = de.dubber ?: return@forEach
+            val subEntity = extractor.invoke(de) ?: return@forEach
             refs.forEach {
-                if (dubber.matches(it)) {
-                    dubber.ids += it.ids
-                    it.parsed?.apply { dubber.parsed = this }
+                if (subEntity.matches(it)) {
+                    subEntity.ids += it.ids
+                    it.parsed?.apply { subEntity.parsed = this }
                 }
             }
         }

@@ -33,7 +33,12 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
 
     fun findByRef(ref: DubberRef): List<DubbedEntity>
 
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("updateDubberRefIds")
     fun updateRefIds(refs: List<DubberRef>)
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("updateMovieRefIds")
+    fun updateRefIds(refs: List<MovieRef>)
 
     fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int>
     fun countDubber(dubber: DubberRef) = countDubbers(listOf(dubber))[dubber] ?: 0

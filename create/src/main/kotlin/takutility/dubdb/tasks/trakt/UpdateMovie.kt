@@ -1,11 +1,12 @@
 package takutility.dubdb.tasks.trakt
 
+import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.Movie
 import takutility.dubdb.entities.MovieType
 import takutility.dubdb.entities.Source.TRAKT
-import takutility.dubdb.service.Trakt
 
-class UpdateMovie(private val trakt: Trakt) {
+class UpdateMovie(context: DubDbContext) {
+    private val trakt = context.trakt
 
     fun run(movie: Movie) {
         // get trakt info from imdb, if available

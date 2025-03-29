@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
+import takutility.dubdb.TestContext
 import takutility.dubdb.entities.Movie
 import takutility.dubdb.entities.MovieType
 import takutility.dubdb.entities.Source
@@ -108,7 +109,7 @@ internal class UpdateMovieTest: UpdateMovieBaseTest() {
             on { searchImdb("tt5363918") } doReturn disincanto
             on { searchTrakt("126558") } doReturn disincanto
         }
-        task = UpdateMovie(trakt)
+        task = UpdateMovie(TestContext.mocked { it.trakt=trakt })
     }
 }
 
@@ -117,7 +118,7 @@ internal class UpdateMovieIntegrationTest: UpdateMovieBaseTest() {
 
     @BeforeEach
     fun setup() {
-        task = UpdateMovie(traktImpl)
+        task = UpdateMovie(TestContext.mocked { it.trakt=traktImpl })
     }
 }
 

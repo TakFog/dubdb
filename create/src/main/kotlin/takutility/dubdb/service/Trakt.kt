@@ -53,7 +53,7 @@ class SearchResults(private val results: List<SearchResult>) {
     }
 }
 
-class CreditResults(val movies: List<CastMember>, val shows: List<CastMember>): Iterable<CastMember> {
+class CreditResults(val movies: List<CastMember>, val shows: List<CastMember> = listOf()): Iterable<CastMember> {
     override fun iterator(): Iterator<CastMember> = sequence {
         yieldAll(movies)
         yieldAll(shows)

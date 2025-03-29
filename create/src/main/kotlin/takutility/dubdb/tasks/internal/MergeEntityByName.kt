@@ -5,8 +5,9 @@ import takutility.dubdb.tasks.TaskResult
 
 class MergeEntityByName {
 
-    fun run(entities: Collection<DubbedEntity>) : TaskResult {
-        val merged = entities.groupBy(DubbedEntity::name).values.mapNotNull { merge(it) }
+    fun run(entities: Collection<DubbedEntity>, keepUnmerged: Boolean = false) : TaskResult {
+        val merged = entities.groupBy(DubbedEntity::name).values
+            .flatMap { des -> merge(des)?.let { listOf(it) } ?: if (keepUnmerged) des else listOf() }
         return if (merged.isEmpty()) TaskResult.empty else TaskResult(dubbedEntities = merged)
     }
 

@@ -4,25 +4,104 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import takutility.dubdb.DubDbContext
+import org.mockito.kotlin.doReturn
 import takutility.dubdb.TestContext
 import takutility.dubdb.db.MemDubbedEntityRepository
 import takutility.dubdb.db.MemMovieRepository
 import takutility.dubdb.entities.*
+import takutility.dubdb.service.CreditResults
+import takutility.dubdb.service.SearchResults
+import takutility.dubdb.tasks.trakt.*
+
+private val ultron: SearchResults = SearchResults(listOf(
+    newResult {
+        type = "movie"
+        movie = newMovie {
+            title = "Avengers: Age of Ultron"
+            year = 2015
+            ids = newMovieIds {
+                trakt = 71938
+                slug = "avengers-age-of-ultron-2015"
+                imdb = "tt2395427"
+                tmdb = 99861
+            }
+        }
+    }
+))
+private val ultronCredits = CreditResults(listOf(
+    newCast(listOf("Tony Stark","Iron Man"), person = newPerson {
+        name = "Robert Downey Jr."
+        ids = newPersonIds(15987, "nm0000375")
+    }),
+    newCast(listOf("Thor"), person = newPerson {
+        name = "Chris Hemsworth"
+        ids = newPersonIds(425150, "nm1165110")
+    }),
+    newCast(listOf("Bruce Banner", "Hulk"), person = newPerson {
+        name = "Mark Ruffalo"
+        ids = newPersonIds(406, "nm0749263")
+    }),
+    newCast(listOf("Ultron (voice)"), person = newPerson {
+        name = "James Spader"
+        ids = newPersonIds(414968, "nm0000652")
+    }),
+    newCast(listOf("Jarvis", "Vision"), person = newPerson {
+        name = "Paul Bettany"
+        ids = newPersonIds(16158, "nm0079273")
+    }),
+    newCast(listOf("Dr. Cho's Assistant"), person = newPerson {
+        name = "Chan Woo Lim"
+        ids = newPersonIds(809168)
+    }),
+    newCast(listOf("Dr. Cho's Assistant"), person = newPerson {
+        name = "Minhee Yeo"
+        ids = newPersonIds(809169)
+    }),
+    newCast(listOf("Cooper Barton"), person = newPerson {
+        name = "Ben Sakamoto"
+        ids = newPersonIds(809181, "nm7337680")
+    }),
+    newCast(listOf("Klaue's Mercenary"), person = newPerson {
+        name = "Bentley Kalu"
+        ids = newPersonIds(558102, "nm3021103")
+    }),
+))
+private val valerian: SearchResults = SearchResults(listOf(
+    newResult {
+        type = "movie"
+        movie = newMovie {
+            title = "Valerian and the City of a Thousand Planets"
+            year = 2017
+            ids = newMovieIds {
+                trakt = 220423
+                slug = "valerian-and-the-city-of-a-thousand-planets-2017"
+                imdb = "tt2239822"
+                tmdb = 339964
+            }
+        }
+    }
+))
 
 internal class ExtractMovieTest {
     lateinit var movieDb: MemMovieRepository
     lateinit var dubEntityDb: MemDubbedEntityRepository
-    lateinit var ctx: DubDbContext
+    lateinit var trakt: TraktMock
+    lateinit var ctx: TestContext
     lateinit var op: ExtractMovie
 
     @BeforeEach
     fun setUp() {
         dubEntityDb = MemDubbedEntityRepository()
         movieDb = MemMovieRepository()
+        trakt = mockTrakt {
+            on { searchImdb("tt2395427") } doReturn ultron
+            on { searchImdb("tt2239822") } doReturn valerian
+            on { movieCredits(71938) } doReturn ultronCredits
+        }
         ctx = TestContext.mocked {
             it.movieDb = movieDb
             it.dubEntityDb = dubEntityDb
+            it.trakt = trakt
         }
         op = ExtractMovie(ctx)
     }
@@ -94,7 +173,6 @@ internal class ExtractMovieTest {
             assertEquals(movie.id, it.movie.id, "$it invalid movie")
         }
         entities.find { it.name == "Thor" }?.sources?.apply {
-            forEach { assertEquals(movie.wiki, it.sourceId) }
             assertEquals(3, size)
             assertEquals(setOf(DataSource.MOVIE_DUB, DataSource.MOVIE_ORIG, DataSource.TRAKT), map { it.dataSource }.toSet())
             assertEquals(setOf(movie.wiki), filter { it.dataSource != DataSource.TRAKT }.map { it.sourceId }.toSet())
