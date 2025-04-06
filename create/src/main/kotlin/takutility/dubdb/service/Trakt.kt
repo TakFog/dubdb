@@ -25,6 +25,7 @@ interface Trakt {
             entity.ids[IMDB]?.id?.let(this::searchImdb)
 
     fun personCredits(traktId: Int): CreditResults?
+    fun movieCredits(traktId: Int): CreditResults?
 }
 
 class SearchResults(private val results: List<SearchResult>) {
@@ -79,6 +80,15 @@ class TraktImpl(private val trakt: TraktV2) : Trakt {
             val movies = trakt.people().movieCredits(strId).execute().ifSuccessful()?.body() ?: return null
             val shows = trakt.people().showCredits(strId).execute().ifSuccessful()?.body() ?: return null
             return CreditResults(movies.cast.toList(), shows.cast.toList())
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+    }
+
+    override fun movieCredits(traktId: Int): CreditResults? {
+        try {
+            val credits = trakt.movies().people(traktId.toString()).execute().ifSuccessful()?.body() ?: return null
+            return CreditResults(credits.cast.toList(), listOf())
         } catch (e: Exception) {
             throw RuntimeException(e)
         }

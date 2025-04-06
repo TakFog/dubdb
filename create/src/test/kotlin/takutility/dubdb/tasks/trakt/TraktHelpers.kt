@@ -29,6 +29,12 @@ fun newShowIds(trakt: Int? = null, imdb: String? = null) = ShowIds().also {
     it.imdb = imdb
 }
 
+inline fun newPerson(init: com.uwetrottmann.trakt5.entities.Person.() -> Unit) = com.uwetrottmann.trakt5.entities.Person().apply(init)
+fun newPersonIds(trakt: Int? = null, imdb: String? = null) = PersonIds().also {
+    it.trakt = trakt
+    it.imdb = imdb
+}
+
 fun newCast(
     characters: List<String?>? = null,
     movie: Movie? = null,
