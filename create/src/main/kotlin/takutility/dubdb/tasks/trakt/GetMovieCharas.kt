@@ -13,7 +13,12 @@ class GetMovieCharas(context: DubDbContext) {
         val traktId = movie.traktId ?: return TaskResult.empty
         val trackSourceId = movie.ids[TRAKT]!!
 
-        val entities = trakt.movieCredits(traktId)?.asSequence()?.flatMap { credit ->
+        val credits = if (movie.type == MovieType.MOVIE)
+            trakt.movieCredits(traktId)
+        else
+            trakt.showCredits(traktId)
+
+        val entities = credits?.asSequence()?.flatMap { credit ->
             credit.person
                 ?.run {
                     ActorRefImpl(
