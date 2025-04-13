@@ -17,6 +17,7 @@ class ExtractMovie(val context: DubDbContext) {
     fun run(page: WikiPage): Movie {
         /*
             Estrai id da wiki
+            TODO Estrai titolo
             Estrai film da trakt
             Salva film
 
@@ -30,7 +31,7 @@ class ExtractMovie(val context: DubDbContext) {
         val ids = SourceIds.of(Source.WIKI to page.title)
         ids += context[ReadIds::class].run(page).sourceIds
 
-        val movie = getMovie(ids)
+        val movie = getMovie(page.title, ids)
         context[UpdateMovie::class].run(movie)
 
         movie.parseTs = Instant.now()
@@ -40,13 +41,14 @@ class ExtractMovie(val context: DubDbContext) {
         val infobox = context[ReadMovieInfobox::class].run(movie).dubbedEntities ?: listOf()
         val trakt = context[GetMovieCharas::class].run(movie).dubbedEntities ?: listOf()
         //TODO
-        context[MergeEntityByName::class].run(infobox + trakt, true).dubbedEntities
+        val fromDb = context.dubEntityDb.findByRef(movie)
+        context[MergeEntityByName::class].run(infobox + trakt + fromDb, true).dubbedEntities
             ?.let { context.dubEntityDb.save(it) }
 
         return movie
     }
 
-    private fun getMovie(ids: SourceIds): Movie {
+    private fun getMovie(name: String, ids: SourceIds): Movie {
         val results = context.movieDb.findBySources(ids)
 
         return if (results.size == 1) {
@@ -54,7 +56,7 @@ class ExtractMovie(val context: DubDbContext) {
             found.ids += ids
             found
         } else {
-            Movie("", ids = ids)
+            Movie(name, ids = ids)
         }
     }
 }

@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import takutility.dubdb.TestContext
-import takutility.dubdb.entities.DataSource
-import takutility.dubdb.entities.Source
-import takutility.dubdb.entities.SourceIds
-import takutility.dubdb.entities.movieRefOf
+import takutility.dubdb.entities.*
 import takutility.dubdb.service.CreditResults
 import takutility.dubdb.tasks.TaskResult
 
@@ -18,7 +15,7 @@ internal abstract class GetMovieCharasBaseTest {
 
     @Test
     fun ultron() {
-        val movie = movieRefOf("Avengers: Age of Ultron", ids = SourceIds.of(Source.TRAKT to "71938"))
+        val movie = movieRefOf("Avengers: Age of Ultron", ids = SourceIds.of(Source.TRAKT to "71938"), type = MovieType.MOVIE)
 
         val result = task.run(movie)
 

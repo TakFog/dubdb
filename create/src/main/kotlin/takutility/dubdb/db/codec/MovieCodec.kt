@@ -56,12 +56,10 @@ class MovieCodec : EntityCodec<Movie>() {
 
     override fun encodeObject(w: BsonWriter, entity: Movie, ctx: EncoderContext?) {
         super.encodeObject(w, entity, ctx)
-        w.writeName(TYPE_FIELD)
-        if (entity.type != null)
+        if (entity.type != null) {
+            w.writeName(TYPE_FIELD)
             typeCodec.encode(w, entity.type, ctx)
-        else
-            w.writeNull()
-
+        }
         if (entity.year != null)
             w.writeInt32(YEAR_FIELD, entity.year!!)
     }

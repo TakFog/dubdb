@@ -32,6 +32,7 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     fun findMostCommonActors(limit: Int): List<ActorRef>
 
     fun findByRef(ref: DubberRef): List<DubbedEntity>
+    fun findByRef(ref: MovieRef): List<DubbedEntity>
 
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("updateDubberRefIds")

@@ -109,6 +109,7 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun findMostCommonActors(limit: Int) = findMostCommon(limit) { it.actor }
 
     override fun findByRef(ref: DubberRef) = db.values.filter { it.dubber?.matches(ref) ?: false }
+    override fun findByRef(ref: MovieRef) = db.values.filter { it.movie.matches(ref) }
 
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("updateDubberRefIds")

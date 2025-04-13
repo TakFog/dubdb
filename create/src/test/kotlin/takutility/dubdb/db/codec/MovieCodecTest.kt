@@ -57,7 +57,7 @@ internal class MovieCodecTest {
         codec.encode(w, movie, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"name": "test name", "type": null}""",
+            """{"name": "test name"}""",
             jsonWriter.toString()
         )
     }
@@ -68,7 +68,7 @@ internal class MovieCodecTest {
         codec.encode(w, movie, EncoderContext.builder().build())
 
         Assertions.assertEquals(
-            """{"name": "test name", "type": null, "year": 2019}""",
+            """{"name": "test name", "year": 2019}""",
             jsonWriter.toString()
         )
     }

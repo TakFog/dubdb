@@ -143,12 +143,12 @@ internal class MergeEntityByNameTest {
         )
 
         val stark = assertMergeNoActor(res, starkDubber, starkActor, starkTrakt)
-        assertEquals(starkActor.actor, stark.actor)
+        assertEquals(mergeActorIds(starkActor, starkTrakt), stark.actor?.ids)
         val ironman = assertMergeNoActor(res, ironmanDubber, ironmanActor, ironmanTrakt)
-        assertEquals(ironmanActor.actor, ironman.actor)
+        assertEquals(mergeActorIds(ironmanActor, ironmanTrakt), ironman.actor?.ids)
 
         val barton = assertMergeNoActor(res, bartonDubber, bartonActor, bartonTrakt)
-        assertEquals(bartonActor.actor, barton.actor)
+        assertEquals(mergeActorIds(bartonActor, bartonTrakt), barton.actor?.ids)
         assertMerge(res, falcoDubber, falcoActor)
         assertMissing(res, falcoTrakt.name)
 
@@ -157,6 +157,8 @@ internal class MergeEntityByNameTest {
         assertMerge(res, jarvisDubber, jarvisActor)
         assertMissing(res, jarvisTrakt.name)
     }
+
+    private fun mergeActorIds(a: DubbedEntity, b: DubbedEntity) = a.actor!!.ids + b.actor!!.ids
 
     @Test
     fun multi_teamAmerica() {
@@ -325,7 +327,7 @@ internal class MergeEntityByNameTest {
         )
 
         val e1 = assertMergeNoActor(res, dubber1, actor1, trakt1)
-        assertEquals(actor1.actor, e1.actor)
+        assertEquals(mergeActorIds(actor1, trakt1), e1.actor?.ids)
         assertMissing(res, "char2")
         assertMerge(res, dubber3, trakt3)
         assertMerge(res, dubber4, actor4)

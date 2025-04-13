@@ -174,8 +174,8 @@ internal class ExtractMovieTest {
         }
         entities.find { it.name == "Thor" }?.sources?.apply {
             assertEquals(3, size)
-            assertEquals(setOf(DataSource.MOVIE_DUB, DataSource.MOVIE_ORIG, DataSource.TRAKT), map { it.dataSource }.toSet())
-            assertEquals(setOf(movie.wiki), filter { it.dataSource != DataSource.TRAKT }.map { it.sourceId }.toSet())
+            assertEquals(setOf(DataSource.MOVIE_DUB, DataSource.MOVIE_ORIG, DataSource.TRAKT_MOVIE), map { it.dataSource }.toSet())
+            assertEquals(setOf(movie.wiki), filter { it.dataSource != DataSource.TRAKT_MOVIE }.map { it.sourceId }.toSet())
         }
     }
 

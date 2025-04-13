@@ -24,9 +24,9 @@ class MergeEntityByName {
         val withActor = entities.filter { it.actor != null }
 
         // skip if any entity with actor comes from the same source
-        if (sameSources(withActor)) return null
+        if (withActor.isEmpty() || sameSources(withActor)) return null
 
-        val wikiActor = (withActor.find { it.actor?.wiki != null } ?: withActor[0]).actor!!
+        val actor = biggestEntity(withActor.map { it.actor!! }, ::ActorRefImpl)
 
         val ids = SourceIds()
         withActor.forEach { ids += it.ids }
@@ -41,7 +41,7 @@ class MergeEntityByName {
             name = mainSource.name,
             movie = mainSource.movie,
             dubber = mainSource.dubber,
-            actor = wikiActor,
+            actor = actor,
             ids = ids,
             parseTs = minOrNull(withDubber.map { it.parseTs }, withActor.map { it.parseTs }),
             sources = sources
@@ -63,9 +63,9 @@ class MergeEntityByName {
         //check if all dubbers are compatible
         dubbed.forEachIndexed { i, e ->
             for (j in i+1 until dubbed.size)
-                if (e.dubber?.matches(dubbed[j]) != true) return null
+                if (!e.dubber!!.matches(dubbed[j].dubber!!)) return null
         }
-        val dubber = biggestDubber(dubbed.map { it.dubber!! })
+        val dubber = biggestEntity(dubbed.map { it.dubber!! }, ::DubberRefImpl)
         val id = dubbed.firstNotNullOfOrNull { it.id }
         // if there is an entity with the biggest dubber use it
         dubbed.firstOrNull { dubber == it.dubber && (id == null || it.id != null) }?.let { return it }
@@ -80,19 +80,23 @@ class MergeEntityByName {
         )
     }
 
-    private fun biggestDubber(dubbers: List<DubberRef>): DubberRef {
-        val dubber = dubbers.maxBy { it.ids.size }
-        if (dubbers.all { dubber.ids.containsAll(it.ids) })
-            return dubber
-        val fromDb = dubbers.firstOrNull { it.isParsed } ?: dubbers.firstOrNull { it.id != null }
-        return DubberRefImpl(
-            name = fromDb?.name ?: dubbers.maxBy { it.name?.length ?: 0 }.name,
-            ids = SourceIds.join(dubbers.map { it.ids }),
-            parsed = when {
-                dubbers.any { it.isParsed } -> true
-                dubbers.all { it.parsed == false } -> false
+    private fun <E: EntityRef> biggestEntity(
+        entities: List<E>,
+        ctor: (String?, SourceIds, Boolean?) -> E
+    ): E {
+        if (entities.size == 1) return entities[0]
+        val maxIds = entities.maxBy { it.ids.size }
+        if (entities.all { maxIds.ids.containsAll(it.ids) })
+            return maxIds
+        val fromDb = entities.firstOrNull { it.isParsed } ?: entities.firstOrNull { it.id != null }
+        return ctor(
+            fromDb?.name ?: maxIds.name,
+            SourceIds.join(entities.map { it.ids }),
+            when {
+                entities.any { it.isParsed } -> true
+                entities.all { it.parsed == false } -> false
                 else -> null
-            }
+            },
         )
     }
 
