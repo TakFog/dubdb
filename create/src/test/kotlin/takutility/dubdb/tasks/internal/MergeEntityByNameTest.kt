@@ -249,6 +249,32 @@ internal class MergeEntityByNameTest {
     }
 
     @Test
+    fun mergeDubbers() {
+        val actor1 = act("actor1" to "char1")
+        val actor2 = act("actor2" to "char2")
+        val dubber1 = dub("dubber1" to "char1")
+        val dubber2a = dub("dubber2" to "char2")
+        val dubber2b = dub("dubber2" to "char2").apply {
+            dubber?.ids?.remove(Source.DUBDB)
+            ids.clear()
+            sources.clear()
+            sources.add(RawData(dubber?.wiki!!, DataSource.DUBBER, "<li> $name: ${movie.wikiId}"))
+        }
+
+        val res = run(
+            actor1,
+            actor2,
+            dubber1,
+            dubber2a,
+            dubber2b,
+        )
+
+        assertMerge(res, dubber1, actor1)
+        val char2 = assertMerge(res, false, true, dubber2a, actor2, dubber2b)
+        assertEquals(dubber2a.dubber, char2.dubber)
+    }
+
+    @Test
     fun tooManyActors() {
         val actor1 = act("actor1" to "char1")
         val actor2a = act("actor2a" to "char2")
@@ -311,18 +337,20 @@ internal class MergeEntityByNameTest {
     /// utility functions
 
     fun assertMerge(res: TaskResult, vararg sources: DubbedEntity) {
-        val entity = assertMergeNoActor(res, *sources)
-        sources.forEach { s ->
-            s.actor?.apply { assertEquals(this, entity.actor, "actor") }
-        }
+        assertMerge(res, true, true, *sources)
     }
 
     fun assertMergeNoActor(res: TaskResult, vararg sources: DubbedEntity): DubbedEntity {
+        return assertMerge(res, true, false, *sources)
+    }
+
+    fun assertMerge(res: TaskResult, checkDubber: Boolean, checkActor: Boolean, vararg sources: DubbedEntity): DubbedEntity {
         val name = sources[0].name
         val entity = res.dubbedEntities?.find { it.name == name } ?: fail("$name not found")
-        assertNull(entity.id, "id")
+        assertEquals(sources[0].id, entity.id, "id")
         sources.forEach { s ->
-            s.dubber?.apply { assertEquals(this, entity.dubber, "dubber") }
+            if (checkActor) s.actor?.apply { assertEquals(this, entity.actor, "actor") }
+            if (checkDubber) s.dubber?.apply { assertEquals(this, entity.dubber, "dubber") }
             assertTrue(entity.ids.containsAll(s.ids.filter { it.source != Source.DUBDB }), "${s.ids} in ${entity.ids}")
             assertTrue(entity.sources.containsAll(s.sources), "${s.sources} in ${entity.sources}")
         }
@@ -351,7 +379,7 @@ internal class MergeEntityByNameTest {
             actor = ActorRefImpl(actor, SourceIds.of(Source.TRAKT to actor)),
             ids = SourceIds.of(Source.TRAKT to name),
             movie = movieRef,
-            sources = mutableListOf(RawData(movieRef.ids[Source.TRAKT]!!, DataSource.TRAKT, name)),
+            sources = mutableListOf(RawData(movieRef.ids[Source.TRAKT]!!, DataSource.TRAKT_MOVIE, name)),
         )
     }
 

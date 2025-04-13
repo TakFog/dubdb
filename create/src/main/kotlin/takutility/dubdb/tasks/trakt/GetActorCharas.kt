@@ -34,7 +34,7 @@ class GetActorCharas(private val trakt: Trakt) {
                         name = name,
                         movie = movie,
                         actor = actorOut,
-                        sources = mutableListOf(RawData(actorOut.ids[TRAKT]!!, DataSource.TRAKT, name))
+                        sources = mutableListOf(RawData(actorOut.ids[TRAKT]!!, DataSource.TRAKT_ACTOR, name))
                     )
                 }
             }

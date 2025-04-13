@@ -112,7 +112,7 @@ private fun assertChara(result: TaskResult, charaName: String, movieName: String
 
     assertEquals(1, chara.sources.size)
     chara.sources[0].apply {
-        assertEquals(DataSource.TRAKT, dataSource, "dataSource")
+        assertEquals(DataSource.TRAKT_ACTOR, dataSource, "dataSource")
         assertEquals(Source.TRAKT, sourceId.source, "sourceId")
         assertEquals(chara.actor?.ids?.get(Source.TRAKT), sourceId, "sourceId")
         assertEquals(charaName, raw, "raw source")

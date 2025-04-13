@@ -28,7 +28,7 @@ class GetMovieCharas(context: DubDbContext) {
                             name = name,
                             movie = movie,
                             actor = actor,
-                            sources = mutableListOf(RawData(trackSourceId, DataSource.TRAKT, name))
+                            sources = mutableListOf(RawData(trackSourceId, DataSource.TRAKT_MOVIE, name))
                         )
                     }
                 }

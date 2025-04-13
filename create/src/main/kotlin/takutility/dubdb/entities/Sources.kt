@@ -185,6 +185,10 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
         fun of(vararg values: SourceId): SourceIds = SourceIds().apply { values.forEach(::add) }
 
         fun of(values: Collection<SourceId>): SourceIds = SourceIds().apply { values.forEach(::add) }
+
+        fun join(vararg ids: AnySourceIds): SourceIds = SourceIds().apply { ids.forEach(::plusAssign) }
+        fun join(ids: Iterable<AnySourceIds>): SourceIds = SourceIds().apply { ids.forEach(::plusAssign) }
+
     }
 
     constructor() : this(mutableMapOf())
@@ -204,6 +208,8 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
     }
 
     fun remove(source: Source) = data.remove(source)
+
+    fun clear() = data.clear()
 
     operator fun set(source: Source, id: Any?) {
         if (id == null)

@@ -38,14 +38,14 @@ internal class MovieCodecTest {
             year = 2019,
             parseTs = parseTs,
             sources = mutableListOf(
-                RawData(SourceId(Source.TRAKT, "123456"), DataSource.TRAKT, "test raw data")
+                RawData(SourceId(Source.TRAKT, "123456"), DataSource.TRAKT_MOVIE, "test raw data")
             )
         )
         codec.encode(w, movie, EncoderContext.builder().build())
 
         assertEquals(
             """{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},"""
-                +""" "sources": [{"source": "TRAKT", "sourceId": "123456", "dataSource": "TRAKT","""
+                +""" "sources": [{"source": "TRAKT", "sourceId": "123456", "dataSource": "TRAKT_MOVIE","""
                 +""" "raw": "test raw data"}], "type": "MOVIE", "year": 2019}""",
             jsonWriter.toString()
         )
@@ -89,7 +89,7 @@ internal class MovieCodecTest {
         val parseTs = Instant.parse("2025-01-02T15:48:30.763Z")
         val decoded = codec.decode(
             JsonReader("""{"name": "test name", "ids": {"TRAKT": "123456", "WIKI": "Wiki_Name"}, "parseTs": ${bdate(parseTs)},
-                "sources": [{"source": "TRAKT", "sourceId": "123456", "dataSource": "TRAKT",
+                "sources": [{"source": "TRAKT", "sourceId": "123456", "dataSource": "TRAKT_MOVIE",
                 "raw": "test raw data"}], "type": "MOVIE", "year": 2019}"""),
             DecoderContext.builder().build())
 
@@ -100,7 +100,7 @@ internal class MovieCodecTest {
         assertEquals(1, decoded.sources.size)
         val source = decoded.sources[0]
         assertEquals(SourceId(Source.TRAKT, "123456"), source.sourceId)
-        assertEquals(DataSource.TRAKT, source.dataSource)
+        assertEquals(DataSource.TRAKT_MOVIE, source.dataSource)
         assertEquals("test raw data", source.raw)
         assertEquals(MovieType.MOVIE, decoded.type)
         assertEquals(2019, decoded.year)
