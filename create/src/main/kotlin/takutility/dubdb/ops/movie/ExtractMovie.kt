@@ -9,6 +9,7 @@ import takutility.dubdb.tasks.trakt.GetMovieCharas
 import takutility.dubdb.tasks.trakt.UpdateMovie
 import takutility.dubdb.tasks.wiki.ReadIds
 import takutility.dubdb.tasks.wiki.ReadMovieInfobox
+import takutility.dubdb.tasks.wiki.ReadTitle
 import takutility.dubdb.wiki.WikiPage
 import java.time.Instant
 
@@ -17,7 +18,7 @@ class ExtractMovie(val context: DubDbContext) {
     fun run(page: WikiPage): Movie {
         /*
             Estrai id da wiki
-            TODO Estrai titolo
+            Estrai titolo
             Estrai film da trakt
             Salva film
 
@@ -31,7 +32,8 @@ class ExtractMovie(val context: DubDbContext) {
         val ids = SourceIds.of(Source.WIKI to page.title)
         ids += context[ReadIds::class].run(page).sourceIds
 
-        val movie = getMovie(page.title, ids)
+        val title = context[ReadTitle::class].run(page).string ?: page.title
+        val movie = getMovie(title, ids)
         context[UpdateMovie::class].run(movie)
 
         movie.parseTs = Instant.now()

@@ -9,6 +9,7 @@ data class TaskResult(
     val dubbedEntities: List<DubbedEntity>? = null,
     val charas: List<Chara>? = null,
     val sourceIds: ImmutableSourceIds = SourceIds.empty,
+    val string: String? = null,
 ) {
     companion object {
         val empty = TaskResult()
