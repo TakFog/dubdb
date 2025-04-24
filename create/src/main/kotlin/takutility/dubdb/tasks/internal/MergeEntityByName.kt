@@ -3,30 +3,37 @@ package takutility.dubdb.tasks.internal
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
 
+private const val VOICE_SUFFIX = " (voice)"
+private fun DubbedEntity.cleanName() = if (!name.endsWith(VOICE_SUFFIX)) name
+    else name.substring(0, name.length - VOICE_SUFFIX.length)
+
 class MergeEntityByName {
 
     fun run(entities: Collection<DubbedEntity>, keepUnmerged: Boolean = false) : TaskResult {
-        val merged = entities.groupBy(DubbedEntity::name).values
+        val merged = entities.groupBy(DubbedEntity::cleanName).values
             .flatMap { des -> merge(des)?.let { listOf(it) } ?: if (keepUnmerged) des else listOf() }
         return if (merged.isEmpty()) TaskResult.empty else TaskResult(dubbedEntities = merged)
     }
 
+
     private fun merge(entities: Collection<DubbedEntity>): DubbedEntity? {
         if (entities.size < 2) return null
-        val withDubber = entities.filter { it.dubber != null }
-        val mainSource = if (withDubber.size == 1)
-            withDubber[0]
-        else if (withDubber.isEmpty() || sameSources(withDubber))
-            return null
-        else
-            selectDubbedMainSource(withDubber) ?: return null
-
         val withActor = entities.filter { it.actor != null }
 
         // skip if any entity with actor comes from the same source
         if (withActor.isEmpty() || sameSources(withActor)) return null
-
         val actor = biggestEntity(withActor.map { it.actor!! }, ::ActorRefImpl)
+
+        val withDubber = entities.filter { it.dubber != null }
+
+        val mainSource = if (withDubber.isEmpty()) {
+            selectActorMainSource(actor, withActor)
+        } else if (withDubber.size == 1)
+            withDubber[0]
+        else if (sameSources(withDubber))
+            return null
+        else
+            selectDubbedMainSource(withDubber) ?: return null
 
         val ids = SourceIds()
         withActor.forEach { ids += it.ids }
@@ -78,6 +85,17 @@ class MergeEntityByName {
             ids = SourceIds.join(dubbed.map { it.ids }),
             sources = dubbed.flatMap { it.sources }.toMutableList(),
         )
+    }
+
+    private fun selectActorMainSource(actor: ActorRef, dubbed: List<DubbedEntity>): DubbedEntity {
+        val withId = dubbed.firstNotNullOfOrNull { if (it.id != null) it else null }
+        val id = withId?.id
+        // if there is an entity with the biggest actor use it
+        dubbed.firstOrNull { actor == it.actor && (id == null || it.id != null) }?.let { return it }
+        // if there is an entity with id use it
+        withId?.let { return it }
+        //otherwise take any from movie
+        return dubbed.first { e -> e.sources.any { it.dataSource.parent == ParentDataSource.MOVIE} }
     }
 
     private fun <E: EntityRef> biggestEntity(

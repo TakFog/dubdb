@@ -184,6 +184,49 @@ internal class MergeEntityByNameTest {
     }
 
     @Test
+    fun trakt_teamAmerica() {
+        val pennDubber = dub("Massimo Rossi" to "Sean Penn")
+        val johnstonDubber = dub("Massimiliano Alto" to "Gary Johnston")
+        val ilDubber = dub("Roberto Pedicini" to "Kim Jong Il")
+        val susanDubber = dub("Alessandra Korompay" to "Susan Sarandon")
+        val lisaDubber = dub("Letizia Ciampa" to "Lisa")
+        val pennActor = act("Trey Parker" to "Sean Penn")
+        val johnstonActor = act("Trey Parker" to "Gary Johnston")
+        val ilActor = act("Trey Parker" to "Kim Jong Il")
+        val susanActor = act("Trey Parker" to "Susan Sarandon")
+        val lisaActor = act("Kristen Miller" to "Lisa")
+        val pennTrakt = trk("Trey Parker" to "Sean Penn")
+        val johnstonTrakt = trk("Trey Parker" to "Gary Johnston")
+        val ilTrakt = trk("Trey Parker" to "Kim Jong Il")
+        val susanTrakt = trk("Trey Parker" to "Susan Sarandon (voice)")
+        val lisaTrakt = trk("Kristen Miller" to "Lisa (voice)")
+
+        val res = run(
+            pennDubber,
+            johnstonDubber,
+            ilDubber,
+            susanDubber,
+            lisaDubber,
+            pennActor,
+            johnstonActor,
+            ilActor,
+            susanActor,
+            lisaActor,
+            pennTrakt,
+            johnstonTrakt,
+            ilTrakt,
+            susanTrakt,
+            lisaTrakt,
+        )
+
+        assertMergeMultiActor(res, pennDubber, pennActor, pennTrakt)
+        assertMergeMultiActor(res, johnstonDubber, johnstonActor, johnstonTrakt)
+        assertMergeMultiActor(res, ilDubber, ilActor, ilTrakt)
+        assertMergeMultiActor(res, susanDubber, susanActor, susanTrakt)
+        assertMergeMultiActor(res, lisaDubber, lisaActor, lisaTrakt)
+    }
+
+    @Test
     fun multiname_ultron() {
         val bannerActor = act("Mark Ruffalo" to "Bruce Banner")
         val hulkRActor = act("Mark Ruffalo" to "Hulk")
@@ -326,12 +369,12 @@ internal class MergeEntityByNameTest {
             trakt7,
         )
 
-        val e1 = assertMergeNoActor(res, dubber1, actor1, trakt1)
-        assertEquals(mergeActorIds(actor1, trakt1), e1.actor?.ids)
+        assertMergeMultiActor(res, dubber1, actor1, trakt1)
         assertMissing(res, "char2")
         assertMerge(res, dubber3, trakt3)
         assertMerge(res, dubber4, actor4)
-        assertMissing(res, "char5")
+        assertMerge(res, checkDubber = false, checkActor = false, actor5, trakt5)
+            .also { assertEquals(mergeActorIds(actor5, trakt5), it.actor?.ids) }
         assertMissing(res, "char6")
         assertMissing(res, "char7")
     }
@@ -343,7 +386,12 @@ internal class MergeEntityByNameTest {
     }
 
     fun assertMergeNoActor(res: TaskResult, vararg sources: DubbedEntity): DubbedEntity {
-        return assertMerge(res, true, false, *sources)
+        return assertMerge(res, checkDubber = true, checkActor = false, *sources)
+    }
+
+    fun assertMergeMultiActor(res: TaskResult, dubber: DubbedEntity, actorA: DubbedEntity, actorB: DubbedEntity) {
+        val e = assertMergeNoActor(res, *(arrayOf(dubber, actorA, actorB)))
+        assertEquals(mergeActorIds(actorA, actorB), e.actor?.ids)
     }
 
     fun assertMerge(res: TaskResult, checkDubber: Boolean, checkActor: Boolean, vararg sources: DubbedEntity): DubbedEntity {
