@@ -37,7 +37,7 @@ internal class ReadTitleTest: WikiPageTest<ReadTitle>() {
     }
 
     @Test
-    fun jocker2() {
+    fun joker2() {
         val res = run("Joker:_Folie_%C3%A0_Deux")
         assertEquals("Joker: Folie à Deux", res)
     }
