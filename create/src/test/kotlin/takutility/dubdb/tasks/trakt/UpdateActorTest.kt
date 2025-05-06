@@ -11,6 +11,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
+import takutility.dubdb.TestContext
 import takutility.dubdb.entities.Actor
 import takutility.dubdb.entities.Source.*
 import takutility.dubdb.entities.SourceIds
@@ -97,7 +98,7 @@ internal class UpdateActorTest: UpdateActorBaseTest() {
         trakt = mockTrakt {
             on { searchImdb("nm0000375") } doReturn downeyJr
         }
-        task = UpdateActor(trakt)
+        task = UpdateActor(TestContext.mocked { it.trakt=trakt })
     }
 
     @Test
@@ -124,7 +125,7 @@ internal class UpdateActorIntegrationTest: UpdateActorBaseTest() {
 
     @BeforeEach
     fun setup() {
-        task = UpdateActor(traktImpl)
+        task = UpdateActor(TestContext.mocked { it.trakt=traktImpl })
     }
 }
 

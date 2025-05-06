@@ -37,6 +37,10 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("updateDubberRefIds")
     fun updateRefIds(refs: List<DubberRef>)
+
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("updateActorRefIds")
+    fun updateRefIds(refs: List<ActorRef>)
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("updateMovieRefIds")
     fun updateRefIds(refs: List<MovieRef>)

@@ -118,6 +118,12 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     }
 
     @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("updateActorRefIds")
+    override fun updateRefIds(refs: List<ActorRef>) {
+        updateRefIds(refs, DubbedEntity::actor)
+    }
+
+    @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("updateMovieRefIds")
     override fun updateRefIds(refs: List<MovieRef>) {
         updateRefIds(refs, DubbedEntity::movie)
