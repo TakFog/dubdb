@@ -22,3 +22,13 @@ fun assertRefEquals(expected: MovieRef?, actual: MovieRef?) {
     assertRefEquals(expected as EntityRef, actual as EntityRef)
     assertEquals(expected.type, actual.type)
 }
+
+fun <T> assertEqualsUnordered(expected: List<T>?, actual: List<T>?) {
+    if (expected == null) {
+        assertNull(actual)
+        return
+    }
+    assertEquals(expected.size, actual!!.size)
+    expected.forEach { assertTrue(actual.contains(it), "$it not found") }
+    actual.forEach { assertTrue(expected.contains(it), "$it unexpected") }
+}
