@@ -11,7 +11,7 @@ class ExtractActor(context: DubDbContext): ExtractPerson<Actor>(context) {
 
     override fun updateRefIds(persons: List<Actor>) = context.dubEntityDb.updateRefIds(persons)
 
-    override fun newPerson(ids: SourceIds) = Actor("", ids = ids)
+    override fun newPerson(title: String, ids: SourceIds) = Actor(title, ids = ids)
 
     override fun moreIds(person: Actor) {
         context[UpdateActor::class].run(person)

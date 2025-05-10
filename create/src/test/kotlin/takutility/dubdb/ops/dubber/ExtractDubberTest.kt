@@ -59,6 +59,20 @@ internal class ExtractDubberTest {
     }
 
     @Test
+    fun angeloMaggi_name() {
+        val dubber = op.run(page("Angelo_Maggi"))
+
+        assertEquals("Angelo Maggi", dubber.name)
+    }
+
+    @Test
+    fun gabrielePatriarca_name() {
+        val dubber = op.run(page("Gabriele_Patriarca_(doppiatore)"))
+
+        assertEquals("Gabriele Patriarca", dubber.name)
+    }
+
+    @Test
     fun angeloMaggi_ids() {
         val dubber = op.run(page("Angelo_Maggi"))
 

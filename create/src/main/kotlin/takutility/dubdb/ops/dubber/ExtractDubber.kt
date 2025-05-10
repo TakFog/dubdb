@@ -13,7 +13,7 @@ class ExtractDubber(context: DubDbContext): ExtractPerson<Dubber>(context) {
 
     override fun updateRefIds(persons: List<Dubber>) = context.dubEntityDb.updateRefIds(persons)
 
-    override fun newPerson(ids: SourceIds) = Dubber("", ids = ids)
+    override fun newPerson(title: String, ids: SourceIds) = Dubber(title, ids = ids)
 
     override fun withPerson(person: Dubber, page: WikiPage) {
         context[ReadDubberSection::class].run(person, page).dubbedEntities

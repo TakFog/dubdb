@@ -68,6 +68,13 @@ internal class ExtractActorTest {
     }
 
     @Test
+    fun robertDowneyJr_name() {
+        val actor = op.run(page("Robert_Downey_Jr."))
+
+        assertEquals("Robert Downey Jr.", actor.name)
+    }
+
+    @Test
     fun robertDowneyJr_ids() {
         val actor = op.run(page("Robert_Downey_Jr."))
 

@@ -8,6 +8,7 @@ import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.tasks.wiki.FindPhoto
 import takutility.dubdb.tasks.wiki.ReadIds
+import takutility.dubdb.tasks.wiki.ReadTitle
 import takutility.dubdb.wiki.WikiPage
 import java.time.Instant
 
@@ -27,7 +28,8 @@ abstract class ExtractPerson<E>(val context: DubDbContext) where E: Entity, E: E
 
         val ids = readIds(page)
 
-        val person = getPerson(ids)
+        val title = context[ReadTitle::class].run(page).string ?: page.title
+        val person = getPerson(title, ids)
         person.ids += context[FindPhoto::class].run(person).sourceIds
         moreIds(person)
 
@@ -47,12 +49,12 @@ abstract class ExtractPerson<E>(val context: DubDbContext) where E: Entity, E: E
     }
 
     protected abstract fun updateRefIds(persons: List<E>)
-    protected abstract fun newPerson(ids: SourceIds): E
+    protected abstract fun newPerson(title: String, ids: SourceIds): E
 
     protected open fun moreIds(person: E) {}
     protected open fun withPerson(person: E, page: WikiPage) {}
 
-    private fun getPerson(ids: SourceIds): E {
+    private fun getPerson(title: String, ids: SourceIds): E {
         val results = db.findBySources(ids)
 
         return if (results.size == 1) {
@@ -60,7 +62,7 @@ abstract class ExtractPerson<E>(val context: DubDbContext) where E: Entity, E: E
             found.ids += ids
             found
         } else {
-            newPerson(ids)
+            newPerson(title, ids)
         }
     }
 
