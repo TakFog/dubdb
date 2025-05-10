@@ -6,6 +6,7 @@ import takutility.dubdb.entities.ActorRef
 import takutility.dubdb.entities.DubbedEntity
 import takutility.dubdb.entities.Source
 import takutility.dubdb.tasks.internal.FindMissingActors
+import takutility.dubdb.util.countInstances
 
 class ExtractMissingActors(val context: DubDbContext) {
 
@@ -19,8 +20,13 @@ class ExtractMissingActors(val context: DubDbContext) {
         val maxActors = context.config.wiki.maxMissingEntities
         val selectedActors = if (actorsWithWiki.size <= maxActors) actorsWithWiki
                 else {
+                    val byName = result.actors.map { it.name }.countInstances()
+
                     context.dubEntityDb.countActors(actorsWithWiki).entries
-                        .sortedByDescending { it.value }
+                        .sortedWith(Comparator
+                            .comparingInt<Map.Entry<ActorRef, Int>?> { it.value }
+                            .thenComparingInt { byName[it.key.name] ?: 0 }
+                            .reversed())
                         .take(maxActors)
                         .map { it.key }
                 }

@@ -1,12 +1,12 @@
 package takutility.dubdb.db
 
-import okhttp3.internal.toImmutableMap
 import org.bson.codecs.DecoderContext
 import org.bson.codecs.EncoderContext
 import org.bson.json.JsonReader
 import org.bson.json.JsonWriter
 import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.*
+import takutility.dubdb.util.countInstances
 import takutility.dubdb.util.isBefore
 import java.io.Writer
 import java.nio.file.Files
@@ -145,13 +145,10 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun countActors(actors: List<ActorRef>) = countEntities(actors) { it.actor }
 
     private fun <E: EntityRef> countEntities(entities: List<E>, getter: (DubbedEntity) -> E? ): Map<E, Int> {
-        val map: MutableMap<E, Int> = entities.associateWithTo(mutableMapOf()) { 0 }
-
-        db.values.asSequence()
+        return db.values.asSequence()
             .mapNotNull(getter)
+            .filter { !it.ids.isEmpty() }
             .flatMap { d -> entities.filter { d.matches(it) } }
-            .forEach { map[it] = map.getOrDefault(it, 0) + 1 }
-
-        return map.toImmutableMap()
+            .countInstances(entities)
     }
 }
