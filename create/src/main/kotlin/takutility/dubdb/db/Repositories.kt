@@ -48,4 +48,7 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int>
     fun countDubber(dubber: DubberRef) = countDubbers(listOf(dubber))[dubber] ?: 0
 
+    fun countActors(actors: List<ActorRef>): Map<ActorRef, Int>
+    fun countActor(actor: ActorRef) = countActors(listOf(actor))[actor] ?: 0
+
 }

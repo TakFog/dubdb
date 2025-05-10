@@ -141,12 +141,15 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
         }
     }
 
-    override fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int> {
-        val map: MutableMap<DubberRef, Int> = dubbers.associateWithTo(mutableMapOf()) { 0 }
+    override fun countDubbers(dubbers: List<DubberRef>) = countEntities(dubbers) { it.dubber }
+    override fun countActors(actors: List<ActorRef>) = countEntities(actors) { it.actor }
+
+    private fun <E: EntityRef> countEntities(entities: List<E>, getter: (DubbedEntity) -> E? ): Map<E, Int> {
+        val map: MutableMap<E, Int> = entities.associateWithTo(mutableMapOf()) { 0 }
 
         db.values.asSequence()
-            .mapNotNull { it.dubber }
-            .flatMap { d -> dubbers.filter { d.matches(it) } }
+            .mapNotNull(getter)
+            .flatMap { d -> entities.filter { d.matches(it) } }
             .forEach { map[it] = map.getOrDefault(it, 0) + 1 }
 
         return map.toImmutableMap()

@@ -4,6 +4,7 @@ import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.Movie
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
+import takutility.dubdb.ops.actor.ExtractMissingActors
 import takutility.dubdb.tasks.internal.MergeEntityByName
 import takutility.dubdb.tasks.trakt.GetMovieCharas
 import takutility.dubdb.tasks.trakt.UpdateMovie
@@ -25,7 +26,7 @@ class ExtractMovie(val context: DubDbContext) {
             Leggi infobox
             Estrai personaggi da trakt
             TODO Scarica doppiatori mancanti
-            TODO Scarica attori mancanti
+            Scarica attori mancanti
             Unisci personaggi
             Salva personaggi
          */
@@ -42,9 +43,13 @@ class ExtractMovie(val context: DubDbContext) {
 
         val infobox = context[ReadMovieInfobox::class].run(movie).dubbedEntities ?: listOf()
         val trakt = context[GetMovieCharas::class].run(movie).dubbedEntities ?: listOf()
-        //TODO
         val fromDb = context.dubEntityDb.findByRef(movie)
-        context[MergeEntityByName::class].run(infobox + trakt + fromDb, true).dubbedEntities
+        val allEntities = infobox + trakt + fromDb
+
+        //TODO
+        context[ExtractMissingActors::class].run(allEntities)
+
+        context[MergeEntityByName::class].run(allEntities, true).dubbedEntities
             ?.let { context.dubEntityDb.save(it) }
 
         return movie

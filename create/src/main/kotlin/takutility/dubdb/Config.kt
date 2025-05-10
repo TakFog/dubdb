@@ -7,7 +7,7 @@ data class TraktConfig(val client_id: String)
 
 data class MongoDBConfig(val url: String, val db: String)
 
-data class WikiConfig(val cache: String?, val categoryLimit : Int = 500)
+data class WikiConfig(val cache: String?, val categoryLimit : Int = 500, val maxMissingEntities: Int = 5)
 
 data class BootstrapConfig(val movie: String, val dub: String)
 
