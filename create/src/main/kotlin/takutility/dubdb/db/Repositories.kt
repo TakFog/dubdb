@@ -1,6 +1,7 @@
 package takutility.dubdb.db
 
 import takutility.dubdb.entities.*
+import takutility.dubdb.util.Counter
 
 interface EntityRepository<E: Entity> {
 
@@ -45,10 +46,10 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     @JvmName("updateMovieRefIds")
     fun updateRefIds(refs: List<MovieRef>)
 
-    fun countDubbers(dubbers: List<DubberRef>): Map<DubberRef, Int>
-    fun countDubber(dubber: DubberRef) = countDubbers(listOf(dubber))[dubber] ?: 0
+    fun countDubbers(dubbers: List<DubberRef>): Counter<DubberRef>
+    fun countDubber(dubber: DubberRef) = countDubbers(listOf(dubber))[dubber]
 
-    fun countActors(actors: List<ActorRef>): Map<ActorRef, Int>
-    fun countActor(actor: ActorRef) = countActors(listOf(actor))[actor] ?: 0
+    fun countActors(actors: List<ActorRef>): Counter<ActorRef>
+    fun countActor(actor: ActorRef) = countActors(listOf(actor))[actor]
 
 }

@@ -1,11 +1,9 @@
 package takutility.dubdb.util
 
-fun <T> Sequence<T>.countInstances(initialValues: Iterable<T>? = null): Map<T, Int> {
-    val counts = initialValues?.associateWithTo(mutableMapOf()) { 0 } ?: mutableMapOf()
-
-    this.forEach { item ->
-        counts[item] = counts.getOrDefault(item, 0) + 1
-    }
+fun <T> Sequence<T>.countInstances(initialValues: Iterable<T>? = null): Counter<T> {
+    val counts = mutableCounter<T>()
+    counts.addAll(this)
+    initialValues?.let { counts.setDefaults(initialValues) }
     return counts
 }
 

@@ -9,13 +9,17 @@ import org.mockito.kotlin.whenever
 import takutility.dubdb.TestContext
 import takutility.dubdb.db.MemDubberRepository
 import takutility.dubdb.entities.Dubber
+import takutility.dubdb.entities.DubberRef
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.tasks.wikiapi.DubbersFromCategory
+import takutility.dubdb.util.mutableCounter
 import java.time.LocalDate
 import java.time.ZoneOffset
 
 internal class LatestDubbersTest {
+    val emptyCounter = mutableCounter<DubberRef>().immutable()
+
     lateinit var ctx: TestContext
     lateinit var dubberDb: MemDubberRepository
     lateinit var fromCategory: DubbersFromCategory
@@ -38,7 +42,7 @@ internal class LatestDubbersTest {
         val fromCat = mockCatDubbers(size*10, LocalDate.of(2025, 1, 6))
 
         whenever(fromCategory.run(any())).thenReturn(fromCat)
-        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyMap())
+        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyCounter)
 
         val result = op.run(size)
 
@@ -56,7 +60,7 @@ internal class LatestDubbersTest {
         }
 
         whenever(fromCategory.run(any())).thenReturn(fromCat)
-        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyMap())
+        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyCounter)
 
         val result = op.run(size)
 
@@ -75,7 +79,7 @@ internal class LatestDubbersTest {
         }
 
         whenever(fromCategory.run(any())).thenReturn(fromCat)
-        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyMap())
+        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyCounter)
 
         val result = op.run(size)
 
@@ -104,7 +108,7 @@ internal class LatestDubbersTest {
         }
 
         whenever(fromCategory.run(any())).thenReturn(fromCat)
-        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyMap())
+        whenever(ctx.dubEntityDb.countDubbers(any())).thenReturn(emptyCounter)
 
         val result = op.run(size)
 

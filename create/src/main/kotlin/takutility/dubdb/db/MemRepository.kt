@@ -6,6 +6,7 @@ import org.bson.json.JsonReader
 import org.bson.json.JsonWriter
 import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.*
+import takutility.dubdb.util.Counter
 import takutility.dubdb.util.countInstances
 import takutility.dubdb.util.isBefore
 import java.io.Writer
@@ -144,7 +145,7 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
     override fun countDubbers(dubbers: List<DubberRef>) = countEntities(dubbers) { it.dubber }
     override fun countActors(actors: List<ActorRef>) = countEntities(actors) { it.actor }
 
-    private fun <E: EntityRef> countEntities(entities: List<E>, getter: (DubbedEntity) -> E? ): Map<E, Int> {
+    private fun <E: EntityRef> countEntities(entities: List<E>, getter: (DubbedEntity) -> E? ): Counter<E> {
         return db.values.asSequence()
             .mapNotNull(getter)
             .filter { !it.ids.isEmpty() }

@@ -22,7 +22,7 @@ class ExtractMissingActors(val context: DubDbContext) {
                 else {
                     val byName = result.actors.map { it.name }.countInstances()
 
-                    context.dubEntityDb.countActors(actorsWithWiki).entries
+                    context.dubEntityDb.countActors(actorsWithWiki).pairs
                         .sortedWith(Comparator
                             .comparingInt<Map.Entry<ActorRef, Int>?> { it.value }
                             .thenComparingInt { byName[it.key.name] ?: 0 }

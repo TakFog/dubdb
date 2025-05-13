@@ -33,6 +33,6 @@ class LatestDubbers(val context: DubDbContext) {
         if (recent.size < num) recent = context.dubberDb.findMostRecent(num, unparsed = true, updated = true)
 
         val pop = context.dubEntityDb.countDubbers(recent)
-        return recent.sortedByDescending { pop.getOrDefault(it, 0) }
+        return recent.sortedByDescending { pop[it] }
     }
 }
