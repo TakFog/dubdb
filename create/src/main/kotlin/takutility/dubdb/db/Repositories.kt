@@ -11,7 +11,7 @@ interface EntityRepository<E: Entity> {
     fun findById(dubdbId: String): E?
     fun findBySource(id: SourceId): List<E>
     fun findBySources(ids: SourceIds): List<E>
-    fun findBySources(entity: Entity) = findBySources(entity.ids)
+    fun findBySources(entity: EntityRef) = findBySources(entity.ids)
 }
 
 interface MovieRepository: EntityRepository<Movie>
@@ -45,6 +45,8 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("updateMovieRefIds")
     fun updateRefIds(refs: List<MovieRef>)
+
+    fun countEntitiesBySource(source: Source, ids: Iterable<String>): Counter<String>
 
     fun countDubbers(dubbers: List<DubberRef>): Counter<DubberRef>
     fun countDubber(dubber: DubberRef) = countDubbers(listOf(dubber))[dubber]

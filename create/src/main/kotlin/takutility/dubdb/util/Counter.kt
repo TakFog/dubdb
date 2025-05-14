@@ -25,7 +25,7 @@ interface Counter<T> {
     /**
      * Returns the value corresponding to the given [value], or `0` if such a value is not present in the counter.
      */
-    operator fun get(value: T): Int
+    operator fun get(value: T?): Int
 
     operator fun plus(other: Counter<T>): Counter<T>
 
@@ -123,7 +123,7 @@ private open class CounterImpl<T>(protected open val map: Map<T, Int> = mapOf())
 
     override fun mutable(): MutableCounter<T> = MutableCounterImpl(map.toMutableMap())
 
-    override fun get(value: T) = map.getOrDefault(value, 0)
+    override fun get(value: T?) = value?.let { map[it] } ?: 0
 
     override fun contains(value: T) = map.containsKey(value)
 

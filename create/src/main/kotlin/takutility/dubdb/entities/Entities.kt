@@ -30,6 +30,7 @@ interface EntityRef {
 
     fun get(): EntityRef?
     fun toRef(): EntityRef
+    fun asRef() = this
     fun equalIds(other: EntityRef?): Boolean {
         if (other == null) return false
         return ids == other.ids
@@ -39,6 +40,14 @@ interface EntityRef {
             return id == other.id
         return ids.isCompatible(other.ids)
     }
+}
+
+interface EntityRefOf<E: Entity>: EntityRef {
+    override fun get(): E?
+}
+
+interface EntityOf<E: Entity, R: EntityRef>: EntityRefOf<E> {
+    override fun asRef(): R
 }
 
 abstract class BaseEntityRefImpl<E: EntityRef>(

@@ -21,14 +21,16 @@ class ExtractMissingActors(val context: DubDbContext) {
         val selectedActors = if (actorsWithWiki.size <= maxActors) actorsWithWiki
                 else {
                     val byName = result.actors.map { it.name }.countInstances()
+                    val byActor = context.dubEntityDb.countActors(actorsWithWiki)
+                    val byEntity = context.dubEntityDb.countEntitiesBySource(Source.WIKI, actorsWithWiki.mapNotNull { it.wikiId })
 
-                    context.dubEntityDb.countActors(actorsWithWiki).pairs
+                    actorsWithWiki
                         .sortedWith(Comparator
-                            .comparingInt<Map.Entry<ActorRef, Int>?> { it.value }
-                            .thenComparingInt { byName[it.key.name] ?: 0 }
+                            .comparingInt<ActorRef> { byActor[it] + byEntity[it.wikiId] }
+                            .thenComparingInt { byActor[it] }
+                            .thenComparingInt { byName[it.name] }
                             .reversed())
                         .take(maxActors)
-                        .map { it.key }
                 }
 
         // extract actors

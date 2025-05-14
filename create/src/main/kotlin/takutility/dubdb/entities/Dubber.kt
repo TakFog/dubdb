@@ -3,9 +3,9 @@ package takutility.dubdb.entities
 import java.time.Instant
 import java.time.LocalDate
 
-interface DubberRef: EntityRef {
-    override fun get(): Dubber?
+interface DubberRef: EntityRefOf<Dubber> {
     override fun toRef(): DubberRef = DubberRefImpl(name, ids.toMutable())
+    override fun asRef(): DubberRef = this
 }
 
 class DubberRefImpl(name: String? = null, ids: SourceIds = SourceIds(), parsed: Boolean? = null)
@@ -17,6 +17,7 @@ class Dubber(
     var lastUpdate: LocalDate? = null,
     parseTs: Instant? = null,
     sources: MutableList<RawData> = mutableListOf()
-): DubberRef, Entity(name, ids, parseTs, sources) {
+): DubberRef, Entity(name, ids, parseTs, sources), EntityOf<Dubber, DubberRef> {
     override fun get(): Dubber = this
+    override fun asRef() = this
 }

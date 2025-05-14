@@ -1,9 +1,8 @@
 package takutility.dubdb.ops.movie
 
 import takutility.dubdb.DubDbContext
-import takutility.dubdb.entities.Movie
-import takutility.dubdb.entities.Source
-import takutility.dubdb.entities.SourceIds
+import takutility.dubdb.db.EntityRepository
+import takutility.dubdb.entities.*
 import takutility.dubdb.ops.actor.ExtractMissingActors
 import takutility.dubdb.tasks.internal.MergeEntityByName
 import takutility.dubdb.tasks.trakt.GetMovieCharas
@@ -13,6 +12,7 @@ import takutility.dubdb.tasks.wiki.ReadMovieInfobox
 import takutility.dubdb.tasks.wiki.ReadTitle
 import takutility.dubdb.wiki.WikiPage
 import java.time.Instant
+import kotlin.reflect.KMutableProperty1
 
 class ExtractMovie(val context: DubDbContext) {
 
@@ -46,6 +46,9 @@ class ExtractMovie(val context: DubDbContext) {
         val fromDb = context.dubEntityDb.findByRef(movie)
         val allEntities = infobox + trakt + fromDb
 
+        loadRefs(context.dubberDb, allEntities, DubbedEntity::dubber)
+        loadRefs(context.actorDb, allEntities, DubbedEntity::actor)
+
         //TODO
         context[ExtractMissingActors::class].run(allEntities)
 
@@ -65,5 +68,17 @@ class ExtractMovie(val context: DubDbContext) {
         } else {
             Movie(name, ids = ids)
         }
+    }
+
+    private fun <E, R> loadRefs(db: EntityRepository<E>, entities: List<DubbedEntity>,
+                                prop : KMutableProperty1<DubbedEntity, R?>
+    ) where E: Entity, E: EntityOf<E,R>, R: EntityRefOf<E> {
+        entities
+            .filter { e -> prop.get(e)?.let { it.id == null } == true } //keep entities with the prop without id
+            .groupBy { prop.get(it)?.ids }
+            .forEach { (e, des) ->
+                val found = db.findBySources(e ?: return@forEach)
+                if (found.size == 1) des.forEach { de -> prop.set(de, found[0].asRef()) }
+            }
     }
 }

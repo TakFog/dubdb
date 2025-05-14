@@ -142,6 +142,14 @@ class MemDubbedEntityRepository: MemRepository<DubbedEntity>(DubbedEntity::class
         }
     }
 
+    override fun countEntitiesBySource(source: Source, ids: Iterable<String>): Counter<String> {
+        val idSet = ids.toSet()
+        return db.values.asSequence()
+            .mapNotNull { it.ids[source]?.id }
+            .filter { idSet.contains(it) }
+            .countInstances(ids)
+    }
+
     override fun countDubbers(dubbers: List<DubberRef>) = countEntities(dubbers) { it.dubber }
     override fun countActors(actors: List<ActorRef>) = countEntities(actors) { it.actor }
 
