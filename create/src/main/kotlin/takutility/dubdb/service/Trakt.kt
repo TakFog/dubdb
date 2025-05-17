@@ -97,8 +97,10 @@ class TraktImpl(private val trakt: TraktV2) : Trakt {
 
     override fun showCredits(traktId: Int): CreditResults? {
         try {
-            val credits = trakt.shows().people(traktId.toString()).execute().ifSuccessful()?.body() ?: return null
-            return CreditResults(listOf(), credits.cast.toList())
+            val credits = trakt.shows().peopleExtended(traktId.toString()).execute().ifSuccessful()?.body() ?: return null
+            credits.cast.forEach { it.series_regular = true }
+            credits.guest_stars?.forEach { it.series_regular = false }
+            return CreditResults(listOf(), credits.cast.toList() + (credits.guest_stars?.toList() ?: listOf()))
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
