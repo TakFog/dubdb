@@ -98,7 +98,7 @@
         <dependency>
             <groupId>takutility.dubdb</groupId>
             <artifactId>trakt</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Test -->
@@ -112,6 +112,7 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
