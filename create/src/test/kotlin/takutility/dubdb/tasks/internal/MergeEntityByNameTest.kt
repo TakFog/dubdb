@@ -11,7 +11,7 @@ import takutility.dubdb.tasks.TaskResult
 internal class MergeEntityByNameTest {
     val movieRef = movieRefOf(ids = SourceIds.of(Source.WIKI to "movie", Source.TRAKT to "123456"))
 
-    protected lateinit var task: MergeEntityByName
+    lateinit var task: MergeEntityByName
 
     @BeforeEach
     fun before() {

@@ -1,6 +1,9 @@
 package takutility.dubdb
 
+import org.bson.codecs.DecoderContext
+import org.bson.json.JsonReader
 import org.junit.jupiter.api.Assertions.*
+import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.EntityRef
 import takutility.dubdb.entities.MovieRef
 
@@ -32,3 +35,6 @@ fun <T> assertEqualsUnordered(expected: List<T>?, actual: List<T>?) {
     expected.forEach { assertTrue(actual.contains(it), "$it not found") }
     actual.forEach { assertTrue(expected.contains(it), "$it unexpected") }
 }
+
+inline fun <reified T> fromJson(json: String): T = codecRegistry[T::class.java].decode(JsonReader(json),
+    DecoderContext.builder().build())

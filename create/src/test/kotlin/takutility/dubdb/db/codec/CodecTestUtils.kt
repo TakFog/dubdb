@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 
 const val oid = "\$oid"
 
-val codecRegistry = CodecRegistries.fromRegistries(
+val baseCodecRegistry = CodecRegistries.fromRegistries(
     CodecRegistries.fromCodecs(
         SourceIdsCodec.getInstance(false),
         RawDataCodec(),
@@ -18,10 +18,10 @@ val codecRegistry = CodecRegistries.fromRegistries(
 
 fun <E: DubDbCodec<*>> init(codec: E, vararg subcodecs: DubDbCodec<*>): E {
     if (subcodecs.isEmpty())
-        codec.init(codecRegistry)
+        codec.init(baseCodecRegistry)
     else {
         val registry = CodecRegistries.fromRegistries(
-            codecRegistry,
+            baseCodecRegistry,
             CodecRegistries.fromCodecs(*subcodecs)
         )
         subcodecs.forEach { it.init(registry) }
