@@ -199,7 +199,7 @@ internal class MergeEntityByActorTest {
         val zafraName = "Marita Zafra"
         val zafraWiki = SourceId(WIKI, "Marita_Zafra")
         val zafraTrakt = SourceId(TRAKT, "2317891")
-        val zafraImdb = SourceId(WIKI, "nm4747874")
+        val zafraImdb = SourceId(IMDB, "nm4747874")
 
 
         val movieOrig = DubbedEntity(
@@ -235,12 +235,16 @@ internal class MergeEntityByActorTest {
     @Test
     fun traktAndDb() {
         val seimetz = ActorRefImpl("Amy Seimetz", SourceIds.of(TRAKT to "439158", IMDB to "nm1541272"))
+        val seimetzName = "Amy Seimetz"
+        val seimetzWiki = SourceId(WIKI, "Amy_Seimetz")
+        val seimetzTrakt = SourceId(TRAKT, "439158")
+        val seimetzImdb = SourceId(IMDB, "nm1541272")
         val perrella = fromJson<DubberRef>("""{"name": "Valentina Perrella", "ids": {"DUBDB": "5f3f4079b4843296c5f8da41", "WIKI": "Valentina_Perrella", "WIKIDATA": "Q111164158", "MONDO_DOPPIATORI": "doppiaggio/voci/vocivperre.htm"}, "parsed": true}""")
-        val id = "63954cafb25c12a4c2f8ec64"
+        val id = SourceId(DUBDB, "63954cafb25c12a4c2f8ec64")
 
         val trakt = DubbedEntity(
             movie = movieRef,
-            actor = seimetz,
+            actor = ActorRefImpl(seimetzName, SourceIds.of(seimetzTrakt, seimetzImdb)),
             name = "Becky Ives",
             sources = mutableListOf(RawData(SourceId(TRAKT, "104439"), TRAKT_MOVIE, "Becky Ives")),
         )
@@ -248,7 +252,7 @@ internal class MergeEntityByActorTest {
             movie = movieRef,
             dubber = perrella,
             name = "Amy Seimetz",
-            ids = SourceIds.of(DUBDB to id, WIKI to "Amy_Seimetz"),
+            ids = SourceIds.of(id, seimetzWiki),
             sources = mutableListOf(RawData(SourceId(WIKI, "Valentina_Perrella"), DUBBER, raw="""<a href="/wiki/Amy_Seimetz" title="Amy Seimetz">Amy Seimetz</a> in <i><a href="/wiki/Stranger_Things" title="Stranger Things">Stranger Things</a></i>""")),
         )
 
@@ -260,9 +264,10 @@ internal class MergeEntityByActorTest {
         result.dubbedEntity?.apply {
             assertEquals(movieRef, movie)
             assertEquals(perrella, dubber)
-            assertEquals(seimetz, actor)
+            assertEquals(seimetzName, actor?.name)
+            assertEquals(SourceIds.of(seimetzWiki, seimetzTrakt, seimetzImdb), actor?.ids)
             assertEquals("Becky Ives", name)
-            assertEquals(SourceIds.of(DUBDB to id), ids)
+            assertEquals(SourceIds.of(id), ids)
             assertEqualsUnordered(listOf(trakt, fromDb).map { it.sources[0] }, sources)
         }
     }

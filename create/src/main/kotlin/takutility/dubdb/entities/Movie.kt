@@ -2,11 +2,11 @@ package takutility.dubdb.entities
 
 import java.time.Instant
 
-interface MovieRef: EntityRef {
+interface MovieRef: EntityRef, TypedEntityRef<MovieRef> {
     val type: MovieType?
 
     override fun get(): Movie?
-    override fun toRef(): MovieRef = MovieRefImpl(name, type, ids.toMutable())
+    override fun toRef(): MovieRef = MovieRefImpl(name, type, ids.toMutable(), parsed)
 }
 
 class MovieRefImpl(name: String? = null, override val type: MovieType? = null, ids: SourceIds = SourceIds(), parsed: Boolean? = null)

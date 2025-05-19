@@ -3,8 +3,8 @@ package takutility.dubdb.entities
 import java.time.Instant
 import java.time.LocalDate
 
-interface DubberRef: EntityRefOf<Dubber> {
-    override fun toRef(): DubberRef = DubberRefImpl(name, ids.toMutable())
+interface DubberRef: EntityRefOf<Dubber>, TypedEntityRef<DubberRef> {
+    override fun toRef(): DubberRef = DubberRefImpl(name, ids.toMutable(), parsed)
     override fun asRef(): DubberRef = this
 }
 

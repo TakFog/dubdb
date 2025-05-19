@@ -42,6 +42,10 @@ interface EntityRef {
     }
 }
 
+interface TypedEntityRef<R: EntityRef>: EntityRef {
+    override fun toRef(): R
+}
+
 interface EntityRefOf<E: Entity>: EntityRef {
     override fun get(): E?
 }

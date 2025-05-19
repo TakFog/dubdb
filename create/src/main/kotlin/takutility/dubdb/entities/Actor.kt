@@ -2,8 +2,8 @@ package takutility.dubdb.entities
 
 import java.time.Instant
 
-interface ActorRef: EntityRefOf<Actor> {
-    override fun toRef(): ActorRef = ActorRefImpl(name, ids.toMutable())
+interface ActorRef: TypedEntityRef<ActorRef>, EntityRefOf<Actor> {
+    override fun toRef(): ActorRef = ActorRefImpl(name, ids.toMutable(), parsed)
     override fun asRef(): ActorRef = this
 }
 

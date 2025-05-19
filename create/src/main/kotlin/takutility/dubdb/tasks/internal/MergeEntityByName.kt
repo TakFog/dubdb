@@ -2,6 +2,7 @@ package takutility.dubdb.tasks.internal
 
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
+import takutility.dubdb.util.minOrNull
 
 private const val VOICE_SUFFIX = " (voice)"
 private fun DubbedEntity.cleanName() = if (!name.endsWith(VOICE_SUFFIX)) name
@@ -117,7 +118,4 @@ class MergeEntityByName {
             },
         )
     }
-
-    private fun <T: Comparable<T>> minOrNull(vararg a: Collection<T?>): T? = a.asSequence().flatMap { it }.reduce(this::minOrNull)
-    private fun <T: Comparable<T>> minOrNull(a: T?, b: T?): T? = if (a == null || b == null) null else minOf(a, b)
 }
