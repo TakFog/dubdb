@@ -2,6 +2,7 @@ package takutility.dubdb.tasks.internal
 
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
+import takutility.dubdb.util.isDistinct
 import takutility.dubdb.util.minOrNull
 import java.util.*
 
@@ -13,7 +14,7 @@ class MergeEntityByActor {
         val merged = if (!keepUnmerged) mutableListOf<DubbedEntity>() else null
 
         val sorted = entities.sortedBy { e -> e.sources.minOf {
-            val i = sourceOrder.indexOf(it.dataSource)
+            val i = sourceOrder.indexOf(it.dataSource.normalized())
             return@minOf if (i >= 0) i else 1000
         } }
         var partial = mergeByIds(sorted, merged)
@@ -29,9 +30,11 @@ class MergeEntityByActor {
     }
 
     private fun mergeByIds(entities: List<DubbedEntity>, merged: MutableList<DubbedEntity>?) : List<DubbedEntity> {
+        val matched = BitSet()
         val used = BitSet()
         return entities.mapIndexedNotNull { index, e ->
             if (used[index]) return@mapIndexedNotNull null
+            if (matched[index]) return@mapIndexedNotNull e //matched but unused, don't try to rematch
             val actor = e.actor ?: return@mapIndexedNotNull e
 
             val group = mutableListOf<DubbedEntity>()
@@ -46,20 +49,20 @@ class MergeEntityByActor {
                     if (group.isEmpty()) group.add(e)
                     group.add(e2)
                     groupIds.add(i2)
+                    matched[i2] = true
                 }
             }
-            groupIds.forEach { used[it] = true }
-
             if (group.size < 2 || group.all { it.actor == null })
                 return@mapIndexedNotNull e
 
             val hasConflictingNames = group
-                .flatMap { ge -> ge.sources.map { it.dataSource to ge.name } }
+                .flatMap { ge -> ge.sources.map { it.sourceId to ge.name } }
                 .groupBy({ it.first }, { it.second })
                 .any { (_, names) -> names.size > 1 && names.toSet().size > 1 }
             if (hasConflictingNames)
                 return@mapIndexedNotNull e
 
+            groupIds.forEach { used[it] = true }
             return@mapIndexedNotNull mergeGroup(group).apply { merged?.add(this) }
         }.toList()
     }
@@ -68,7 +71,11 @@ class MergeEntityByActor {
         return entities
             .groupBy { it.actor?.name ?: it.name }
             .values
-            .flatMap {es -> if (es.size == 1 || es.all { it.actor == null } || !noMismatch(es))
+            .flatMap {es -> if (es.size == 1
+                || es.all { it.actor == null }
+                || !es.flatMap { it.sources }.isDistinct { it.dataSource.normalized() }
+                || !noMismatch(es)
+            )
                     es
                 else
                     listOf(mergeGroup(es, true).apply { merged?.add(this) })

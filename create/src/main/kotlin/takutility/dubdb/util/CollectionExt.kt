@@ -8,3 +8,6 @@ fun <T> Sequence<T>.countInstances(initialValues: Iterable<T>? = null): Counter<
 }
 
 fun <T> Iterable<T>.countInstances(initialValues: Iterable<T>? = null) = this.asSequence().countInstances(initialValues)
+
+fun Collection<Any>.isDistinct() = this.toSet().size == this.size
+fun <T, K> Collection<T>.isDistinct(selector: (T) -> K) = this.distinctBy(selector).size == this.size

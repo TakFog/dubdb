@@ -7,6 +7,14 @@ enum class DataSource(val parent: ParentDataSource) {
     DUBBER(ParentDataSource.DUBBER),
     TRAKT_MOVIE(ParentDataSource.TRAKT),
     TRAKT_ACTOR(ParentDataSource.TRAKT),
+    ;
+
+    fun normalized(): DataSource {
+        if (this == MOVIE_ORIG_DUB)
+            return MOVIE_ORIG
+        else
+            return this
+    }
 }
 
 enum class ParentDataSource {

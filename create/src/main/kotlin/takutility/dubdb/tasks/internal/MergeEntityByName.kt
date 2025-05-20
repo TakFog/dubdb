@@ -41,7 +41,7 @@ class MergeEntityByName {
         withDubber.forEach { ids += it.ids }
         ids[Source.DUBDB] = mainSource.id
 
-        val sources = mutableListOf<RawData>()
+        val sources = mutableSetOf<RawData>()
         withDubber.forEach { sources += it.sources }
         withActor.forEach { sources += it.sources }
 
@@ -52,13 +52,13 @@ class MergeEntityByName {
             actor = actor,
             ids = ids,
             parseTs = minOrNull(withDubber.map { it.parseTs }, withActor.map { it.parseTs }),
-            sources = sources
+            sources = sources.toMutableList()
         )
     }
 
     private fun sameSources(entities: List<DubbedEntity>): Boolean {
         if (entities.size < 2) return false
-        val sources = entities.map { e -> e.sources.map { it.sourceId } }
+        val sources = entities.map { e -> e.sources.map { it.sourceId to it.dataSource.normalized() } }
 
         sources.forEachIndexed { i, es ->
             for (j in i+1 until sources.size)

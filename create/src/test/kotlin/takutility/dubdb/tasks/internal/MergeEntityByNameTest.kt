@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import takutility.dubdb.TestContext
+import takutility.dubdb.assertEqualsUnordered
 import takutility.dubdb.entities.*
+import takutility.dubdb.fromJson
 import takutility.dubdb.tasks.TaskResult
 
 
@@ -98,6 +100,27 @@ internal class MergeEntityByNameTest {
         assertMerge(res, falcoDubber, falcoActor)
         assertMerge(res, visioneDubber, visioneActor)
         assertMerge(res, jarvisDubber, jarvisActor)
+    }
+
+    @Test
+    fun multiOrig_ultron() {
+        val actor = DubbedEntity(
+            name = "Hulk",
+            actor = ActorRefImpl("Mark Ruffalo", SourceIds.of(Source.WIKI to "Mark_Ruffalo")),
+            movie = movieRef,
+            sources = mutableListOf(RawData(movieRef.wiki!!, DataSource.MOVIE_ORIG, "<li> Mark Ruffalo: Bruce Banner / Hulk")),
+        )
+        val origDub = DubbedEntity(
+            name = "Hulk",
+            actor = ActorRefImpl("Lou Ferrigno", SourceIds.of(Source.WIKI to "Lou_Ferrigno")),
+            movie = movieRef,
+            sources = mutableListOf(RawData(movieRef.wiki!!, DataSource.MOVIE_ORIG_DUB, "<li> Lou Ferrigno: Hulk")),
+        )
+        val itDub = dub("Riccardo Rossi" to "Hulk")
+
+        val res = run(actor, origDub, itDub)
+
+        assertNull(res.dubbedEntities)
     }
 
     @Test
@@ -377,6 +400,44 @@ internal class MergeEntityByNameTest {
             .also { assertEquals(mergeActorIds(actor5, trakt5), it.actor?.ids) }
         assertMissing(res, "char6")
         assertMissing(res, "char7")
+    }
+
+    @Test
+    fun strangerThings_afterActorMerge() {
+        val matarazzo = fromJson<ActorRef>("""{"name": "Gaten Matarazzo", "ids": {"WIKI": "Gaten_Matarazzo", "WIKIDATA": "Q26704332", "WIKI_EN": "Gaten_Matarazzo", "IMDB": "nm7140802", "WIKIMEDIA": "Gaten_Matarazzo.jpg", "TRAKT": "686045", "DUBDB": "2c244701a72e71d6becb3efd"}, "parsed": true}""")
+        val fabiano = fromJson<Dubber>("{\"_id\": {\"\$oid\": \"486049ce8d6f9a9517aaeed0\"}, \"name\": \"Mattia Fabiano\", \"ids\": {\"WIKI\": \"Mattia_Fabiano\", \"WIKIDATA\": \"Q112873540\", \"MONDO_DOPPIATORI\": \"doppiaggio/voci/vocimfab.htm\", \"IMDB\": \"nm7445018\"}, \"parseTs\": {\"\$date\": \"2025-03-08T15:36:58.938Z\"}, \"lastUpdate\": \"2025-02-24\"}")
+        val id = SourceIds.of(Source.DUBDB to "a0e845ff9af5face8795a255")
+
+        val merged = DubbedEntity(
+            movie = movieRef,
+            dubber = fabiano.toRef(),
+            actor = matarazzo,
+            name = "Dustin Henderson",
+            ids = id,
+            sources = mutableListOf(
+                RawData(SourceId(Source.WIKI, "Stranger_Things"), DataSource.MOVIE_ORIG, "<a href=\"/wiki/Gaten_Matarazzo\" title=\"Gaten Matarazzo\">Gaten Matarazzo</a>: Dustin Henderson"),
+                RawData(SourceId(Source.TRAKT, "104439"), DataSource.TRAKT_MOVIE, "Dustin Henderson"),
+                RawData(SourceId(Source.WIKI, "Mattia_Fabiano"), DataSource.DUBBER, raw="""<a href="/wiki/Gaten_Matarazzo" title="Gaten Matarazzo">Gaten Matarazzo</a> in <i><a href="/wiki/Stranger_Things" title="Stranger Things">Stranger Things</a></i> e <i><a href="/wiki/Prank_Encounters_-_Scherzi_da_brivido" title="Prank Encounters - Scherzi da brivido">Prank Encounters - Scherzi da brivido</a></i>"""),
+            )
+        )
+        val movieDub = DubbedEntity(
+            movie = movieRef,
+            dubber = fabiano,
+            name = "Dustin Henderson",
+            sources = mutableListOf(RawData(SourceId(Source.WIKI, "Stranger_Things"), DataSource.MOVIE_DUB, "<a href=\"/wiki/Mattia_Fabiano\" title=\"Mattia Fabiano\">Mattia Fabiano</a>: Dustin Henderson")),
+        )
+
+        val result = run(merged, movieDub)
+
+        assertEquals(1, result.dubbedEntities?.size)
+        result.dubbedEntity?.apply {
+            assertEquals(movieRef, movie)
+            assertEquals(fabiano.toRef(), dubber?.toRef())
+            assertEquals(matarazzo, actor)
+            assertEquals("Dustin Henderson", name)
+            assertEquals(id, ids)
+            assertEqualsUnordered(listOf(merged, movieDub).flatMap() { it.sources }, sources)
+        }
     }
 
     /// utility functions
