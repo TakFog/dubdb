@@ -11,7 +11,7 @@ import takutility.dubdb.util.countInstances
 class ExtractMissingActors(val context: DubDbContext) {
 
     fun run(entities: List<DubbedEntity>) {
-        val result = context[FindMissingActors::class].run(entities)
+        val result = context[FindMissingActors::class].run(entities.filter { it.actor?.ids?.contains(Source.WIKI) == true })
         if (result.actors.isNullOrEmpty()) return
 
         val actorsWithWiki = result.actors.filter { Source.WIKI in it.ids }
