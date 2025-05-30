@@ -7,6 +7,7 @@ import takutility.dubdb.db.DubberRepository
 import takutility.dubdb.db.MovieRepository
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.WikiApi
+import takutility.dubdb.service.Wikidata
 import takutility.dubdb.wiki.CachedWikiPageLoader
 import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.io.path.toPath
@@ -19,10 +20,11 @@ class TestContext(
     dubEntityDb: DubbedEntityRepository,
     trakt: Trakt,
     wikiApi: WikiApi,
+    wikidata: Wikidata,
     wikiPageLoader: WikiPageLoader,
     config: Config?,
     val fullMock: Boolean = false
-) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikiPageLoader, config) {
+) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikidata, wikiPageLoader, config) {
     companion object {
         fun mocked(fullMock: Boolean = false, init: ((TestContext) -> Unit)? = null): TestContext {
             val ctx = TestContext(
@@ -32,6 +34,7 @@ class TestContext(
                 dubEntityDb = mock(),
                 trakt = mock(),
                 wikiApi = mock(),
+                wikidata = mock(),
                 wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader(TestContext::class.java
                     .getResource("/cache")?.toURI()?.toPath()?.toFile()),
                 config = Config(mock(), mock(), mock(), mock()),
@@ -60,6 +63,9 @@ class TestContext(
     override var wikiApi
         get() = super.wikiApi
         set(value) = set(WikiApi::class, value)
+    override var wikidata
+        get() = super.wikidata
+        set(value) = set(Wikidata::class, value)
     override var wikiPageLoader
         get() = super.wikiPageLoader
         set(value) = set(WikiPageLoader::class, value)

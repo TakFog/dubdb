@@ -6,6 +6,7 @@ import takutility.dubdb.db.DubberRepository
 import takutility.dubdb.db.MovieRepository
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.WikiApi
+import takutility.dubdb.service.Wikidata
 import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.reflect.KClass
 
@@ -17,6 +18,7 @@ interface DubDbContext {
     val dubEntityDb: DubbedEntityRepository
     val trakt: Trakt
     val wikiApi: WikiApi
+    val wikidata: Wikidata
     val wikiPageLoader: WikiPageLoader
 
     operator fun <T :Any> get(clazz: KClass<T>): T
@@ -31,6 +33,7 @@ open class DubDbContextBase(
     dubEntityDb: DubbedEntityRepository,
     trakt: Trakt,
     wikiApi: WikiApi,
+    wikidata: Wikidata = TODO(),
     wikiPageLoader: WikiPageLoader,
     config: Config? = null,
 ): DubDbContext {
@@ -44,6 +47,7 @@ open class DubDbContextBase(
         objects[DubbedEntityRepository::class] = dubEntityDb
         objects[Trakt::class] = trakt
         objects[WikiApi::class] = wikiApi
+        objects[Wikidata::class] = wikidata
         objects[WikiPageLoader::class] = wikiPageLoader
     }
 
@@ -61,6 +65,8 @@ open class DubDbContextBase(
         get() = get(Trakt::class)
     override val wikiApi: WikiApi
         get() = get(WikiApi::class)
+    override val wikidata: Wikidata
+        get() = get(Wikidata::class)
     override val wikiPageLoader: WikiPageLoader
         get() = get(WikiPageLoader::class)
 
