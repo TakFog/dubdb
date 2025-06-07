@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import takutility.dubdb.entities.Source
+import takutility.dubdb.entities.SourceIds
 
 @Disabled
 internal class WikidataTest {
@@ -59,5 +61,39 @@ internal class WikidataTest {
         assertEquals(patriarcaWD, result[patriarcaSrc], "patriarca")
         assertEquals(doctorWD, result[doctorSrc], "doctor")
         assertFalse(randomSrc in result, "random")
+    }
+
+    @Test
+    fun findIds() {
+        val downeyWD = "Q165219"
+        val maggiWD = "Q3617056"
+        val deadpoolWD = "Q25431158"
+        val reynoldsWD = "Q192682"
+        val patriarcaWD = "Q3756660"
+        val doctorWD = "Q29908604"
+        val downeyIds = ids("Robert_Downey_Jr.", "Robert_Downey_Jr.", "nm0000375")
+        val maggiIds = ids("Angelo_Maggi", "Angelo_Maggi", "nm0535947", "doppiaggio/voci/vociamag")
+        val deadpoolIds = ids("Deadpool_2", "Deadpool_2", "tt5463162", "doppiaggio/film1/deadpool2")
+        val reynoldsIds = ids("Ryan_Reynolds", "Ryan_Reynolds", "nm0005351")
+        val patriarcaIds = ids("Gabriele_Patriarca_(doppiatore)", null, "nm0665775", "doppiaggio/voci/vocigpat")
+        val doctorIds = ids("The_Good_Doctor_(serie_televisiva)", "The_Good_Doctor_(American_TV_series)", "tt6470478", "doppiaggio/telefilm/thegooddoctor")
+
+        val result = wikidata.findIds(listOf(downeyWD, maggiWD, deadpoolWD, reynoldsWD, patriarcaWD, doctorWD))
+
+        assertEquals(downeyIds, result[downeyWD], "downey")
+        assertEquals(maggiIds, result[maggiWD], "maggi")
+        assertEquals(deadpoolIds, result[deadpoolWD], "deadpool")
+        assertEquals(reynoldsIds, result[reynoldsWD], "reynolds")
+        assertEquals(patriarcaIds, result[patriarcaWD], "patriarca")
+        assertEquals(doctorIds, result[doctorWD], "doctor")
+    }
+
+    private fun ids(itWiki: String? = null, enWiki: String? = null, imdb: String? = null, mondoDoppiatori: String? = null): SourceIds {
+        val ids = SourceIds()
+        itWiki?.let { ids[Source.WIKI] = it }
+        enWiki?.let { ids[Source.WIKI_EN] = it }
+        imdb?.let { ids[Source.IMDB] = it }
+        mondoDoppiatori?.let { ids[Source.MONDO_DOPPIATORI] = it }
+        return ids
     }
 }

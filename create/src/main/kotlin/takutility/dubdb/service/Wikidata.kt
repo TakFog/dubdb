@@ -1,12 +1,15 @@
 package takutility.dubdb.service
 
 import com.bordercloud.sparql.SparqlClient
+import takutility.dubdb.entities.Source
+import takutility.dubdb.entities.SourceIds
 import java.net.URI
 
 interface Wikidata {
 
-    fun findIdsByItWiki(itWiki: Collection<String> = listOf()): Map<String, String>
-    fun findIdsByImdb(imdb: Collection<String> = listOf()): Map<String, String>
+    fun findIdsByItWiki(itWiki: Collection<String>): Map<String, String>
+    fun findIdsByImdb(imdb: Collection<String>): Map<String, String>
+    fun findIds(wdids: Collection<String>): Map<String, SourceIds>
 }
 
 class WikidataImpl : Wikidata {
@@ -35,6 +38,37 @@ class WikidataImpl : Wikidata {
         return sr.model.rows.associate {
             val wdid = it["item"].toString().replace("http://www.wikidata.org/entity/", "")
             cleanupInput(it["input"]!!) to wdid
+        }
+    }
+
+    override fun findIds(wdids: Collection<String>): Map<String, SourceIds> {
+        val query = """SELECT ?item ?itWiki ?enWiki ?imdb ?mondoDoppiatori WHERE {
+              VALUES ?item {${wdids.joinToString("") { "\n                wd:$it" }}
+              }
+              OPTIONAL {
+                ?itArticle schema:about ?item ;
+                           schema:isPartOf <https://it.wikipedia.org/> ;
+                           schema:name ?itWiki .
+              }
+              OPTIONAL {
+                ?enArticle schema:about ?item ;
+                           schema:isPartOf <https://en.wikipedia.org/> ;
+                           schema:name ?enWiki .
+              }
+              OPTIONAL { ?item wdt:P345 ?imdb. }
+              OPTIONAL { ?item wdt:P5099 ?mondoDoppiatori. }
+            }           
+        """.trimIndent()
+        val sr = sc.query(query)
+
+        return sr.model.rows.associate { row ->
+            val wdid = row["item"].toString().replace("http://www.wikidata.org/entity/", "")
+            val ids = SourceIds()
+            row["itWiki"]?.let { ids[Source.WIKI] = it.toString().replace(" ", "_") }
+            row["enWiki"]?.let { ids[Source.WIKI_EN] = it.toString().replace(" ", "_") }
+            row["imdb"]?.let { ids[Source.IMDB] = it.toString() }
+            row["mondoDoppiatori"]?.let { ids[Source.MONDO_DOPPIATORI] = "doppiaggio/$it" }
+            wdid to ids
         }
     }
 }
