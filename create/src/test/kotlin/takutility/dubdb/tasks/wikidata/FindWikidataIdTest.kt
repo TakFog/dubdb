@@ -11,6 +11,7 @@ import takutility.dubdb.TestContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.entities.Source.*
 import takutility.dubdb.service.Wikidata
+import takutility.dubdb.service.WikidataImpl
 
 internal abstract class FindWikidataIdBaseTest {
     lateinit var task: FindWikidataId
@@ -178,7 +179,7 @@ internal abstract class FindWikidataIdBaseTest {
         val maggiSrc = IMDB to "nm0535947"
         val deadpoolSrc = IMDB to "tt5463162"
         val rinkeSrc = IMDB to "nm8807681"
-        val reynoldsSrc = WIKI to " Ryan_Reynolds"
+        val reynoldsSrc = WIKI to "Ryan_Reynolds"
         val patriarcaSrc = WIKI to "Gabriele_Patriarca_(doppiatore)"
         val doctorSrc = WIKI to "The_Good_Doctor_(serie_televisiva)"
         val downeyJrWD = "Q165219"
@@ -252,7 +253,7 @@ internal class FindWikidataIdTest: FindWikidataIdBaseTest() {
 
 @Disabled
 internal class FindWikidataIdITTest: FindWikidataIdBaseTest() {
-    val wikidata: Wikidata = TODO()
+    val wikidata: Wikidata = WikidataImpl()
 
     @BeforeEach
     fun setup() {

@@ -7,6 +7,7 @@ import takutility.dubdb.db.MovieRepository
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.WikiApi
 import takutility.dubdb.service.Wikidata
+import takutility.dubdb.service.WikidataImpl
 import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.reflect.KClass
 
@@ -33,7 +34,7 @@ open class DubDbContextBase(
     dubEntityDb: DubbedEntityRepository,
     trakt: Trakt,
     wikiApi: WikiApi,
-    wikidata: Wikidata = TODO(),
+    wikidata: Wikidata = WikidataImpl(),
     wikiPageLoader: WikiPageLoader,
     config: Config? = null,
 ): DubDbContext {
