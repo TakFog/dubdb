@@ -42,7 +42,7 @@ internal class WikidataTest {
         val reynoldsSrc = "nm0005351"
         val patriarcaSrc = "nm0665775"
         val doctorSrc = "tt6470478"
-        val rinkeSrc = "nm8807681"
+        val randomSrc = "xy52123651"
         val downeyWD = "Q165219"
         val maggiWD = "Q3617056"
         val deadpoolWD = "Q25431158"
@@ -50,7 +50,7 @@ internal class WikidataTest {
         val patriarcaWD = "Q3756660"
         val doctorWD = "Q29908604"
 
-        val result = wikidata.findIdsByImdb(listOf(downeySrc, maggiSrc, deadpoolSrc, reynoldsSrc, patriarcaSrc, doctorSrc))
+        val result = wikidata.findIdsByImdb(listOf(downeySrc, maggiSrc, deadpoolSrc, reynoldsSrc, patriarcaSrc, doctorSrc, randomSrc))
 
         assertEquals(downeyWD, result[downeySrc], "downey")
         assertEquals(maggiWD, result[maggiSrc], "maggi")
@@ -58,6 +58,6 @@ internal class WikidataTest {
         assertEquals(reynoldsWD, result[reynoldsSrc], "reynolds")
         assertEquals(patriarcaWD, result[patriarcaSrc], "patriarca")
         assertEquals(doctorWD, result[doctorSrc], "doctor")
-        assertFalse(rinkeSrc in result, "rinke")
+        assertFalse(randomSrc in result, "random")
     }
 }

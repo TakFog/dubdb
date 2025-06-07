@@ -20,15 +20,15 @@ internal abstract class FindWikidataIdBaseTest {
 
     protected abstract fun doMock(action: (Wikidata) -> Unit)
     private fun doMock(id: String, wikidata: String) = doMock {
-        whenever(it.findIdsByItWiki(listOf(id))).thenReturn(mapOf(id to wikidata))
-        whenever(it.findIdsByImdb(listOf(id))).thenReturn(mapOf(id to wikidata))
+        whenever(it.findIdsByItWiki(setOf(id))).thenReturn(mapOf(id to wikidata))
+        whenever(it.findIdsByImdb(setOf(id))).thenReturn(mapOf(id to wikidata))
     }
     protected abstract fun doVerify(action: (Wikidata) -> Unit)
     private fun doVerify(src: Pair<Source, String>) = doVerify {
         if (src.first == WIKI)
-            verify(it).findIdsByItWiki(listOf(src.second))
+            verify(it).findIdsByItWiki(setOf(src.second))
         else
-            verify(it).findIdsByImdb(listOf(src.second))
+            verify(it).findIdsByImdb(setOf(src.second))
         verifyNoMoreInteractions(it)
     }
 
@@ -39,8 +39,8 @@ internal abstract class FindWikidataIdBaseTest {
     }
 
     @Test
-    fun notFound() { //Gracelyn Awad Rinke
-        val result = run(actor(IMDB to "nm8807681"))
+    fun notFound() {
+        val result = run(actor(IMDB to "xy52123651"))
         assertTrue(result.isEmpty())
     }
 
@@ -67,8 +67,8 @@ internal abstract class FindWikidataIdBaseTest {
         val imdb = IMDB to "nm0000375"
         val wikidata = "Q165219"
         doMock {
-            whenever(it.findIdsByItWiki(listOf(wiki.second))).thenReturn(mapOf(wiki.second to wikidata))
-            whenever(it.findIdsByImdb(listOf(imdb.second))).thenReturn(mapOf(imdb.second to wikidata))
+            whenever(it.findIdsByItWiki(setOf(wiki.second))).thenReturn(mapOf(wiki.second to wikidata))
+            whenever(it.findIdsByImdb(setOf(imdb.second))).thenReturn(mapOf(imdb.second to wikidata))
         }
 
         val result = run(actor(wiki, imdb))
@@ -79,7 +79,7 @@ internal abstract class FindWikidataIdBaseTest {
 
         assertEquals(SourceIds.of(wiki, imdb, WIKIDATA to wikidata), result.actor?.ids)
         doVerify {
-            verify(it).findIdsByItWiki(listOf(wiki.second))
+            verify(it).findIdsByItWiki(setOf(wiki.second))
             verifyNoMoreInteractions(it)
         }
     }
@@ -178,7 +178,7 @@ internal abstract class FindWikidataIdBaseTest {
         val downeyJrSrc = IMDB to "nm0000375"
         val maggiSrc = IMDB to "nm0535947"
         val deadpoolSrc = IMDB to "tt5463162"
-        val rinkeSrc = IMDB to "nm8807681"
+        val randomSrc = IMDB to "xy52123651"
         val reynoldsSrc = WIKI to "Ryan_Reynolds"
         val patriarcaSrc = WIKI to "Gabriele_Patriarca_(doppiatore)"
         val doctorSrc = WIKI to "The_Good_Doctor_(serie_televisiva)"
@@ -205,7 +205,7 @@ internal abstract class FindWikidataIdBaseTest {
             actor(downeyJrSrc),
             dubber(maggiSrc),
             movie(deadpoolSrc),
-            actor(rinkeSrc),
+            actor(randomSrc),
             actor(reynoldsSrc),
             dubber(patriarcaSrc),
             movie(doctorSrc)
@@ -224,8 +224,10 @@ internal abstract class FindWikidataIdBaseTest {
             SourceIds.of(doctorSrc, WIKIDATA to doctorWD) to result.movies,
         ).forEach {
             val expected = it.first
-            assertEquals(expected, it.second?.firstOrNull { actual -> actual.ids[WIKIDATA] == expected[WIKIDATA]})
+            assertEquals(expected, it.second?.firstOrNull { actual -> actual.ids[WIKIDATA] == expected[WIKIDATA]}?.ids)
         }
+
+        assertEquals(true, result.actors?.none { randomSrc.second == it.ids[randomSrc.first]?.id }, "no random")
     }
 
 }
