@@ -3,6 +3,8 @@ package takutility.dubdb.tasks.wikidata
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
+import takutility.dubdb.util.notEmpty
+import takutility.dubdb.util.splitByType
 
 class FindWikidataId(context: DubDbContext) {
     private val wikidata = context.wikidata
@@ -27,13 +29,7 @@ class FindWikidataId(context: DubDbContext) {
         val dubbers = mutableListOf<DubberRef>()
         val movies = mutableListOf<MovieRef>()
 
-        updated.forEach {
-            when(it) {
-                is ActorRef -> actors.add(it)
-                is DubberRef -> dubbers.add(it)
-                is MovieRef -> movies.add(it)
-            }
-        }
+        updated.splitByType(actors, dubbers, movies)
 
         return TaskResult(actors = actors.notEmpty(), dubbers = dubbers.notEmpty(), movies = movies.notEmpty())
     }
@@ -49,6 +45,4 @@ class FindWikidataId(context: DubDbContext) {
             return@mapNotNull null
         }
     }
-
-    private fun <E>  List<E>.notEmpty() = this.ifEmpty { null }
 }

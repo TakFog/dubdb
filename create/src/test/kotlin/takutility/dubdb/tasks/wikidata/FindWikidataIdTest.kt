@@ -174,7 +174,7 @@ internal abstract class FindWikidataIdBaseTest {
     }
 
     @Test
-    fun all_mixed() {
+    fun allMixed() {
         val downeyJrSrc = IMDB to "nm0000375"
         val maggiSrc = IMDB to "nm0535947"
         val deadpoolSrc = IMDB to "tt5463162"

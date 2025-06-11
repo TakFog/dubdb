@@ -71,6 +71,7 @@ internal class WikidataTest {
         val reynoldsWD = "Q192682"
         val patriarcaWD = "Q3756660"
         val doctorWD = "Q29908604"
+        val randomWD = "Q713324"
         val downeyIds = ids("Robert_Downey_Jr.", "Robert_Downey_Jr.", "nm0000375")
         val maggiIds = ids("Angelo_Maggi", "Angelo_Maggi", "nm0535947", "doppiaggio/voci/vociamag")
         val deadpoolIds = ids("Deadpool_2", "Deadpool_2", "tt5463162", "doppiaggio/film1/deadpool2")
@@ -78,7 +79,8 @@ internal class WikidataTest {
         val patriarcaIds = ids("Gabriele_Patriarca_(doppiatore)", null, "nm0665775", "doppiaggio/voci/vocigpat")
         val doctorIds = ids("The_Good_Doctor_(serie_televisiva)", "The_Good_Doctor_(American_TV_series)", "tt6470478", "doppiaggio/telefilm/thegooddoctor")
 
-        val result = wikidata.findIds(listOf(downeyWD, maggiWD, deadpoolWD, reynoldsWD, patriarcaWD, doctorWD))
+        val wdids = listOf(downeyWD, maggiWD, deadpoolWD, reynoldsWD, patriarcaWD, doctorWD, randomWD)
+        val result = wikidata.findIds(wdids)
 
         assertEquals(downeyIds, result[downeyWD], "downey")
         assertEquals(maggiIds, result[maggiWD], "maggi")
@@ -86,6 +88,8 @@ internal class WikidataTest {
         assertEquals(reynoldsIds, result[reynoldsWD], "reynolds")
         assertEquals(patriarcaIds, result[patriarcaWD], "patriarca")
         assertEquals(doctorIds, result[doctorWD], "doctor")
+        assertEquals(true, result[randomWD]?.isEmpty(), "random")
+        assertEquals(wdids.size, result.size, "size")
     }
 
     private fun ids(itWiki: String? = null, enWiki: String? = null, imdb: String? = null, mondoDoppiatori: String? = null): SourceIds {
