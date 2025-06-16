@@ -2,6 +2,7 @@ package takutility.dubdb.tasks.trakt
 
 import takutility.dubdb.entities.*
 import takutility.dubdb.entities.Source.TRAKT
+import takutility.dubdb.mapper.toRef
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.movieOrShow
 import takutility.dubdb.tasks.TaskResult
@@ -20,13 +21,7 @@ class GetActorCharas(private val trakt: Trakt) {
             .flatMap { member ->
                 val movie = member.movieOrShow()
                     ?.takeIf { it.ids?.trakt in movieIds }
-                    ?.let { mos ->
-                        movieRefOf(
-                            mos.title,
-                            type = if (mos.isMovie()) MovieType.MOVIE else MovieType.SERIES,
-                            ids = SourceIds.of(TRAKT to mos.ids?.trakt?.toString(), Source.IMDB to mos.ids?.imdb)
-                        )
-                    }
+                    ?.toRef()
                     ?: return@flatMap sequenceOf()
 
                 return@flatMap member.characters.asSequence().map { name ->

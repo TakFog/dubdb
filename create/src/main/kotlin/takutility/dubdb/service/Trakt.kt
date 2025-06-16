@@ -10,6 +10,7 @@ import takutility.dubdb.Config
 import takutility.dubdb.entities.EntityRef
 import takutility.dubdb.entities.Source.IMDB
 import takutility.dubdb.entities.Source.TRAKT
+import kotlin.math.ceil
 
 typealias IntPredicate = (Int) -> Boolean
 
@@ -27,6 +28,8 @@ interface Trakt {
     fun personCredits(traktId: Int): CreditResults?
     fun movieCredits(traktId: Int): CreditResults?
     fun showCredits(traktId: Int): CreditResults?
+    fun mostPopular(limit: Int): List<MovieOrShow>
+    fun trending(limit: Int): List<MovieOrShow>
 }
 
 class SearchResults(private val results: List<SearchResult>) {
@@ -114,6 +117,36 @@ class TraktImpl(private val trakt: TraktV2) : Trakt {
             throw RuntimeException(e)
         }
 
+    override fun mostPopular(limit: Int): List<MovieOrShow> {
+        val halfLimit = ceil(limit / 2.0).toInt()
+        return top(limit, listOf(
+            ArrayDeque(trakt.movies().popular(0, halfLimit, null).execute().body()?.map { it.toEntity() } ?: listOf()),
+            ArrayDeque(trakt.shows().popular(0, halfLimit, null).execute().body()?.map { it.toEntity() } ?: listOf()),
+        ))
+    }
+
+    override fun trending(limit: Int): List<MovieOrShow> {
+        return top(limit, listOf(
+            ArrayDeque(trakt.movies().trending(0, limit/2, null).execute().body()?.map { it.movie.toEntity() } ?: listOf()),
+            ArrayDeque(trakt.shows().trending(0, limit/2, null).execute().body()?.map { it.show.toEntity() } ?: listOf()),
+        ))
+    }
+
+    private fun top(limit: Int, lists: List<ArrayDeque<MovieOrShow>>): List<MovieOrShow> {
+        val ids = mutableSetOf<Int>()
+        val result = mutableListOf<MovieOrShow>()
+        while (result.size < limit && lists.any { it.isNotEmpty() }) {
+            lists.forEach {
+                val first = it.removeFirstOrNull()
+                val id = first?.ids?.trakt
+                if (first != null && id != null && id !in ids) {
+                    result += first
+                    ids += id
+                }
+            }
+        }
+        return result.toList()
+    }
 }
 
 class MovieOrShow(

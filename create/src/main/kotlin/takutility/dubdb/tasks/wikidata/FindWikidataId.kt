@@ -13,15 +13,20 @@ class FindWikidataId(context: DubDbContext) {
         if (entities.isEmpty()) return TaskResult.empty
 
         //split by available ids
+        val wdid = mutableListOf<EntityRef>()
         val wiki = mutableMapOf<String, EntityRef>()
         val imdb = mutableMapOf<String, EntityRef>()
         entities.forEach {e ->
-            e.wikiId?.let { wiki[it] = e }
-                ?: e.ids[Source.IMDB]?.id?.let { imdb[it] = e }
+            if (Source.WIKIDATA in e.ids)
+                wdid.add(e)
+            else {
+                e.wikiId?.let { wiki[it] = e }
+                    ?: e.ids[Source.IMDB]?.id?.let { imdb[it] = e }
+            }
         }
 
         // find ids
-        val updated = (addWdids(wiki, wikidata::findIdsByItWiki) + addWdids(imdb, wikidata::findIdsByImdb)).toList()
+        val updated = (wdid.asSequence() + addWdids(wiki, wikidata::findIdsByItWiki) + addWdids(imdb, wikidata::findIdsByImdb)).toList()
         if (updated.isEmpty()) return TaskResult.empty
 
         // split by entity type

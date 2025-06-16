@@ -124,8 +124,21 @@ open class ImmutableSourceIds(override val data: Map<Source, SourceId>) : AnySou
         return data.none { e -> e.key in other.data && other.data[e.key]?.id != e.value.id }
     }
 
+    /**
+     * Checks whether this collection of source IDs is compatible with another.
+     *
+     * Compatibility is defined as:
+     * - Both this and the `other` collection must be non-empty.
+     * - For every key that exists in both collections, the associated IDs must match.
+     * - At least one matching key-value pair (by key and ID) must be present.
+     * - If any shared key has differing IDs, the collections are considered incompatible.
+     *
+     * @param other The other `AnySourceIds` to compare against.
+     * @return `true` if the collections are non-empty, have at least one matching ID for a shared key,
+     *         and no conflicting IDs for any shared keys; `false` otherwise.
+     */
     override fun isCompatible(other: AnySourceIds): Boolean {
-        if (isEmpty() || other.isEmpty()) return true
+        if (isEmpty() || other.isEmpty()) return false
 
         var match = false
         data.forEach { e ->

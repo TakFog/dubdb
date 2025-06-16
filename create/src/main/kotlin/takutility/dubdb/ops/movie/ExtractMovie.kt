@@ -17,7 +17,12 @@ import kotlin.reflect.KMutableProperty1
 
 class ExtractMovie(val context: DubDbContext) {
 
-    fun run(page: WikiPage): Movie {
+    fun run(source: MovieRef): Movie {
+        val title = source.wikiId!!
+        return run(context.wikiPageLoader.page(title), source)
+    }
+
+    fun run(page: WikiPage, source: MovieRef? = null): Movie {
         /*
             Estrai id da wiki
             Estrai titolo
@@ -31,7 +36,7 @@ class ExtractMovie(val context: DubDbContext) {
             Unisci personaggi
             Salva personaggi
          */
-        val ids = SourceIds.of(Source.WIKI to page.title)
+        val ids = source?.ids ?: SourceIds.of(Source.WIKI to page.title)
         ids += context[ReadIds::class].run(page).sourceIds
 
         val title = context[ReadTitle::class].run(page).string ?: page.title

@@ -75,6 +75,7 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
 
         val subIds = SourceIds.of(ids
             .filter { it.source in listOf(Source.WIKI, Source.WIKI_EN, Source.WIKI_MISSING) })
+        if (subIds.isEmpty()) return listOf()
         return db.values.filter { it.ids.isCompatible(subIds) }
     }
 }
