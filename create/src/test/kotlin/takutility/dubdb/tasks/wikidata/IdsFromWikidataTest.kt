@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -21,7 +22,7 @@ internal abstract class IdsFromWikidataBaseTest {
     protected abstract fun doMock(action: (Wikidata) -> Unit)
     private fun doMock(vararg values: Pair<String, Array<Pair<Source, String>>>) = doMock {wd ->
         val result = values.associate { it.first to SourceIds.of(*it.second) }
-        whenever(wd.findIds(result.keys.toList())).thenReturn(result)
+        whenever(wd.findIds(result.keys.toSet())).thenReturn(result)
     }
 
     @Test
@@ -53,6 +54,31 @@ internal abstract class IdsFromWikidataBaseTest {
         assertNull(result.movies)
 
         assertEquals(SourceIds.of(wikidata, *downeyIds), result.actor?.ids)
+    }
+
+    @Test
+    fun downeyJr_duplicated() {
+        val wikidata = WIKIDATA to "Q165219"
+        val downeyIds = arrayOf(
+            WIKI to "Robert_Downey_Jr.",
+            WIKI_EN to "Robert_Downey_Jr.",
+            IMDB to "nm0000375",
+        )
+        doMock(wikidata.second to downeyIds)
+
+        val a1 = actor(wikidata)
+        val a2 = actor(wikidata)
+        val result = run(a1, a2)
+
+        assertEquals(2, result.actors?.size)
+        assertNull(result.dubbers)
+        assertNull(result.movies)
+
+        val expectedIds = SourceIds.of(wikidata, *downeyIds)
+        assertEquals(expectedIds, result.actors?.get(0)?.ids, "result 0 ids")
+        assertEquals(expectedIds, result.actors?.get(1)?.ids, "result 1 ids")
+        assertEquals(expectedIds, a1.ids, "a1 ids")
+        assertEquals(expectedIds, a2.ids, "a2 ids")
     }
 
     @Test
@@ -202,7 +228,7 @@ internal abstract class IdsFromWikidataBaseTest {
                 patriarcaWD.second to SourceIds.of(*patriarcaOut),
                 doctorWD.second to SourceIds.of(*doctorOut),
             )
-            whenever(it.findIds(res.keys.toList())).thenReturn(res)
+            whenever(it.findIds(res.keys.toSet())).thenReturn(res)
         }
 
         val result = run(actor(downeyWD), dubber(patriarcaWD), movie(doctorWD))
@@ -214,6 +240,68 @@ internal abstract class IdsFromWikidataBaseTest {
         assertEquals(SourceIds.of(downeyWD, *downeyOut), result.actor?.ids)
         assertEquals(SourceIds.of(patriarcaWD, *patriarcaOut), result.dubber?.ids)
         assertEquals(SourceIds.of(doctorWD, *doctorOut), result.movie?.ids)
+    }
+
+    @Test
+    fun mixed_duplicated() {
+        val downeyWD = WIKIDATA to "Q165219"
+        val patriarcaWD = WIKIDATA to "Q3756660"
+        val doctorWD = WIKIDATA to "Q29908604"
+        val downeyOut = arrayOf(
+            WIKI to "Robert_Downey_Jr.",
+            WIKI_EN to "Robert_Downey_Jr.",
+            IMDB to "nm0000375",
+        )
+        val patriarcaOut = arrayOf(
+            WIKI to "Gabriele_Patriarca_(doppiatore)",
+            IMDB to "nm0665775",
+            MONDO_DOPPIATORI to "doppiaggio/voci/vocigpat"
+        )
+        val doctorOut = arrayOf(
+            WIKI to "The_Good_Doctor_(serie_televisiva)",
+            WIKI_EN to "The_Good_Doctor_(American_TV_series)",
+            IMDB to "tt6470478",
+            MONDO_DOPPIATORI to "doppiaggio/telefilm/thegooddoctor"
+        )
+        doMock {
+            val res = mapOf(
+                downeyWD.second to SourceIds.of(*downeyOut),
+                patriarcaWD.second to SourceIds.of(*patriarcaOut),
+                doctorWD.second to SourceIds.of(*doctorOut),
+            )
+            whenever(it.findIds(res.keys.toSet())).thenReturn(res)
+        }
+
+        val a1 = actor(downeyWD)
+        val a2 = actor(downeyWD)
+        val d1 = dubber(patriarcaWD)
+        val d2 = dubber(patriarcaWD)
+        val m1 = movie(doctorWD)
+        val m2 = movie(doctorWD)
+        val result = run(a1, d1, a2, m1, m2, d2)
+
+        assertEquals(2, result.actors?.size, "actors size")
+        assertEquals(2, result.dubbers?.size, "dubbers size")
+        assertEquals(2, result.movies?.size, "movies size")
+
+        val actorIds = SourceIds.of(downeyWD, *downeyOut)
+        val dubberIds = SourceIds.of(patriarcaWD, *patriarcaOut)
+        val movieIds = SourceIds.of(doctorWD, *doctorOut)
+
+        assertEquals(actorIds, result.actors?.get(0)?.ids, "actor result 0 ids")
+        assertEquals(actorIds, result.actors?.get(1)?.ids, "actor result 1 ids")
+        assertEquals(actorIds, a1.ids, "actor a1 ids")
+        assertEquals(actorIds, a2.ids, "actor a2 ids")
+
+        assertEquals(dubberIds, result.dubbers?.get(0)?.ids, "dubber result 0 ids")
+        assertEquals(dubberIds, result.dubbers?.get(1)?.ids, "dubber result 1 ids")
+        assertEquals(dubberIds, d1.ids, "dubber d1 ids")
+        assertEquals(dubberIds, d2.ids, "dubber d2 ids")
+
+        assertEquals(movieIds, result.movies?.get(0)?.ids, "movie result 0 ids")
+        assertEquals(movieIds, result.movies?.get(1)?.ids, "movie result 1 ids")
+        assertEquals(movieIds, m1.ids, "movie m1 ids")
+        assertEquals(movieIds, m2.ids, "movie m2 ids")
     }
 
     @Test
@@ -273,9 +361,9 @@ internal abstract class IdsFromWikidataBaseTest {
             movie(doctorWD)
         )
 
-        assertEquals(1, result.actors?.size)
-        assertEquals(2, result.dubbers?.size)
-        assertEquals(2, result.movies?.size)
+        assertEquals(1, result.actors?.size, "actors size")
+        assertEquals(2, result.dubbers?.size, "dubbers size")
+        assertEquals(2, result.movies?.size, "movies size")
 
         listOf(
             SourceIds.of(downeyWD, *downeyOut) to result.actors,
@@ -294,11 +382,12 @@ internal abstract class IdsFromWikidataBaseTest {
 }
 
 internal class IdsFromWikidataTest: IdsFromWikidataBaseTest() {
-    private lateinit var wikidata: Wikidata
+    private lateinit var wikidata: MockWikidata
 
     @BeforeEach
+    @Suppress("UNCHECKED_CAST")
     fun setup() {
-        wikidata = mock()
+        wikidata = mock(defaultAnswer = Mockito.CALLS_REAL_METHODS)
         val ctx = TestContext.mocked {
             it.wikidata = wikidata
         }
@@ -323,6 +412,12 @@ internal class IdsFromWikidataITTest: IdsFromWikidataBaseTest() {
     }
 
     override fun doMock(action: (Wikidata) -> Unit) {}
+}
+
+private abstract class MockWikidata: Wikidata {
+    override fun findIds(wdids: Collection<String>): Map<String, SourceIds> {
+        return findIds(wdids.toSet())
+    }
 }
 
 

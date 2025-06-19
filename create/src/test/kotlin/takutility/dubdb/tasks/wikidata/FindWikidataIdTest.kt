@@ -203,20 +203,20 @@ internal abstract class FindWikidataIdBaseTest {
         val dubberIds = SourceIds.of(dubberSrc, WIKIDATA to dubberWD)
         val movieIds = SourceIds.of(movieSrc, WIKIDATA to movieWD)
 
-        assertEquals(actorIds, result.actors?.get(0)?.ids)
-        assertEquals(actorIds, result.actors?.get(1)?.ids)
-        assertEquals(actorIds, a1.ids)
-        assertEquals(actorIds, a2.ids)
+        assertEquals(actorIds, result.actors?.get(0)?.ids, "actor result 0 ids")
+        assertEquals(actorIds, result.actors?.get(1)?.ids, "actor result 1 ids")
+        assertEquals(actorIds, a1.ids, "actor a1 ids")
+        assertEquals(actorIds, a2.ids, "actor a2 ids")
 
-        assertEquals(dubberIds, result.dubbers?.get(0)?.ids)
-        assertEquals(dubberIds, result.dubbers?.get(1)?.ids)
-        assertEquals(dubberIds, d1.ids)
-        assertEquals(dubberIds, d2.ids)
+        assertEquals(dubberIds, result.dubbers?.get(0)?.ids, "dubber result 0 ids")
+        assertEquals(dubberIds, result.dubbers?.get(1)?.ids, "dubber result 1 ids")
+        assertEquals(dubberIds, d1.ids, "dubber d1 ids")
+        assertEquals(dubberIds, d2.ids, "dubber d2 ids")
 
-        assertEquals(movieIds, result.movies?.get(0)?.ids)
-        assertEquals(movieIds, result.movies?.get(1)?.ids)
-        assertEquals(movieIds, m1.ids)
-        assertEquals(movieIds, m2.ids)
+        assertEquals(movieIds, result.movies?.get(0)?.ids, "movie result 0 ids")
+        assertEquals(movieIds, result.movies?.get(1)?.ids, "movie result 1 ids")
+        assertEquals(movieIds, m1.ids, "movie m1 ids")
+        assertEquals(movieIds, m2.ids, "movie m2 ids")
     }
 
     @Test
