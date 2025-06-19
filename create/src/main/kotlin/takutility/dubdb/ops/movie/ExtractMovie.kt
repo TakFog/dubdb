@@ -3,7 +3,6 @@ package takutility.dubdb.ops.movie
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.db.EntityRepository
 import takutility.dubdb.entities.*
-import takutility.dubdb.ops.actor.ExtractMissingActors
 import takutility.dubdb.tasks.internal.MergeEntityByActor
 import takutility.dubdb.tasks.internal.MergeEntityByName
 import takutility.dubdb.tasks.trakt.GetMovieCharas
@@ -11,6 +10,8 @@ import takutility.dubdb.tasks.trakt.UpdateMovie
 import takutility.dubdb.tasks.wiki.ReadIds
 import takutility.dubdb.tasks.wiki.ReadMovieInfobox
 import takutility.dubdb.tasks.wiki.ReadTitle
+import takutility.dubdb.tasks.wikidata.FindWikidataId
+import takutility.dubdb.tasks.wikidata.IdsFromWikidata
 import takutility.dubdb.wiki.WikiPage
 import java.time.Instant
 import kotlin.reflect.KMutableProperty1
@@ -31,8 +32,7 @@ class ExtractMovie(val context: DubDbContext) {
 
             Leggi infobox
             Estrai personaggi da trakt
-            TODO Scarica doppiatori mancanti
-            Scarica attori mancanti
+            Scarica id attori mancanti
             Unisci personaggi
             Salva personaggi
          */
@@ -55,8 +55,7 @@ class ExtractMovie(val context: DubDbContext) {
         loadRefs(context.dubberDb, allEntities, DubbedEntity::dubber)
         loadRefs(context.actorDb, allEntities, DubbedEntity::actor)
 
-        //TODO
-        context[ExtractMissingActors::class].run(allEntities)
+        findActorIds(allEntities)
 
         allEntities
             .let { context[MergeEntityByActor::class].run(it, true).dubbedEntities }
@@ -87,6 +86,20 @@ class ExtractMovie(val context: DubDbContext) {
             .forEach { (e, des) ->
                 val found = db.findBySources(e ?: return@forEach)
                 if (found.size == 1) des.forEach { de -> prop.set(de, found[0].asRef()) }
+            }
+    }
+
+    /**
+     * Add IMDB and WIKI ids to entity actors
+     */
+    private fun findActorIds(entities: List<DubbedEntity>) {
+        entities.mapNotNull { it.actor }
+            // exclude actors already filled
+            .filterNot { Source.IMDB in it.ids && Source.WIKI in it.ids }
+            .chunked(100)
+            .forEach {
+                context[FindWikidataId::class].run(it)
+                context[IdsFromWikidata::class].run(it)
             }
     }
 }
