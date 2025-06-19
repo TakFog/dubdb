@@ -61,6 +61,30 @@ internal abstract class FindWikidataIdBaseTest {
         doVerify(src)
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["https://it.wikipedia.org/wiki/Robert_Downey_Jr.", "https://www.imdb.com/Name?nm0000375"])
+    fun downeyJr_duplicated(url: String) {
+        val src = fromUrl(url)
+        val wikidata = "Q165219"
+        doMock(src.second, wikidata)
+
+        val a1 = actor(src)
+        val a2 = actor(src)
+        val result = run(a1, a2)
+
+        assertEquals(2, result.actors?.size)
+        assertNull(result.dubbers)
+        assertNull(result.movies)
+
+        val expectedIds = SourceIds.of(src, WIKIDATA to wikidata)
+        assertEquals(expectedIds, result.actors?.get(0)?.ids, "result 0 ids")
+        assertEquals(expectedIds, result.actors?.get(1)?.ids, "result 1 ids")
+        assertEquals(expectedIds, a1.ids, "a1 ids")
+        assertEquals(expectedIds, a2.ids, "a2 ids")
+
+        doVerify(src)
+    }
+
     @Test
     fun downeyJr_doubleId() {
         val wiki = WIKI to "Robert_Downey_Jr."
@@ -144,6 +168,55 @@ internal abstract class FindWikidataIdBaseTest {
         assertEquals(SourceIds.of(actorSrc, WIKIDATA to actorWD), result.actor?.ids)
         assertEquals(SourceIds.of(dubberSrc, WIKIDATA to dubberWD), result.dubber?.ids)
         assertEquals(SourceIds.of(movieSrc, WIKIDATA to movieWD), result.movie?.ids)
+    }
+
+    @Test
+    fun mixed_duplicated() {
+        val actorSrc = WIKI to "Robert_Downey_Jr."
+        val dubberSrc = WIKI to "Angelo_Maggi"
+        val movieSrc = WIKI to "Deadpool_2"
+        val actorWD = "Q165219"
+        val dubberWD = "Q3617056"
+        val movieWD = "Q25431158"
+        doMock {
+            val res = mapOf(
+                actorSrc.second to actorWD,
+                dubberSrc.second to dubberWD,
+                movieSrc.second to movieWD,
+            )
+            whenever(it.findIdsByItWiki(any())).thenReturn(res)
+        }
+
+        val a1 = actor(actorSrc)
+        val a2 = actor(actorSrc)
+        val d1 = dubber(dubberSrc)
+        val d2 = dubber(dubberSrc)
+        val m1 = movie(movieSrc)
+        val m2 = movie(movieSrc)
+        val result = run(a1, d1, a2, m1, m2, d2)
+
+        assertEquals(2, result.actors?.size)
+        assertEquals(2, result.dubbers?.size)
+        assertEquals(2, result.movies?.size)
+
+        val actorIds = SourceIds.of(actorSrc, WIKIDATA to actorWD)
+        val dubberIds = SourceIds.of(dubberSrc, WIKIDATA to dubberWD)
+        val movieIds = SourceIds.of(movieSrc, WIKIDATA to movieWD)
+
+        assertEquals(actorIds, result.actors?.get(0)?.ids)
+        assertEquals(actorIds, result.actors?.get(1)?.ids)
+        assertEquals(actorIds, a1.ids)
+        assertEquals(actorIds, a2.ids)
+
+        assertEquals(dubberIds, result.dubbers?.get(0)?.ids)
+        assertEquals(dubberIds, result.dubbers?.get(1)?.ids)
+        assertEquals(dubberIds, d1.ids)
+        assertEquals(dubberIds, d2.ids)
+
+        assertEquals(movieIds, result.movies?.get(0)?.ids)
+        assertEquals(movieIds, result.movies?.get(1)?.ids)
+        assertEquals(movieIds, m1.ids)
+        assertEquals(movieIds, m2.ids)
     }
 
     @Test

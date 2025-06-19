@@ -7,9 +7,12 @@ import java.net.URI
 
 interface Wikidata {
 
-    fun findIdsByItWiki(itWiki: Collection<String>): Map<String, String>
-    fun findIdsByImdb(imdb: Collection<String>): Map<String, String>
-    fun findIds(wdids: Collection<String>): Map<String, SourceIds>
+    fun findIdsByItWiki(itWiki: Set<String>): Map<String, String>
+    fun findIdsByItWiki(itWiki: Collection<String>): Map<String, String> = findIdsByItWiki(itWiki.toSet())
+    fun findIdsByImdb(imdb: Set<String>): Map<String, String>
+    fun findIdsByImdb(imdb: Collection<String>): Map<String, String> = findIdsByImdb(imdb.toSet())
+    fun findIds(wdids: Set<String>): Map<String, SourceIds>
+    fun findIds(wdids: Collection<String>): Map<String, SourceIds> = findIds(wdids.toSet())
 }
 
 class WikidataImpl : Wikidata {
@@ -19,14 +22,14 @@ class WikidataImpl : Wikidata {
         sc.endpointRead = URI("https://query.wikidata.org/sparql")
     }
 
-    override fun findIdsByItWiki(itWiki: Collection<String>): Map<String, String> {
+    override fun findIdsByItWiki(itWiki: Set<String>): Map<String, String> {
         val list = itWiki.joinToString(separator = " ") { "<https://it.wikipedia.org/wiki/$it>" }
         return findIdsByQuery("VALUES ?input { $list } ?input schema:about ?item .") {
             it.toString().replace("https://it.wikipedia.org/wiki/", "")
         }
     }
 
-    override fun findIdsByImdb(imdb: Collection<String>): Map<String, String> {
+    override fun findIdsByImdb(imdb: Set<String>): Map<String, String> {
         val list = imdb.joinToString(separator = " ") {"\"$it\""}
         return findIdsByQuery("VALUES ?input { $list } ?item wdt:P345 ?input .")
     }
@@ -41,7 +44,7 @@ class WikidataImpl : Wikidata {
         }
     }
 
-    override fun findIds(wdids: Collection<String>): Map<String, SourceIds> {
+    override fun findIds(wdids: Set<String>): Map<String, SourceIds> {
         val query = """SELECT ?item ?itWiki ?enWiki ?imdb ?mondoDoppiatori WHERE {
               VALUES ?item {${wdids.joinToString("") { "\n                wd:$it" }}
               }

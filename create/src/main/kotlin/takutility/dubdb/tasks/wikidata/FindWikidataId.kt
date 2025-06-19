@@ -3,6 +3,7 @@ package takutility.dubdb.tasks.wikidata
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
+import takutility.dubdb.util.append
 import takutility.dubdb.util.notEmpty
 import takutility.dubdb.util.splitByType
 
@@ -14,14 +15,14 @@ class FindWikidataId(context: DubDbContext) {
 
         //split by available ids
         val wdid = mutableListOf<EntityRef>()
-        val wiki = mutableMapOf<String, EntityRef>()
-        val imdb = mutableMapOf<String, EntityRef>()
+        val wiki = mutableMapOf<String, MutableList<EntityRef>>()
+        val imdb = mutableMapOf<String, MutableList<EntityRef>>()
         entities.forEach {e ->
             if (Source.WIKIDATA in e.ids)
                 wdid.add(e)
             else {
-                e.wikiId?.let { wiki[it] = e }
-                    ?: e.ids[Source.IMDB]?.id?.let { imdb[it] = e }
+                e.wikiId?.let { wiki.append(it, e) }
+                    ?: e.ids[Source.IMDB]?.id?.let { imdb.append(it, e) }
             }
         }
 
@@ -39,15 +40,14 @@ class FindWikidataId(context: DubDbContext) {
         return TaskResult(actors = actors.notEmpty(), dubbers = dubbers.notEmpty(), movies = movies.notEmpty())
     }
 
-    private fun addWdids(entityMap: Map<String, EntityRef>, action: (Collection<String>) -> Map<String, String>): Sequence<EntityRef> {
+    private fun addWdids(entityMap: Map<String, List<EntityRef>>, action: (Set<String>) -> Map<String, String>): Sequence<EntityRef> {
         if (entityMap.isEmpty()) return emptySequence()
 
-        return action(entityMap.keys).asSequence().mapNotNull { (k, wdid) ->
-            entityMap[k]?.let {
+        return action(entityMap.keys).asSequence().flatMap { (k, wdid) ->
+            entityMap[k]?.map {
                 it.ids[Source.WIKIDATA] = wdid
-                return@mapNotNull it
+                it
+            } ?: listOf()
             }
-            return@mapNotNull null
         }
     }
-}
