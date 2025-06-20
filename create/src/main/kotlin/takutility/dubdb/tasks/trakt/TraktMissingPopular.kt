@@ -10,9 +10,11 @@ class TraktMissingPopular(private val context: DubDbContext) {
     private val trakt = context.trakt
 
     fun run(limit: Int): TaskResult {
-        var result = unparsed(trakt.mostPopular(limit))
-        if (result.size < limit)
-            result = result + unparsed(trakt.trending(limit - result.size))
+        var result = unparsed(trakt.mostPopular(limit * 5)).subList(0, limit)
+        if (result.size < limit) {
+            val missing = limit - result.size
+            result = result + unparsed(trakt.trending(limit * 5)).subList(0, missing)
+        }
 
         return TaskResult(movies = result.map { it.toRef() })
     }

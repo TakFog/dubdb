@@ -1,5 +1,6 @@
 package takutility.dubdb.ops.movie
 
+import mu.KotlinLogging
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.db.EntityRepository
 import takutility.dubdb.entities.*
@@ -15,6 +16,8 @@ import takutility.dubdb.tasks.wikidata.IdsFromWikidata
 import takutility.dubdb.wiki.WikiPage
 import java.time.Instant
 import kotlin.reflect.KMutableProperty1
+
+private val logger = KotlinLogging.logger {}
 
 class ExtractMovie(val context: DubDbContext) {
 
@@ -36,6 +39,7 @@ class ExtractMovie(val context: DubDbContext) {
             Unisci personaggi
             Salva personaggi
          */
+        logger.info { "Extracting ${page.title}" }
         val ids = source?.ids ?: SourceIds.of(Source.WIKI to page.title)
         ids += context[ReadIds::class].run(page).sourceIds
 
@@ -45,6 +49,7 @@ class ExtractMovie(val context: DubDbContext) {
 
         movie.parseTs = Instant.now()
         context.movieDb.save(movie)
+        logger.debug { "${page.title} - ${movie.name} saved" }
         context.dubEntityDb.updateRefIds(listOf(movie))
 
         val infobox = context[ReadMovieInfobox::class].run(movie).dubbedEntities ?: listOf()
@@ -60,7 +65,10 @@ class ExtractMovie(val context: DubDbContext) {
         allEntities
             .let { context[MergeEntityByActor::class].run(it, true).dubbedEntities }
             ?.let { context[MergeEntityByName::class].run(it, true).dubbedEntities }
-            ?.let { context.dubEntityDb.save(it) }
+            ?.let {
+                context.dubEntityDb.save(it)
+                logger.debug { "${page.title} - ${movie.name}: saved ${it.size} entities" }
+            }
 
         return movie
     }
