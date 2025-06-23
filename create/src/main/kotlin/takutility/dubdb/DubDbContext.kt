@@ -1,13 +1,7 @@
 package takutility.dubdb
 
-import takutility.dubdb.db.ActorRepository
-import takutility.dubdb.db.DubbedEntityRepository
-import takutility.dubdb.db.DubberRepository
-import takutility.dubdb.db.MovieRepository
-import takutility.dubdb.service.Trakt
-import takutility.dubdb.service.WikiApi
-import takutility.dubdb.service.Wikidata
-import takutility.dubdb.service.WikidataImpl
+import takutility.dubdb.db.*
+import takutility.dubdb.service.*
 import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.reflect.KClass
 

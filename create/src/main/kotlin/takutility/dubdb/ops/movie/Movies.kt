@@ -25,15 +25,21 @@ class Movies(val context: DubDbContext) {
             topMovies = topMovies + fromDb
         }
 
-        topMovies.asSequence()
+        val filtered = topMovies.asSequence()
             .filter { it.wikiId != null }
-            .mapNotNull { m -> m.wikiId
-                ?.let { context.wikiPageLoader.page(it) }
-                ?.takeIf { it.exists() }
-                ?.let { p -> p to m }
+            .mapNotNull { m ->
+                m.wikiId
+                    ?.let { context.wikiPageLoader.page(it) }
+                    ?.takeIf { it.exists() }
+                    ?.let { p -> p to m }
             }
-            .forEach {
-                context[ExtractMovie::class].run(it.first, it.second)
-            }
+            .toList()
+
+        var i = 0
+        filtered.forEach {
+            i++
+            logger.info { "$i/${filtered.size} Extracting ${it.first.title}" }
+            context[ExtractMovie::class].run(it.first, it.second)
+        }
     }
 }

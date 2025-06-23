@@ -55,3 +55,12 @@ interface DubbedEntityRepository: EntityRepository<DubbedEntity> {
     fun countActor(actor: ActorRef) = countActors(listOf(actor))[actor]
 
 }
+
+data class RepositorySet(
+    val movie: MovieRepository,
+    val actor: ActorRepository,
+    val dubber: DubberRepository,
+    val dubEntity: DubbedEntityRepository,
+) {
+    fun toSet() = setOf<EntityRepository<*>>(movie, actor, dubber, dubEntity)
+}

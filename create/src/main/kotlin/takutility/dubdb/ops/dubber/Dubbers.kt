@@ -1,22 +1,31 @@
 package takutility.dubdb.ops.dubber
 
+import mu.KotlinLogging
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.DubberRef
-import takutility.dubdb.m
+
+private val logger = KotlinLogging.logger {}
 
 class Dubbers(val context: DubDbContext) {
 
     fun run(num: Int) {
         var dubbers = context.dubEntityDb.findMostCommonDubbers(num)
-        if (notEnoughDubbers(num, dubbers)) {
-            dubbers = context.m<LatestDubbers>().run(num)
-        }
+//        if (notEnoughDubbers(num, dubbers)) {
+//            dubbers = context.m<LatestDubbers>().run(num)
+//        }
 
-        dubbers.asSequence()
+        val filtered = dubbers.asSequence()
             .mapNotNull { it.wikiId }
             .map { context.wikiPageLoader.page(it) }
             .filter { it.exists() }
-            .forEach { context.m<ExtractDubber>().run(it) }
+            .toList()
+
+        var i = 0
+        filtered.forEach {
+            i++
+            logger.info { "$i/${filtered.size} Extracting ${it.title}" }
+            context[ExtractDubber::class].run(it)
+        }
     }
 
     private fun notEnoughDubbers(num: Int, dubbers: List<DubberRef>): Boolean {

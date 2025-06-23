@@ -46,7 +46,7 @@ open class MemRepository<E: Entity>(private val type: Class<E>): EntityRepositor
 
     fun saveToJson(writer: Writer) {
         val codec = codecRegistry.get(type)
-        db.values.forEach {
+        db.values.toList().forEach {
             codec.encode(JsonWriter(writer), it, EncoderContext.builder().build())
             writer.write("\n")
         }

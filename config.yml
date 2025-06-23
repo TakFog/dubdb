@@ -2,6 +2,8 @@
 trakt:
   client_id: trakt-api-key
 
+dbType: MEM
+
 mongodb:
   url: localhost:27017
   db: dubdb
