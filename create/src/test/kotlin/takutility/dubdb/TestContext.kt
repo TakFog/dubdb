@@ -37,7 +37,7 @@ class TestContext(
                 wikidata = mock(),
                 wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader(TestContext::class.java
                     .getResource("/cache")?.toURI()?.toPath()?.toFile()),
-                config = Config(mock(), mock(), mock(), mock()),
+                config = Config(mock(), mock(), mock(), mock(), mock(), mock()),
                 fullMock = fullMock
             )
             init?.let { ctx.also(it) }

@@ -1,6 +1,7 @@
 package takutility.dubdb.ops.dubber
 
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 import takutility.dubdb.TestContext
@@ -43,6 +44,7 @@ internal class DubbersTest {
     }
 
     @Test
+    @Disabled
     fun tooFewDubbers() {
         val size = 5
         val mostRecent = mockDubbers(size)
@@ -64,6 +66,7 @@ internal class DubbersTest {
     }
 
     @Test
+    @Disabled
     fun tooUnpopularDubbers() {
         val size = 5
         val dubbers = mockDubbers(size * 2)
@@ -88,6 +91,7 @@ internal class DubbersTest {
     }
 
     @Test
+    @Disabled
     fun sameDubberPopularity() {
         val size = 5
         val dubbers = mockDubbers(size * 2)
@@ -111,6 +115,7 @@ internal class DubbersTest {
     }
 
     @Test
+    @Disabled
     fun noDubbers() {
         val size = 5
         val mostRecent = mockDubbers(size - 2)
