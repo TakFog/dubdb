@@ -4,6 +4,7 @@ import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.entities.Source.IMDB
 import takutility.dubdb.entities.Source.TRAKT
+import takutility.dubdb.service.cleanCharacters
 import takutility.dubdb.tasks.TaskResult
 
 class GetMovieCharas(context: DubDbContext) {
@@ -28,7 +29,7 @@ class GetMovieCharas(context: DubDbContext) {
                     )
                 }
                 ?.let { actor ->
-                    credit.characters?.asSequence()?.map { name ->
+                    credit.cleanCharacters()?.asSequence()?.map { name ->
                         DubbedEntity(
                             name = name,
                             movie = movie,

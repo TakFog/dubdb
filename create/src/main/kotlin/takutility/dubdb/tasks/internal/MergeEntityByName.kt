@@ -4,9 +4,12 @@ import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
 import takutility.dubdb.util.minOrNull
 
-private const val VOICE_SUFFIX = " (voice)"
-private fun DubbedEntity.cleanName() = if (!name.endsWith(VOICE_SUFFIX)) name
-    else name.substring(0, name.length - VOICE_SUFFIX.length)
+private const val VOICE_SUFFIX = " (voice"
+private fun DubbedEntity.cleanName(): String {
+    val voiceStart = name.indexOf(VOICE_SUFFIX)
+    if (voiceStart < 0) return name
+    return name.substring(0, voiceStart)
+}
 
 class MergeEntityByName {
 

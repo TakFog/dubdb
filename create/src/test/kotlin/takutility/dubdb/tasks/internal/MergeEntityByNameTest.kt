@@ -440,6 +440,35 @@ internal class MergeEntityByNameTest {
         }
     }
 
+    @Test
+    fun normalizeTrakt() {
+        val actor1 = act("actor1" to "char1")
+        val actor2 = act("actor2" to "char2")
+        val actor3 = act("actor3" to "char3")
+        val dubber1 = dub("dubber1" to "char1")
+        val dubber2 = dub("dubber2" to "char2")
+        val dubber3 = dub("dubber3" to "char3")
+        val trakt1 = trk("trakt1" to "char1")
+        val trakt2 = trk("trakt2" to "char2 (voice)")
+        val trakt3 = trk("trakt3" to "char3 (voice, uncredited)")
+
+        val res = run(
+            actor1,
+            actor2,
+            actor3,
+            dubber1,
+            dubber2,
+            dubber3,
+            trakt1,
+            trakt2,
+            trakt3,
+        )
+
+        assertMergeMultiActor(res, dubber1, actor1, trakt1)
+        assertMergeMultiActor(res, dubber2, actor2, trakt2)
+        assertMergeMultiActor(res, dubber3, actor3, trakt3)
+    }
+
     /// utility functions
 
     fun assertMerge(res: TaskResult, vararg sources: DubbedEntity) {

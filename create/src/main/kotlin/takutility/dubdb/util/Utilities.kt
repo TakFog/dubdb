@@ -23,3 +23,6 @@ fun Collection<EntityRef>.splitByType(actors: MutableList<ActorRef>,
         }
     }
 }
+
+private val ignoreCommasInBrackets = Regex("(?:^ |(?! ))(?:\\(.+?\\)|[^,])+")
+fun String.splitWithBrackets() = ignoreCommasInBrackets.findAll(this).map { it.groupValues[0] }.toList()

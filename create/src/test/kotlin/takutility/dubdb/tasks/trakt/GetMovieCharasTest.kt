@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import takutility.dubdb.TestContext
 import takutility.dubdb.entities.*
@@ -29,6 +30,21 @@ internal abstract class GetMovieCharasBaseTest {
         assertChara(result, "Dr. Cho's Assistant", "Chan Woo Lim", 809168)
         assertChara(result, "Dr. Cho's Assistant", "Minhee Yeo", 809169)
     }
+
+    @Test
+    fun reginaScacchi() {
+        val movie = movieRefOf("La regina degli scacchi", ids = SourceIds.of(Source.TRAKT to "165792"), type = MovieType.SERIES)
+
+        val result = task.run(movie)
+
+        assertNotNull(result.dubbedEntities)
+        val entities = result.dubbedEntities!!
+        assertEquals(1, entities.count { it.name.startsWith("Methuen Orphanage Girl") }, "'Methuen Orphanage Girl' count")
+        assertTrue(entities.none { it.name == "Methuen Orphanage Girl (voice" }, "'Methuen Orphanage Girl (voice' not present")
+        assertTrue(entities.none { it.name == "uncredited)" }, "'uncredited)' not present")
+        assertChara(result, "Methuen Orphanage Girl (voice, uncredited)", "Kyndra Sanchez", 2036629, "nm10421806")
+    }
+
 }
 
 internal class GetMovieCharasTest: GetMovieCharasBaseTest() {
@@ -37,6 +53,8 @@ internal class GetMovieCharasTest: GetMovieCharasBaseTest() {
     fun setup() {
         val trakt = mockTrakt {
             on { movieCredits(71938) } doReturn CreditResults(ultron, listOf())
+            on { showCredits(any()) } doReturn CreditResults(listOf(), listOf())
+            on { showCredits(165792) } doReturn CreditResults(listOf(), queens)
         }
         task = GetMovieCharas(TestContext.mocked { it.trakt = trakt })
     }
@@ -99,5 +117,12 @@ private val ultron = listOf(
     newCast(listOf("Dr. Cho's Assistant"), person = newPerson {
         name = "Minhee Yeo"
         ids = newPersonIds(809169)
+    }),
+)
+
+private val queens = listOf(
+    newCast(listOf("Methuen Orphanage Girl (voice","uncredited)"), person = newPerson {
+        name = "Kyndra Sanchez"
+        ids = newPersonIds(2036629, "nm10421806")
     }),
 )

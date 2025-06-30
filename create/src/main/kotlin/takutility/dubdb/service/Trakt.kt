@@ -10,6 +10,7 @@ import takutility.dubdb.Config
 import takutility.dubdb.entities.EntityRef
 import takutility.dubdb.entities.Source.IMDB
 import takutility.dubdb.entities.Source.TRAKT
+import takutility.dubdb.util.splitWithBrackets
 import kotlin.math.ceil
 
 typealias IntPredicate = (Int) -> Boolean
@@ -210,3 +211,13 @@ fun Show.toEntity() = MovieOrShow(
 )
 
 fun CastMember.movieOrShow() = movie?.toEntity() ?: show?.toEntity()
+
+fun CastMember.cleanCharacters(): List<String>? {
+    characters?.let {
+        val bracket = character.indexOf("(")
+        if (bracket < 0 || character.indexOf(",", bracket) < 0)
+            return characters
+    }
+
+    return character?.splitWithBrackets()
+}

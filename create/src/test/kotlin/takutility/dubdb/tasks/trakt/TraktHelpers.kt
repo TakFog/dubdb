@@ -42,6 +42,7 @@ fun newCast(
     person: Person? = null,
 ): CastMember {
     val c = CastMember()
+    c.character = characters?.joinToString(", ")
     c.characters = characters
     c.movie = movie
     c.show = show
