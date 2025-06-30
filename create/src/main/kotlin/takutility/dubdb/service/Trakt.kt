@@ -212,11 +212,11 @@ fun Show.toEntity() = MovieOrShow(
 
 fun CastMember.movieOrShow() = movie?.toEntity() ?: show?.toEntity()
 
-fun CastMember.cleanCharacters(): List<String>? {
+fun CastMember.cleanCharacters(): Sequence<String>? {
     characters?.let {
         val bracket = character.indexOf("(")
         if (bracket < 0 || character.indexOf(",", bracket) < 0)
-            return characters
+            return characters.asSequence()
     }
 
     return character?.splitWithBrackets()

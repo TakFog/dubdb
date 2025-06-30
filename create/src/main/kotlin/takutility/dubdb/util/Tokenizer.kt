@@ -1,7 +1,5 @@
 package takutility.dubdb.util
 
-import java.util.regex.Pattern
-
 fun bow(name: String?): Sequence<String> {
     if (name == null) return sequenceOf()
     return name.splitToSequence(" ")
@@ -11,6 +9,7 @@ fun bow(name: String?): Sequence<String> {
         .distinct()
 }
 
-private val charnameSplit = Pattern.compile("[/;,]+")
+//private val charnameSplit = Pattern.compile("[/;,]+")
 
-fun splitCharacter(name: String): Array<String> = charnameSplit.split(name)
+private val charnameSplit = splitWithBrackets("/;,")
+fun splitCharacter(name: String): Sequence<String> = charnameSplit(name)

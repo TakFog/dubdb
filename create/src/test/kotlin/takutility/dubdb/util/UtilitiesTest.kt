@@ -30,6 +30,6 @@ internal class UtilitiesTest {
     @ParameterizedTest
     @MethodSource("splitWithBracketsParams")
     fun splitWithBrackets(input: String, expected: List<String>) {
-        assertEquals(expected, input.splitWithBrackets())
+        assertEquals(expected, input.splitWithBrackets().toList())
     }
 }

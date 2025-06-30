@@ -75,7 +75,7 @@ class ReadMovieInfobox(context: DubDbContext): WikiPageTask(context) {
         val charaNames = matcher.group(2).trim()
         val links = li.select("a").associateBy({ it.text().trim() }, { it.asWikiSourceId() })
 
-        return splitCharacter(charaNames).asSequence().map { charaName ->
+        return splitCharacter(charaNames).map { charaName ->
             val name = charaName.trim()
             val link = links[name] ?: links[charaNames]
             RowValues(

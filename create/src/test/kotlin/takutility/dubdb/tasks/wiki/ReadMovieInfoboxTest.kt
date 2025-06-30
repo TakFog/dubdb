@@ -2,6 +2,9 @@ package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
@@ -188,6 +191,20 @@ internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
                 sourceId = sourceId, dataSource = DataSource.MOVIE_DUB,
                 raw = """Dodo Versino: Black Tom"""
         )
+
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["Sherlock_(serie_televisiva)", "Better_Call_Saul"])
+    fun wrongSplit(page: String) {
+        val result = run(page)
+
+        assertNotNull(result.dubbedEntities)
+        val unbalanced = Regex("^[^(]*(?:\\([^)]*|\\))$")
+        val unbalancedEntities = result.dubbedEntities!!.filter { it.name.matches(unbalanced) }
+        if (unbalancedEntities.isNotEmpty()) {
+            fail(unbalancedEntities.joinToString(" | ") { "\"${it.name}\"" })
+        }
 
     }
 

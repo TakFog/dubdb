@@ -29,7 +29,7 @@ class GetMovieCharas(context: DubDbContext) {
                     )
                 }
                 ?.let { actor ->
-                    credit.cleanCharacters()?.asSequence()?.map { name ->
+                    credit.cleanCharacters()?.map { name ->
                         DubbedEntity(
                             name = name,
                             movie = movie,
