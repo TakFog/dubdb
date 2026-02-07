@@ -3,7 +3,7 @@ package takutility.dubdb.tasks.wiki
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.EntityRef
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 
 val cleanTitle = Regex(""" \(.+\)$""")
 
@@ -14,7 +14,7 @@ class ReadTitle(context: DubDbContext): WikiPageTask(context) {
         ?.let { run(it) }
         ?: TaskResult.empty
 
-    fun run(page: WikiPage): TaskResult {
+    fun run(page: WikiHtmlPage): TaskResult {
         return page.doc?.select("h1")?.get(0)?.text()
             ?.let { TaskResult(string = cleanTitle.replace(it, "")) } ?: return TaskResult.empty
     }

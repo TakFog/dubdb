@@ -6,7 +6,7 @@ import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceId
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 import java.net.URLDecoder
 
 private val ogImageUrl = Regex("""^https://upload.wikimedia.org/wikipedia/commons/thumb/[^/]+/[^/]+/([^/]+)/""")
@@ -18,11 +18,11 @@ class FindPhoto(context: DubDbContext): WikiPageTask(context) {
         ?.let { run(entity, it) }
         ?: TaskResult.empty
 
-    fun run(entity: EntityRef, page: WikiPage): TaskResult {
+    fun run(entity: EntityRef, page: WikiHtmlPage): TaskResult {
         return find(entity, page)?.let { TaskResult.with(it) } ?: TaskResult.empty
     }
 
-    private fun find(entity: EntityRef, page: WikiPage): SourceIds? {
+    private fun find(entity: EntityRef, page: WikiHtmlPage): SourceIds? {
         if (!page.exists()) return null
         val wiki = entity.wiki ?: return null
         return page.doc!!.select("""meta[property="og:image"]""").first()

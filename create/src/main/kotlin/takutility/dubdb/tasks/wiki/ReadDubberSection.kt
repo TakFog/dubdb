@@ -5,7 +5,7 @@ import org.jsoup.nodes.TextNode
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 import takutility.dubdb.wiki.asEntity
 import takutility.dubdb.wiki.asMovie
 
@@ -19,7 +19,7 @@ class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
         ?.let { run(dubber, it) }
         ?: TaskResult.empty
 
-    fun run(dubber: DubberRef, page: WikiPage): TaskResult {
+    fun run(dubber: DubberRef, page: WikiHtmlPage): TaskResult {
         val pageId = dubber.wiki ?: return TaskResult.empty
         val title = page.doc?.selectFirst("#Doppiaggio")
             ?: return TaskResult.empty

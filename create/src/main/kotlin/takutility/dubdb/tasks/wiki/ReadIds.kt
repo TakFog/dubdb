@@ -6,7 +6,7 @@ import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceId
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.tasks.TaskResult
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 
 private val EXTERNAL = listOf(Source.IMDB, Source.MONDO_DOPPIATORI)
 
@@ -17,7 +17,7 @@ class ReadIds(context: DubDbContext) : WikiPageTask(context) {
         return loadPage(wikiSource)?.let(this::run) ?: return TaskResult.empty
     }
 
-    fun run(page: WikiPage): TaskResult {
+    fun run(page: WikiHtmlPage): TaskResult {
         val doc = page.doc ?: return TaskResult.empty
 
         val ids = SourceIds.mutable()

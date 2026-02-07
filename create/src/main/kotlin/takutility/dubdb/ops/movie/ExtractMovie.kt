@@ -13,7 +13,7 @@ import takutility.dubdb.tasks.wiki.ReadMovieInfobox
 import takutility.dubdb.tasks.wiki.ReadTitle
 import takutility.dubdb.tasks.wikidata.FindWikidataId
 import takutility.dubdb.tasks.wikidata.IdsFromWikidata
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 import java.time.Instant
 import kotlin.reflect.KMutableProperty1
 
@@ -26,7 +26,7 @@ class ExtractMovie(val context: DubDbContext) {
         return run(context.wikiPageLoader.page(title), source)
     }
 
-    fun run(page: WikiPage, source: MovieRef? = null): Movie {
+    fun run(page: WikiHtmlPage, source: MovieRef? = null): Movie {
         /*
             Estrai id da wiki
             Estrai titolo

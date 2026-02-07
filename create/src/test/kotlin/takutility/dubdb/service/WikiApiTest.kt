@@ -22,4 +22,23 @@ internal class WikiApiTest {
             assertFalse(dub.timestamp > prev, "$i: ${dub.timestamp} > $prev")
         }
     }
+
+    @Test
+    fun info() {
+        val api = WikiApiImpl()
+        val result = api.info("Gabriele_Patriarca_(doppiatore)")
+        assertEquals("Gabriele Patriarca (doppiatore)", result.title)
+        assertEquals(1842818, result.id)
+        assertNotNull(result.lastEdit)
+        assertNull(result.content)
+    }
+
+    @Test
+    fun info_notExists() {
+        val api = WikiApiImpl()
+        val result = api.info("Title of a page that doesn't exist")
+        assertNull(result.id)
+        assertNull(result.lastEdit)
+        assertNull(result.content)
+    }
 }

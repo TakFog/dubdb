@@ -223,6 +223,17 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
         val levi = find(res, "Zachary Levi")
         assertEquals(5, levi.size, levi.map { it.movie.name }.toString())
     }
+
+    @Test
+    fun alexPolidori() {
+        val res = run("Alex_Polidori")
+        assertNotNull(res.dubbedEntities)
+        val entities = res.dubbedEntities!!
+        assertFalse(entities.isEmpty())
+
+        assertEquals(0, entities.count { it.name.contains("Musa d'Oro") }, "Musa d'Oro")
+        assertEquals(0, entities.count { it.name.contains("Voce di Cartoonia") }, "Voce di Cartoonia")
+    }
 }
 
 @Disabled

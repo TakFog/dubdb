@@ -4,11 +4,11 @@ import org.jsoup.nodes.Document
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceId
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 
 open class WikiPageTask(val context: DubDbContext) {
 
-    protected fun loadPage(wikiSource: SourceId?): WikiPage? {
+    protected fun loadPage(wikiSource: SourceId?): WikiHtmlPage? {
         if (wikiSource == null || wikiSource.source != Source.WIKI)
             return null
         return context.wikiPageLoader.page(wikiSource.id)

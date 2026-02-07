@@ -9,13 +9,13 @@ import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.tasks.wiki.FindPhoto
 import takutility.dubdb.tasks.wiki.ReadIds
 import takutility.dubdb.tasks.wiki.ReadTitle
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 import java.time.Instant
 
 abstract class ExtractPerson<E>(val context: DubDbContext) where E: Entity, E: EntityRef {
     abstract val db: EntityRepository<E>
 
-    fun run(page: WikiPage): E {
+    fun run(page: WikiHtmlPage): E {
         /*
         Leggi id wiki
         Leggi titolo wiki
@@ -42,7 +42,7 @@ abstract class ExtractPerson<E>(val context: DubDbContext) where E: Entity, E: E
         return person
     }
 
-    private fun readIds(page: WikiPage): SourceIds {
+    private fun readIds(page: WikiHtmlPage): SourceIds {
         val ids = SourceIds.of(Source.WIKI to page.title)
         ids += context[ReadIds::class].run(page).sourceIds
         return ids
@@ -52,7 +52,7 @@ abstract class ExtractPerson<E>(val context: DubDbContext) where E: Entity, E: E
     protected abstract fun newPerson(title: String, ids: SourceIds): E
 
     protected open fun moreIds(person: E) {}
-    protected open fun withPerson(person: E, page: WikiPage) {}
+    protected open fun withPerson(person: E, page: WikiHtmlPage) {}
 
     private fun getPerson(title: String, ids: SourceIds): E {
         val results = db.findBySources(ids)

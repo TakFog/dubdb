@@ -10,7 +10,7 @@ import takutility.dubdb.entities.DubberRef
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.m
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.wiki.WikiHtmlPage
 
 internal class DubbersTest {
     lateinit var ctx: TestContext
@@ -135,10 +135,10 @@ internal class DubbersTest {
         Dubber("name $it", ids = SourceIds.of(Source.WIKI to "name_$it"))
     }.toList()
 
-    private fun dubbers2pages(dubbers: List<Dubber>): Map<String?, WikiPage> {
+    private fun dubbers2pages(dubbers: List<Dubber>): Map<String?, WikiHtmlPage> {
 
         val pages = dubbers.map { it.wikiId }.associateWith {
-            mock<WikiPage> { on {exists()} doReturn true }
+            mock<WikiHtmlPage> { on {exists()} doReturn true }
         }
         ctx.wikiPageLoader = mock {
             on { page(any()) }.then { a -> pages.getOrDefault(a.getArgument(0), null) }
