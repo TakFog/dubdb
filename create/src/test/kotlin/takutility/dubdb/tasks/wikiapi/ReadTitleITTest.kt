@@ -9,7 +9,7 @@ import takutility.dubdb.TestContext
 import takutility.dubdb.entities.EntityRefImpl
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
-import takutility.dubdb.service.WikiApiImpl
+import takutility.dubdb.service.wikiapi.WikiApiImpl
 
 @Disabled("Wiki API test")
 internal class ReadTitleITTest {

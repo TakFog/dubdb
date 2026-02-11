@@ -1,4 +1,4 @@
-package takutility.dubdb.service
+package takutility.dubdb.service.wikiapi
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -9,28 +9,19 @@ import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import takutility.dubdb.wiki.WikiPage
-import java.time.Instant
 
 const val userAgent = "DubDbBot/0.1"
 
 interface WikiApi {
 
     fun dubbersFromCat(limit: Int): CategoryMemberResponse
-    fun info(title: String): WikiPage
+    fun info(title: String): Info?
+    fun parse(title: String? = null, revid: Long? = null, prop: String? = null, section: Int? = null): ParseResponse?
 }
-
 
 data class WikiApiResponse<T>(val query: T)
 typealias WikiApiMapResponse<T> = WikiApiResponse<Map<String, T>>
 fun <T> WikiApiMapResponse<T>.queryValue() = query.values.first()
-
-data class WikiPagesResponse(val pages: List<WikiPage>)
-
-
-data class CategoryMember(val pageid: Long, val title: String, val timestamp: Instant)
-typealias CategoryMemberResponse = WikiApiMapResponse<List<CategoryMember>>
-typealias InfoResponse = WikiApiResponse<WikiPagesResponse>
 
 class WikiApiImpl: WikiApi {
     private val client = OkHttpClient()
@@ -54,26 +45,45 @@ class WikiApiImpl: WikiApi {
             .add("cmdir", "desc")
             .build()
 
-        val request: Request = Request.Builder()
-            .url(httpUrl)
-            .header("User-Agent", userAgent)
-            .post(formBody)
-            .build()
-
-        return client.newCall(request).execute().use { response -> response.body?.string() }
+        return call(formBody)
             ?.let { json -> mapper.readValue<CategoryMemberResponse>(json) }
             ?: CategoryMemberResponse(mapOf("categorymembers" to listOf()))
     }
 
-    override fun info(title: String): WikiPage {
+    override fun info(title: String): Info? {
         val formBody = FormBody.Builder()
             .add("action", "query")
             .add("format", "json")
             .add("formatversion", "2")
             .add("prop", "info")
-            .add("titles", title.replace("&", "&amp;"))
+            .add("titles", title)
             .build()
 
+        return call(formBody)
+            ?.let { json -> mapper.readValue<InfoResponse>(json).query.pages.firstOrNull() }
+            ?.takeIf { it.missing != true }
+    }
+
+    override fun parse(title: String?, revid: Long?, prop: String?, section: Int?): ParseResponse? {
+        val formBody = FormBody.Builder()
+            .add("action", "parse")
+            .add("format", "json")
+            .add("formatversion", "2")
+        if (revid != null) {
+            formBody.add("revid", revid.toString())
+        } else if (title != null) {
+            formBody.add("title", title)
+        } else {
+            throw IllegalArgumentException("At least title or revid required")
+        }
+        prop?.let { formBody.add("prop", prop) }
+        section?.let { formBody.add("section", section.toString()) }
+
+        return call(formBody.build())
+            ?.let { json -> mapper.readValue<ParseResponse>(json) }
+    }
+
+    private fun call(formBody: FormBody): String? {
         val request: Request = Request.Builder()
             .url(httpUrl)
             .header("User-Agent", userAgent)
@@ -81,7 +91,5 @@ class WikiApiImpl: WikiApi {
             .build()
 
         return client.newCall(request).execute().use { response -> response.body?.string() }
-            ?.let { json -> mapper.readValue<InfoResponse>(json).query.pages.firstOrNull() }
-            ?: WikiPage(title)
     }
 }

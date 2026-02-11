@@ -5,9 +5,9 @@ import takutility.dubdb.db.*
 import takutility.dubdb.ops.dubber.Dubbers
 import takutility.dubdb.ops.movie.Movies
 import takutility.dubdb.service.TraktImpl
-import takutility.dubdb.service.WikiApiImpl
 import takutility.dubdb.service.WikidataImpl
-import takutility.dubdb.wiki.WikiPageLoader
+import takutility.dubdb.service.wikiapi.WikiApiImpl
+import takutility.dubdb.wiki.WikiHtmlPageLoader
 import kotlin.io.path.Path
 
 fun memRepositoryFromConfig(config: Config): RepositorySet {
@@ -48,7 +48,7 @@ fun contextFromConfig(config: Config = loadConfig()): DubDbContext {
     val trakt = TraktImpl(config)
     val wikiApi = WikiApiImpl()
     val wikidata = WikidataImpl()
-    WikiPageLoader.fromConfig(config)
+    WikiHtmlPageLoader.fromConfig(config)
 
     return DubDbContextBase(
         movieDb = db.movie,
@@ -58,7 +58,7 @@ fun contextFromConfig(config: Config = loadConfig()): DubDbContext {
         trakt = trakt,
         wikiApi = wikiApi,
         wikidata = wikidata,
-        wikiPageLoader = WikiPageLoader.get(),
+        wikiPageLoader = WikiHtmlPageLoader.get(),
         config = config,
     )
 }

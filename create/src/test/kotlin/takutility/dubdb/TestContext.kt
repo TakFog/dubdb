@@ -6,10 +6,10 @@ import takutility.dubdb.db.DubbedEntityRepository
 import takutility.dubdb.db.DubberRepository
 import takutility.dubdb.db.MovieRepository
 import takutility.dubdb.service.Trakt
-import takutility.dubdb.service.WikiApi
 import takutility.dubdb.service.Wikidata
-import takutility.dubdb.wiki.CachedWikiPageLoader
-import takutility.dubdb.wiki.WikiPageLoader
+import takutility.dubdb.service.wikiapi.WikiApi
+import takutility.dubdb.wiki.CachedWikiHtmlPageLoader
+import takutility.dubdb.wiki.WikiHtmlPageLoader
 import kotlin.io.path.toPath
 import kotlin.reflect.KClass
 
@@ -21,7 +21,7 @@ class TestContext(
     trakt: Trakt,
     wikiApi: WikiApi,
     wikidata: Wikidata,
-    wikiPageLoader: WikiPageLoader,
+    wikiPageLoader: WikiHtmlPageLoader,
     config: Config?,
     val fullMock: Boolean = false
 ) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikidata, wikiPageLoader, config) {
@@ -35,7 +35,7 @@ class TestContext(
                 trakt = mock(),
                 wikiApi = mock(),
                 wikidata = mock(),
-                wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader(TestContext::class.java
+                wikiPageLoader = if (fullMock) mock() else CachedWikiHtmlPageLoader(TestContext::class.java
                     .getResource("/cache")?.toURI()?.toPath()?.toFile()),
                 config = Config(mock(), mock(), mock(), mock(), mock(), mock()),
                 fullMock = fullMock
@@ -68,7 +68,7 @@ class TestContext(
         set(value) = set(Wikidata::class, value)
     override var wikiPageLoader
         get() = super.wikiPageLoader
-        set(value) = set(WikiPageLoader::class, value)
+        set(value) = set(WikiHtmlPageLoader::class, value)
 
     override fun <T : Any> get(clazz: KClass<T>): T {
         if (fullMock && clazz !in this)

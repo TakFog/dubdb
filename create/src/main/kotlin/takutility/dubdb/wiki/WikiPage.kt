@@ -1,6 +1,5 @@
 package takutility.dubdb.wiki
 
-import com.fasterxml.jackson.annotation.JsonAlias
 import org.jsoup.nodes.Document
 import java.time.Instant
 
@@ -9,11 +8,24 @@ class WikiHtmlPage(val title: String, val doc: Document?) {
     fun exists() = doc != null
 }
 
-class WikiPage(
-    val title: String,
-    var content: String? = null,
-    @field:JsonAlias("pageid") var id: Long? = null,
-    @field:JsonAlias("touched") var lastEdit: Instant? = null,
-) {
-    fun exists() = id != null || content != null
+interface WikiPage {
+    val title: String
+    val id: Long?
+    val mainSection: WikiSection?
+    val sections: Map<String, WikiSection>?
+    val langLink: Map<String, String>?
+    val sort: String?
+    val image: String?
+    val wikidata: String?
+    val revisionId: Long?
+    val lastRead: Instant?
+
+    fun exists(): Boolean
+}
+
+interface WikiSection {
+    val title: String
+    val subsections: Map<String, WikiSection>
+    val offset: Int
+    val content: String?
 }

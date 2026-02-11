@@ -1,0 +1,201 @@
+{
+  "parse": {
+    "title": "Angelo Maggi",
+    "pageid": 1334683,
+    "revid": 148840443,
+    "langlinks": [
+      {
+        "lang": "en",
+        "url": "https://en.wikipedia.org/wiki/Angelo_Maggi",
+        "langname": "inglese",
+        "autonym": "English",
+        "title": "Angelo Maggi"
+      },
+      {
+        "lang": "arz",
+        "url": "https://arz.wikipedia.org/wiki/%D8%A7%D9%86%D8%AC%D9%8A%D9%84%D9%88_%D9%85%D8%A7%D8%AC%D9%89",
+        "langname": "arabo egiziano",
+        "autonym": "مصرى",
+        "title": "انجيلو ماجى"
+      },
+      {
+        "lang": "fa",
+        "url": "https://fa.wikipedia.org/wiki/%D8%A2%D9%86%D8%AC%D9%84%D9%88_%D9%85%D8%A7%D8%AC%DB%8C",
+        "langname": "persiano",
+        "autonym": "فارسی",
+        "title": "آنجلو ماجی"
+      }
+    ],
+    "tocdata": {
+      "sections": [
+        {
+          "tocLevel": 1,
+          "hLevel": 2,
+          "line": "Biografia",
+          "number": "1",
+          "index": "1",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 424,
+          "anchor": "Biografia"
+        },
+        {
+          "tocLevel": 1,
+          "hLevel": 2,
+          "line": "Filmografia",
+          "number": "2",
+          "index": "2",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 5092,
+          "anchor": "Filmografia"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Cinema",
+          "number": "2.1",
+          "index": "3",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 5110,
+          "anchor": "Cinema"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Televisione",
+          "number": "2.2",
+          "index": "4",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 5844,
+          "anchor": "Televisione"
+        },
+        {
+          "tocLevel": 1,
+          "hLevel": 2,
+          "line": "Doppiaggio",
+          "number": "3",
+          "index": "5",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 6870,
+          "anchor": "Doppiaggio"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Film",
+          "number": "3.1",
+          "index": "6",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 6887,
+          "anchor": "Film"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Film d'animazione",
+          "number": "3.2",
+          "index": "7",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 16996,
+          "anchor": "Film_d'animazione"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Serie televisive",
+          "number": "3.3",
+          "index": "8",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 18223,
+          "anchor": "Serie_televisive"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Serie animate",
+          "number": "3.4",
+          "index": "9",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 20990,
+          "anchor": "Serie_animate"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Televisione",
+          "number": "3.5",
+          "index": "10",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 22147,
+          "anchor": "Televisione_2"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Videogiochi",
+          "number": "3.6",
+          "index": "11",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 22354,
+          "anchor": "Videogiochi"
+        },
+        {
+          "tocLevel": 2,
+          "hLevel": 3,
+          "line": "Podcast",
+          "number": "3.7",
+          "index": "12",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 23688,
+          "anchor": "Podcast"
+        },
+        {
+          "tocLevel": 1,
+          "hLevel": 2,
+          "line": "Riconoscimenti",
+          "number": "4",
+          "index": "13",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 23755,
+          "anchor": "Riconoscimenti"
+        },
+        {
+          "tocLevel": 1,
+          "hLevel": 2,
+          "line": "Note",
+          "number": "5",
+          "index": "14",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 23824,
+          "anchor": "Note"
+        },
+        {
+          "tocLevel": 1,
+          "hLevel": 2,
+          "line": "Altri progetti",
+          "number": "6",
+          "index": "15",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 23850,
+          "anchor": "Altri_progetti"
+        },
+        {
+          "tocLevel": 1,
+          "hLevel": 2,
+          "line": "Collegamenti esterni",
+          "number": "7",
+          "index": "16",
+          "fromTitle": "Angelo_Maggi",
+          "codepointOffset": 23890,
+          "anchor": "Collegamenti_esterni"
+        }
+      ],
+      "extensionData": []
+    },
+    "showtoc": true,
+    "properties": {
+      "defaultsort": "Maggi Mariotti ,Angelo",
+      "page_image_free": "Angelo_Maggi_20240113.jpg",
+      "wikibase_item": "Q3617056"
+    }
+  }
+}

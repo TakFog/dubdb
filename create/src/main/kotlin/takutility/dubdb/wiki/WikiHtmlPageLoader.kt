@@ -9,18 +9,18 @@ import java.io.File
 import java.security.MessageDigest
 
 
-interface WikiPageLoader {
+interface WikiHtmlPageLoader {
 
     fun page(title: String) = WikiHtmlPage(title, load(title))
 
     fun load(title: String): Document?
 
-    fun setAsDefault() = WikiPageLoader.set(this)
+    fun setAsDefault() = WikiHtmlPageLoader.set(this)
 
     companion object {
-        private var inst: WikiPageLoader? = null
+        private var inst: WikiHtmlPageLoader? = null
 
-        fun get(): WikiPageLoader {
+        fun get(): WikiHtmlPageLoader {
             if (inst == null)
                fromConfig()
             return inst!!
@@ -29,12 +29,12 @@ interface WikiPageLoader {
         fun fromConfig(config: Config = loadConfig()) {
             val cachePath = config.wiki?.cache
             if (cachePath != null)
-                inst = CachedWikiPageLoader(cachePath)
+                inst = CachedWikiHtmlPageLoader(cachePath)
             else
-                inst = WebWikiPageLoader
+                inst = WebWikiHtmlPageLoader
         }
 
-        fun set(newInst: WikiPageLoader) {
+        fun set(newInst: WikiHtmlPageLoader) {
             inst = newInst
         }
 
@@ -42,7 +42,7 @@ interface WikiPageLoader {
     }
 }
 
-object WebWikiPageLoader: WikiPageLoader {
+object WebWikiHtmlPageLoader: WikiHtmlPageLoader {
 
     fun toUrl(title: String) = "https://it.wikipedia.org/wiki/$title"
 
@@ -52,7 +52,7 @@ object WebWikiPageLoader: WikiPageLoader {
     }
 }
 
-class CachedWikiPageLoader(cacheDir: File? = null): WikiPageLoader {
+class CachedWikiHtmlPageLoader(cacheDir: File? = null): WikiHtmlPageLoader {
     private companion object {
         private val hash = MessageDigest.getInstance("MD5")
         private val base32 = Base32()
@@ -70,8 +70,8 @@ class CachedWikiPageLoader(cacheDir: File? = null): WikiPageLoader {
     override fun load(title: String): Document? {
         val file = titleToFile(title)
         if (file.exists())
-            return Jsoup.parse(file, null, WebWikiPageLoader.toUrl(title))
-        return WebWikiPageLoader.load(title)?.apply {
+            return Jsoup.parse(file, null, WebWikiHtmlPageLoader.toUrl(title))
+        return WebWikiHtmlPageLoader.load(title)?.apply {
             cacheDir.mkdirs()
             file.writeText(outerHtml())
         }

@@ -4,8 +4,8 @@ import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.Dubber
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
-import takutility.dubdb.service.WikiApi
-import takutility.dubdb.service.queryValue
+import takutility.dubdb.service.wikiapi.WikiApi
+import takutility.dubdb.service.wikiapi.queryValue
 import java.time.LocalDate
 import java.time.ZoneOffset
 

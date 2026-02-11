@@ -3,6 +3,8 @@ package takutility.dubdb.service
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import takutility.dubdb.service.wikiapi.WikiApiImpl
+import takutility.dubdb.service.wikiapi.queryValue
 
 @Disabled
 internal class WikiApiTest {
@@ -27,18 +29,16 @@ internal class WikiApiTest {
     fun info() {
         val api = WikiApiImpl()
         val result = api.info("Gabriele_Patriarca_(doppiatore)")
-        assertEquals("Gabriele Patriarca (doppiatore)", result.title)
-        assertEquals(1842818, result.id)
-        assertNotNull(result.lastEdit)
-        assertNull(result.content)
+        assertNotNull(result)
+        assertEquals("Gabriele Patriarca (doppiatore)", result!!.title)
+        assertEquals(1842818, result.pageid)
+        assertNotNull(result.lastrevid)
     }
 
     @Test
     fun info_notExists() {
         val api = WikiApiImpl()
         val result = api.info("Title of a page that doesn't exist")
-        assertNull(result.id)
-        assertNull(result.lastEdit)
-        assertNull(result.content)
+        assertNull(result)
     }
 }

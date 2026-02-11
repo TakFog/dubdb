@@ -10,8 +10,8 @@ import takutility.dubdb.TestContext
 import takutility.dubdb.entities.EntityRefImpl
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
-import takutility.dubdb.service.WikiApi
-import takutility.dubdb.wiki.WikiPage
+import takutility.dubdb.service.wikiapi.Info
+import takutility.dubdb.service.wikiapi.WikiApi
 
 internal class ReadTitleTest {
     lateinit var task: ReadTitle
@@ -26,12 +26,12 @@ internal class ReadTitleTest {
 
     fun run(name: String) = task.run(EntityRefImpl(ids = SourceIds.of(Source.WIKI to name))).string
 
-    fun page(title: String) = WikiPage(title, id = 1)
+    fun info(title: String) = Info(title = title, pageid = 1, lastrevid = 541125)
 
     @Test
     fun gabrielePatriarca() {
         val title = "Gabriele_Patriarca_(doppiatore)"
-        whenever(api.info(title)).thenReturn(page("Gabriele Patriarca (doppiatore)"))
+        whenever(api.info(title)).thenReturn(info("Gabriele Patriarca (doppiatore)"))
         val res = run(title)
         assertEquals("Gabriele Patriarca", res)
     }
@@ -39,7 +39,7 @@ internal class ReadTitleTest {
     @Test
     fun goodDoctor() {
         val title = "The_Good_Doctor_(serie_televisiva)"
-        whenever(api.info(title)).thenReturn(page("The Good Doctor (serie televisiva)"))
+        whenever(api.info(title)).thenReturn(info("The Good Doctor (serie televisiva)"))
         val res = run(title)
         assertEquals("The Good Doctor", res)
     }
@@ -47,7 +47,7 @@ internal class ReadTitleTest {
     @Test
     fun giorni500() {
         val title = "(500)_giorni_insieme"
-        whenever(api.info(title)).thenReturn(page("(500) giorni insieme"))
+        whenever(api.info(title)).thenReturn(info("(500) giorni insieme"))
         val res = run(title)
         assertEquals("(500) giorni insieme", res)
     }
@@ -55,7 +55,7 @@ internal class ReadTitleTest {
     @Test
     fun missingPage() {
         val title = "Nonexisting_page"
-        whenever(api.info(title)).thenReturn(WikiPage(title))
+        whenever(api.info(title)).thenReturn(null)
         val res = run(title)
         assertNull(res)
     }

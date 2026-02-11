@@ -7,9 +7,9 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import takutility.dubdb.TestContext
-import takutility.dubdb.service.CategoryMember
-import takutility.dubdb.service.CategoryMemberResponse
-import takutility.dubdb.service.WikiApi
+import takutility.dubdb.service.wikiapi.CategoryMember
+import takutility.dubdb.service.wikiapi.CategoryMemberResponse
+import takutility.dubdb.service.wikiapi.WikiApi
 import java.time.Instant
 import java.time.LocalDate
 
