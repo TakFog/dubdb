@@ -140,7 +140,7 @@ internal class DubbersTest {
         val pages = dubbers.map { it.wikiId }.associateWith {
             mock<WikiHtmlPage> { on {exists()} doReturn true }
         }
-        ctx.wikiPageLoader = mock {
+        ctx.wikiHtmlLoader = mock {
             on { page(any()) }.then { a -> pages.getOrDefault(a.getArgument(0), null) }
         }
         return pages

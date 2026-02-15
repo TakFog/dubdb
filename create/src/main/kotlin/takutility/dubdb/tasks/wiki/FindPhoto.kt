@@ -14,7 +14,7 @@ private val ogImageUrl = Regex("""^https://upload.wikimedia.org/wikipedia/common
 class FindPhoto(context: DubDbContext): WikiPageTask(context) {
 
     fun run(entity: EntityRef): TaskResult = entity.wiki
-        ?.let(this::loadPage)
+        ?.let(this::loadHtml)
         ?.let { run(entity, it) }
         ?: TaskResult.empty
 

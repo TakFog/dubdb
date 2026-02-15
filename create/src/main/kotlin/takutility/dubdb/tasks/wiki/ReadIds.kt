@@ -14,7 +14,7 @@ private val EXTERNAL = listOf(Source.IMDB, Source.MONDO_DOPPIATORI)
 class ReadIds(context: DubDbContext) : WikiPageTask(context) {
 
     fun run(wikiSource: SourceId?): TaskResult {
-        return loadPage(wikiSource)?.let(this::run) ?: return TaskResult.empty
+        return loadHtml(wikiSource)?.let(this::run) ?: return TaskResult.empty
     }
 
     fun run(page: WikiHtmlPage): TaskResult {

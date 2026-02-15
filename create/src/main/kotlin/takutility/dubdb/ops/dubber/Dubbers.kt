@@ -17,7 +17,7 @@ class Dubbers(val context: DubDbContext) {
 
         val filtered = dubbers.asSequence()
             .mapNotNull { it.wikiId }
-            .map { context.wikiPageLoader.page(it) }
+            .map { context.wikiHtmlLoader.page(it) }
             .filter { it.exists() }
             .toList()
 

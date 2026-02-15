@@ -135,7 +135,7 @@ internal class ExtractDubberTest {
         assertEntity(entities, "Guile", "Street Fighter II V")
     }
 
-    fun page(title: String) = ctx.wikiPageLoader.page(title)
+    fun page(title: String) = ctx.wikiHtmlLoader.page(title)
 
 }
 

@@ -70,9 +70,9 @@ class WikiApiImpl: WikiApi {
             .add("format", "json")
             .add("formatversion", "2")
         if (revid != null) {
-            formBody.add("revid", revid.toString())
+            formBody.add("oldid", revid.toString())
         } else if (title != null) {
-            formBody.add("title", title)
+            formBody.add("page", title)
         } else {
             throw IllegalArgumentException("At least title or revid required")
         }

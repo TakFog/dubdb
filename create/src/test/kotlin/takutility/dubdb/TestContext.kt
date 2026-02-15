@@ -8,8 +8,11 @@ import takutility.dubdb.db.MovieRepository
 import takutility.dubdb.service.Trakt
 import takutility.dubdb.service.Wikidata
 import takutility.dubdb.service.wikiapi.WikiApi
+import takutility.dubdb.service.wikiapi.WikiApiImpl
 import takutility.dubdb.wiki.CachedWikiHtmlPageLoader
+import takutility.dubdb.wiki.CachedWikiPageLoader
 import takutility.dubdb.wiki.WikiHtmlPageLoader
+import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.io.path.toPath
 import kotlin.reflect.KClass
 
@@ -21,12 +24,14 @@ class TestContext(
     trakt: Trakt,
     wikiApi: WikiApi,
     wikidata: Wikidata,
-    wikiPageLoader: WikiHtmlPageLoader,
+    wikiHtmlLoader: WikiHtmlPageLoader,
+    wikiPageLoader: WikiPageLoader,
     config: Config?,
     val fullMock: Boolean = false
-) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikidata, wikiPageLoader, config) {
+) : DubDbContextBase(movieDb, actorDb, dubberDb, dubEntityDb, trakt, wikiApi, wikidata, wikiHtmlLoader, wikiPageLoader, config) {
     companion object {
         fun mocked(fullMock: Boolean = false, init: ((TestContext) -> Unit)? = null): TestContext {
+            val cacheDir = TestContext::class.java.getResource("/cache")?.toURI()?.toPath()?.toFile()
             val ctx = TestContext(
                 movieDb = mock(),
                 actorDb = mock(),
@@ -35,8 +40,8 @@ class TestContext(
                 trakt = mock(),
                 wikiApi = mock(),
                 wikidata = mock(),
-                wikiPageLoader = if (fullMock) mock() else CachedWikiHtmlPageLoader(TestContext::class.java
-                    .getResource("/cache")?.toURI()?.toPath()?.toFile()),
+                wikiHtmlLoader = if (fullMock) mock() else CachedWikiHtmlPageLoader(cacheDir),
+                wikiPageLoader = if (fullMock) mock() else CachedWikiPageLoader(WikiApiImpl(), cacheDir!!),
                 config = Config(mock(), mock(), mock(), mock(), mock(), mock()),
                 fullMock = fullMock
             )
@@ -66,9 +71,12 @@ class TestContext(
     override var wikidata
         get() = super.wikidata
         set(value) = set(Wikidata::class, value)
+    override var wikiHtmlLoader
+        get() = super.wikiHtmlLoader
+        set(value) = set(WikiHtmlPageLoader::class, value)
     override var wikiPageLoader
         get() = super.wikiPageLoader
-        set(value) = set(WikiHtmlPageLoader::class, value)
+        set(value) = set(WikiPageLoader::class, value)
 
     override fun <T : Any> get(clazz: KClass<T>): T {
         if (fullMock && clazz !in this)

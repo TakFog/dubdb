@@ -224,7 +224,7 @@ internal class ExtractMovieTest {
         assertActor(entities, "Igon Siruss", "John Goodman")
     }
 
-    fun page(title: String) = ctx.wikiPageLoader.page(title)
+    fun page(title: String) = ctx.wikiHtmlLoader.page(title)
 
 }
 

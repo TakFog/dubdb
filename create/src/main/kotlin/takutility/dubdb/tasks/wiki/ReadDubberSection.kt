@@ -15,7 +15,7 @@ private val CHAR_SPLITS = setOf(",", "e")
 class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
 
     fun run(dubber: DubberRef): TaskResult = dubber.wiki
-        ?.let(this::loadPage)
+        ?.let(this::loadHtml)
         ?.let { run(dubber, it) }
         ?: TaskResult.empty
 

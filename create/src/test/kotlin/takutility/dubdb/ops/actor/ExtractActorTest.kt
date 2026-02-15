@@ -95,7 +95,7 @@ internal class ExtractActorTest {
         assertEquals("Robert_Downey_Jr_2014_Comic_Con_(cropped).jpg", actor.ids[Source.WIKIMEDIA]?.id, "photo")
     }
 
-    fun page(title: String) = ctx.wikiPageLoader.page(title)
+    fun page(title: String) = ctx.wikiHtmlLoader.page(title)
 
 }
 

@@ -23,7 +23,7 @@ class ExtractMovie(val context: DubDbContext) {
 
     fun run(source: MovieRef): Movie {
         val title = source.wikiId!!
-        return run(context.wikiPageLoader.page(title), source)
+        return run(context.wikiHtmlLoader.page(title), source)
     }
 
     fun run(page: WikiHtmlPage, source: MovieRef? = null): Movie {

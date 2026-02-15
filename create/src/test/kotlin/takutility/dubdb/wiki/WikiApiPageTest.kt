@@ -12,7 +12,6 @@ import org.mockito.kotlin.whenever
 import takutility.dubdb.service.wikiapi.Parse
 import takutility.dubdb.service.wikiapi.ParseResponse
 import takutility.dubdb.service.wikiapi.WikiApi
-import takutility.dubdb.service.wikiapi.WikiApiResponse
 import java.io.File
 
 class WikiApiPageTest {
@@ -37,7 +36,7 @@ class WikiApiPageTest {
         
         // Wrap in the structure expected by WikiApi code: WikiApiResponse(query = mapOf("val" to parseObject))
         // The key in the map doesn't matter as queryValue() takes the first value
-        return WikiApiResponse(mapOf("page" to parseObject))
+        return ParseResponse(parseObject)
     }
 
     @BeforeEach

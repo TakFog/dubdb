@@ -29,7 +29,7 @@ class Movies(val context: DubDbContext) {
             .filter { it.wikiId != null }
             .mapNotNull { m ->
                 m.wikiId
-                    ?.let { context.wikiPageLoader.page(it) }
+                    ?.let { context.wikiHtmlLoader.page(it) }
                     ?.takeIf { it.exists() }
                     ?.let { p -> p to m }
             }

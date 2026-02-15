@@ -8,6 +8,7 @@ import takutility.dubdb.service.TraktImpl
 import takutility.dubdb.service.WikidataImpl
 import takutility.dubdb.service.wikiapi.WikiApiImpl
 import takutility.dubdb.wiki.WikiHtmlPageLoader
+import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.io.path.Path
 
 fun memRepositoryFromConfig(config: Config): RepositorySet {
@@ -58,7 +59,8 @@ fun contextFromConfig(config: Config = loadConfig()): DubDbContext {
         trakt = trakt,
         wikiApi = wikiApi,
         wikidata = wikidata,
-        wikiPageLoader = WikiHtmlPageLoader.get(),
+        wikiHtmlLoader = WikiHtmlPageLoader.get(),
+        wikiPageLoader = WikiPageLoader.fromConfig(wikiApi, config),
         config = config,
     )
 }

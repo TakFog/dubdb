@@ -2,13 +2,13 @@ package takutility.dubdb.service.wikiapi
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-typealias ParseResponse = WikiApiMapResponse<Parse>
+data class ParseResponse(val parse: Parse?, val error: Any? = null)
 
 data class Parse (
     val title: String,
     val pageid: Long,
     val revid: Long,
-    val wikitext: String?,
+    val wikitext: String? = null,
     val langlinks: List<Langlink>? = null,
     val tocdata: Tocdata? = null,
     val properties: Properties? = null
