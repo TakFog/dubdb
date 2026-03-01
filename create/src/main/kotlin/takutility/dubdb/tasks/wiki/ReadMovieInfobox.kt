@@ -27,6 +27,87 @@ class ReadMovieInfobox(context: DubDbContext): WikiPageTask(context) {
 
     fun run(movie: MovieRef): TaskResult {
         val movieId = movie.wiki
+        val page = loadPage(movieId) ?: return TaskResult.empty
+        val content = page.mainSection?.content ?: return TaskResult.empty
+
+        // Parse wikitext infobox
+        val infoboxRegex = Regex("""\{\{(?:Film|FictionTV)[\s\S]*?}}""", RegexOption.MULTILINE)
+        val infoboxMatch = infoboxRegex.find(content)
+        val infobox = infoboxMatch?.value ?: return TaskResult.empty
+
+        // Extract key-value pairs
+        val lines = infobox.lines()
+        val fields = mutableMapOf<String, String>()
+        val listFields = mutableMapOf<String, MutableList<String>>()
+        var currentKey: String? = null
+        for (line in lines) {
+            val trimmed = line.trim()
+            if (trimmed.startsWith("|")) {
+                val parts = trimmed.removePrefix("|").split("=", limit = 2)
+                if (parts.size == 2) {
+                    val key = parts[0].trim()
+                    val value = parts[1].trim()
+                    if (value.startsWith("*")) {
+                        // List field
+                        currentKey = key
+                        listFields.getOrPut(key) { mutableListOf() }.add(value.removePrefix("*").trim())
+                    } else {
+                        fields[key] = value
+                        currentKey = key
+                    }
+                }
+            } else if (trimmed.startsWith("*")) {
+                // Continuation of list field
+                currentKey?.let { listFields.getOrPut(it) { mutableListOf() }.add(trimmed.removePrefix("*").trim()) }
+            }
+        }
+
+        // Parse actors and dubbers
+        val dubbedEntities = mutableListOf<DubbedEntity>()
+        val actorList = listFields["attori"] ?: emptyList()
+        val dubberList = listFields["doppiatori italiani"] ?: emptyList()
+
+        // Parse actors
+        for (actorEntry in actorList) {
+            val parts = actorEntry.split(":", limit = 2)
+            if (parts.size == 2) {
+                val actorName = parts[0].trim().removePrefix("[[").removeSuffix("]]")
+                val charaName = parts[1].trim()
+                val actor = Actor(actorName)
+                val dubbedEntity = DubbedEntity(
+                    name = charaName,
+                    movie = movie,
+                    actor = actor,
+                    dubber = null,
+                    sources = mutableListOf(RawData(sourceId = movieId!!, dataSource = DataSource.MOVIE_ORIG, raw = actorEntry))
+                )
+                dubbedEntities.add(dubbedEntity)
+            }
+        }
+
+        // Parse dubbers
+        for (dubberEntry in dubberList) {
+            val parts = dubberEntry.split(":", limit = 2)
+            if (parts.size == 2) {
+                val dubberName = parts[0].trim().removePrefix("[[").removeSuffix("]]")
+                val charaName = parts[1].trim()
+                val dubber = Dubber(dubberName)
+                val dubbedEntity = DubbedEntity(
+                    name = charaName,
+                    movie = movie,
+                    actor = null,
+                    dubber = dubber,
+                    sources = mutableListOf(RawData(sourceId = movieId!!, dataSource = DataSource.MOVIE_DUB, raw = dubberEntry))
+                )
+                dubbedEntities.add(dubbedEntity)
+            }
+        }
+
+        return TaskResult(dubbedEntities = dubbedEntities)
+    }
+
+    fun runHtml(movie: MovieRef): TaskResult {
+        val movieId = movie.wiki
         val doc = load(movieId) ?: return TaskResult.empty
 
         val titles = doc.select("table.sinottico .sinottico_divisione") ?: return TaskResult.empty
