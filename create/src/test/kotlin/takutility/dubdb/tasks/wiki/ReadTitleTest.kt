@@ -1,6 +1,7 @@
 package takutility.dubdb.tasks.wiki
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.EntityRefImpl
@@ -38,8 +39,14 @@ internal class ReadTitleTest: WikiPageTest<ReadTitle>() {
 
     @Test
     fun joker2() {
-        val res = run("Joker:_Folie_%C3%A0_Deux")
+        val res = run("Joker:_Folie_à_Deux")
         assertEquals("Joker: Folie à Deux", res)
+    }
+
+    @Test
+    fun unexisting() {
+        val res = run("Joker:_Folie_%C3%A0_Deux")
+        assertNull(res)
     }
 
     @Test

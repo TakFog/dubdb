@@ -1,0 +1,72 @@
+{
+  "title" : "Nino D'Agata",
+  "id" : 2406913,
+  "mainSection" : {
+    "title" : "",
+    "index" : 0,
+    "offset" : 0
+  },
+  "sections" : [ {
+    "title" : "Biografia",
+    "index" : 1,
+    "subsections" : [ {
+      "title" : "Vita privata",
+      "index" : 2,
+      "offset" : 1051
+    } ],
+    "offset" : 447
+  }, {
+    "title" : "Filmografia",
+    "index" : 3,
+    "subsections" : [ {
+      "title" : "Cinema",
+      "index" : 4,
+      "offset" : 1256
+    }, {
+      "title" : "Televisione",
+      "index" : 5,
+      "offset" : 2132
+    } ],
+    "offset" : 1240
+  }, {
+    "title" : "Doppiaggio",
+    "index" : 6,
+    "subsections" : [ {
+      "title" : "Film",
+      "index" : 7,
+      "offset" : 3582
+    }, {
+      "title" : "Film d'animazione",
+      "index" : 8,
+      "offset" : 4975
+    }, {
+      "title" : "Serie televisive",
+      "index" : 9,
+      "offset" : 5155
+    }, {
+      "title" : "Cartoni animati",
+      "index" : 10,
+      "offset" : 5716
+    }, {
+      "title" : "Videogiochi",
+      "index" : 11,
+      "offset" : 5979
+    } ],
+    "offset" : 3565
+  }, {
+    "title" : "Note",
+    "index" : 12,
+    "offset" : 6279
+  }, {
+    "title" : "Collegamenti esterni",
+    "index" : 13,
+    "offset" : 6306
+  } ],
+  "langLink" : {
+    "en" : "https://en.wikipedia.org/wiki/Nino_D%27Agata"
+  },
+  "sort" : "D'Agata ,Antonino",
+  "wikidata" : "Q3877169",
+  "revisionId" : 139971562,
+  "lastRead" : 1722627994
+}

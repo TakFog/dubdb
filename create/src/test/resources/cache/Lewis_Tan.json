@@ -1,0 +1,70 @@
+{
+  "title" : "Lewis Tan",
+  "id" : 8862091,
+  "mainSection" : {
+    "title" : "",
+    "index" : 0,
+    "offset" : 0
+  },
+  "sections" : [ {
+    "title" : "Biografia",
+    "index" : 1,
+    "offset" : 651
+  }, {
+    "title" : "Carriera",
+    "index" : 2,
+    "offset" : 3625
+  }, {
+    "title" : "Filmografia",
+    "index" : 3,
+    "subsections" : [ {
+      "title" : "Cinema",
+      "index" : 4,
+      "offset" : 9815
+    }, {
+      "title" : "Televisione",
+      "index" : 5,
+      "offset" : 11089
+    } ],
+    "offset" : 9797
+  }, {
+    "title" : "Doppiatori italiani",
+    "index" : 6,
+    "offset" : 12044
+  }, {
+    "title" : "Note",
+    "index" : 7,
+    "offset" : 12460
+  }, {
+    "title" : "Altri progetti",
+    "index" : 8,
+    "offset" : 12487
+  }, {
+    "title" : "Collegamenti esterni",
+    "index" : 9,
+    "offset" : 12527
+  } ],
+  "langLink" : {
+    "en" : "https://en.wikipedia.org/wiki/Lewis_Tan",
+    "ko" : "https://ko.wikipedia.org/wiki/%EB%A3%A8%EC%9D%B4%EC%8A%A4_%ED%83%A0",
+    "pt" : "https://pt.wikipedia.org/wiki/Lewis_Tan",
+    "ja" : "https://ja.wikipedia.org/wiki/%E3%83%AB%E3%82%A4%E3%82%B9%E3%83%BB%E3%82%BF%E3%83%B3",
+    "af" : "https://af.wikipedia.org/wiki/Lewis_Tan",
+    "de" : "https://de.wikipedia.org/wiki/Lewis_Tan",
+    "ar" : "https://ar.wikipedia.org/wiki/%D9%84%D9%88%D9%8A%D8%B3_%D8%AA%D8%A7%D9%86",
+    "arz" : "https://arz.wikipedia.org/wiki/%D9%84%D9%88%D9%8A%D8%B3_%D8%AA%D8%A7%D9%86",
+    "he" : "https://he.wikipedia.org/wiki/%D7%9C%D7%95%D7%90%D7%99%D7%A1_%D7%98%D7%90%D7%9F",
+    "es" : "https://es.wikipedia.org/wiki/Lewis_Tan",
+    "hu" : "https://hu.wikipedia.org/wiki/Lewis_Tan",
+    "zh" : "https://zh.wikipedia.org/wiki/%E8%B7%AF%E6%98%93%E6%96%AF%C2%B7%E8%AD%9A",
+    "ru" : "https://ru.wikipedia.org/wiki/%D0%A2%D0%B0%D0%BD,_%D0%9B%D1%8C%D1%8E%D0%B8%D1%81",
+    "fa" : "https://fa.wikipedia.org/wiki/%D9%84%D9%88%D8%A6%DB%8C%D8%B3_%D8%AA%D8%A7%D9%86",
+    "id" : "https://id.wikipedia.org/wiki/Lewis_Tan",
+    "fr" : "https://fr.wikipedia.org/wiki/Lewis_Tan",
+    "sv" : "https://sv.wikipedia.org/wiki/Lewis_Tan"
+  },
+  "sort" : "Tan ,Lewis Singwah",
+  "wikidata" : "Q27244661",
+  "revisionId" : 147317524,
+  "lastRead" : 1772368709.212114300
+}

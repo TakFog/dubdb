@@ -1,0 +1,127 @@
+{
+  "title" : "The Good Doctor (serie televisiva)",
+  "id" : 6547807,
+  "mainSection" : {
+    "title" : "",
+    "index" : 0,
+    "offset" : 0
+  },
+  "sections" : [ {
+    "title" : "Trama",
+    "index" : 1,
+    "offset" : 2808
+  }, {
+    "title" : "Episodi",
+    "index" : 2,
+    "offset" : 3823
+  }, {
+    "title" : "Personaggi e interpreti",
+    "index" : 3,
+    "subsections" : [ {
+      "title" : "Personaggi principali",
+      "index" : 4,
+      "offset" : 4596
+    }, {
+      "title" : "Personaggi secondari",
+      "index" : 5,
+      "offset" : 18396
+    } ],
+    "offset" : 4566
+  }, {
+    "title" : "Produzione",
+    "index" : 6,
+    "subsections" : [ {
+      "title" : "Casting",
+      "index" : 7,
+      "offset" : 29316
+    }, {
+      "title" : "Riprese",
+      "index" : 8,
+      "offset" : 32511
+    } ],
+    "offset" : 23832
+  }, {
+    "title" : "Promozione",
+    "index" : 9,
+    "offset" : 35288
+  }, {
+    "title" : "Distribuzione",
+    "index" : 10,
+    "offset" : 35671
+  }, {
+    "title" : "Accoglienza",
+    "index" : 11,
+    "subsections" : [ {
+      "title" : "Ascolti",
+      "index" : 12,
+      "offset" : 37077
+    }, {
+      "title" : "Critica",
+      "index" : 13,
+      "offset" : 39645
+    } ],
+    "offset" : 37059
+  }, {
+    "title" : "Riconoscimenti",
+    "index" : 14,
+    "offset" : 41958
+  }, {
+    "title" : "Note",
+    "index" : 15,
+    "offset" : 42775
+  }, {
+    "title" : "Altri progetti",
+    "index" : 16,
+    "offset" : 42802
+  }, {
+    "title" : "Collegamenti esterni",
+    "index" : 17,
+    "offset" : 42842
+  } ],
+  "langLink" : {
+    "de" : "https://de.wikipedia.org/wiki/The_Good_Doctor",
+    "es" : "https://es.wikipedia.org/wiki/The_Good_Doctor",
+    "nl" : "https://nl.wikipedia.org/wiki/The_Good_Doctor_(televisieserie)",
+    "pt" : "https://pt.wikipedia.org/wiki/The_Good_Doctor",
+    "zh" : "https://zh.wikipedia.org/wiki/%E5%A5%BD%E9%86%AB%E7%94%9F_(%E7%BE%8E%E5%9C%8B%E9%9B%BB%E8%A6%96%E5%8A%87)",
+    "sv" : "https://sv.wikipedia.org/wiki/The_Good_Doctor",
+    "fi" : "https://fi.wikipedia.org/wiki/The_Good_Doctor",
+    "no" : "https://no.wikipedia.org/wiki/The_Good_Doctor",
+    "ko" : "https://ko.wikipedia.org/wiki/%EA%B5%BF_%EB%8B%A5%ED%84%B0_(2017%EB%85%84_%EB%93%9C%EB%9D%BC%EB%A7%88)",
+    "id" : "https://id.wikipedia.org/wiki/The_Good_Doctor",
+    "ast" : "https://ast.wikipedia.org/wiki/The_Good_Doctor",
+    "eu" : "https://eu.wikipedia.org/wiki/The_Good_Doctor",
+    "ms" : "https://ms.wikipedia.org/wiki/The_Good_Doctor",
+    "ckb" : "https://ckb.wikipedia.org/wiki/%D9%BE%D8%B2%DB%8C%D8%B4%DA%A9%DB%95_%D8%A8%D8%A7%D8%B4%DB%95%DA%A9%DB%95_(%D8%B2%D9%86%D8%AC%DB%8C%D8%B1%DB%95%DB%8C_%D8%AA%DB%95%D9%84%DB%95%DA%A4%DB%8C%D8%B2%DB%8C%DB%86%D9%86%DB%8C)",
+    "hu" : "https://hu.wikipedia.org/wiki/Doktor_Murphy",
+    "hy" : "https://hy.wikipedia.org/wiki/%D4%BC%D5%A1%D5%BE_%D5%A2%D5%AA%D5%AB%D5%B7%D5%AF%D5%A8_(%D5%B0%D5%A5%D5%BC%D5%B8%D6%82%D5%BD%D5%BF%D5%A1%D5%BD%D5%A5%D6%80%D5%AB%D5%A1%D5%AC)",
+    "gl" : "https://gl.wikipedia.org/wiki/The_Good_Doctor",
+    "tr" : "https://tr.wikipedia.org/wiki/The_Good_Doctor_(dizi)",
+    "cs" : "https://cs.wikipedia.org/wiki/Dobr%C3%BD_doktor",
+    "vi" : "https://vi.wikipedia.org/wiki/B%C3%A1c_s%C4%A9_thi%C3%AAn_t%C3%A0i",
+    "ru" : "https://ru.wikipedia.org/wiki/%D0%A5%D0%BE%D1%80%D0%BE%D1%88%D0%B8%D0%B9_%D0%B4%D0%BE%D0%BA%D1%82%D0%BE%D1%80_(%D1%82%D0%B5%D0%BB%D0%B5%D1%81%D0%B5%D1%80%D0%B8%D0%B0%D0%BB,_2017)",
+    "he" : "https://he.wikipedia.org/wiki/%D7%94%D7%A8%D7%95%D7%A4%D7%90_%D7%94%D7%98%D7%95%D7%91",
+    "ca" : "https://ca.wikipedia.org/wiki/The_Good_Doctor",
+    "ka" : "https://ka.wikipedia.org/wiki/%E1%83%99%E1%83%90%E1%83%A0%E1%83%92%E1%83%98_%E1%83%94%E1%83%A5%E1%83%98%E1%83%9B%E1%83%98_(%E1%83%A2%E1%83%94%E1%83%9A%E1%83%94%E1%83%A1%E1%83%94%E1%83%A0%E1%83%98%E1%83%90%E1%83%9A%E1%83%98)",
+    "ja" : "https://ja.wikipedia.org/wiki/%E3%82%B0%E3%83%83%E3%83%89%E3%83%BB%E3%83%89%E3%82%AF%E3%82%BF%E3%83%BC_%E5%90%8D%E5%8C%BB%E3%81%AE%E6%9D%A1%E4%BB%B6",
+    "pl" : "https://pl.wikipedia.org/wiki/The_Good_Doctor_(serial_telewizyjny)",
+    "bg" : "https://bg.wikipedia.org/wiki/%D0%94%D0%BE%D0%B1%D1%80%D0%B8%D1%8F%D1%82_%D0%B4%D0%BE%D0%BA%D1%82%D0%BE%D1%80_(%D1%81%D0%B5%D1%80%D0%B8%D0%B0%D0%BB,_2017)",
+    "mr" : "https://mr.wikipedia.org/wiki/%E0%A4%A6_%E0%A4%97%E0%A5%81%E0%A4%A1_%E0%A4%A1%E0%A5%89%E0%A4%95%E0%A5%8D%E0%A4%9F%E0%A4%B0_(%E0%A4%AE%E0%A4%BE%E0%A4%B2%E0%A4%BF%E0%A4%95%E0%A4%BE)",
+    "hr" : "https://hr.wikipedia.org/wiki/The_Good_Doctor_(televizijska_serija)",
+    "fa" : "https://fa.wikipedia.org/wiki/%D9%BE%D8%B2%D8%B4%DA%A9_%D8%AE%D9%88%D8%A8_(%D9%85%D8%AC%D9%85%D9%88%D8%B9%D9%87_%D8%AA%D9%84%D9%88%DB%8C%D8%B2%DB%8C%D9%88%D9%86%DB%8C)",
+    "sr" : "https://sr.wikipedia.org/wiki/%D0%94%D0%BE%D0%B1%D1%80%D0%B8_%D0%B4%D0%BE%D0%BA%D1%82%D0%BE%D1%80",
+    "uz" : "https://uz.wikipedia.org/wiki/G%CA%BBaroyib_doktor",
+    "en" : "https://en.wikipedia.org/wiki/The_Good_Doctor_(American_TV_series)",
+    "uk" : "https://uk.wikipedia.org/wiki/%D0%A5%D0%BE%D1%80%D0%BE%D1%88%D0%B8%D0%B9_%D0%BB%D1%96%D0%BA%D0%B0%D1%80_(%D1%82%D0%B5%D0%BB%D0%B5%D1%81%D0%B5%D1%80%D1%96%D0%B0%D0%BB,_2017)",
+    "hi" : "https://hi.wikipedia.org/wiki/%E0%A4%A6_%E0%A4%97%E0%A5%81%E0%A4%A1_%E0%A4%A1%E0%A5%89%E0%A4%95%E0%A5%8D%E0%A4%9F%E0%A4%B0_(%E0%A4%85%E0%A4%AE%E0%A5%87%E0%A4%B0%E0%A4%BF%E0%A4%95%E0%A5%80_%E0%A4%A7%E0%A4%BE%E0%A4%B0%E0%A4%BE%E0%A4%B5%E0%A4%BE%E0%A4%B9%E0%A4%BF%E0%A4%95)",
+    "ht" : "https://ht.wikipedia.org/wiki/Good_Doctor_(seri_televizyon_2013)",
+    "fr" : "https://fr.wikipedia.org/wiki/Good_Doctor_(s%C3%A9rie_t%C3%A9l%C3%A9vis%C3%A9e,_2017)",
+    "lt" : "https://lt.wikipedia.org/wiki/Gerasis_daktaras",
+    "ar" : "https://ar.wikipedia.org/wiki/%D8%A7%D9%84%D8%B7%D8%A8%D9%8A%D8%A8_%D8%A7%D9%84%D8%B7%D9%8A%D8%A8_(%D9%85%D8%B3%D9%84%D8%B3%D9%84_2017)"
+  },
+  "sort" : "Good Doctor, The",
+  "image" : "The_Good_Doctor.jpg",
+  "wikidata" : "Q29908604",
+  "revisionId" : 148824881,
+  "lastRead" : 1772368191.968999800
+}

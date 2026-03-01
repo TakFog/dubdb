@@ -9,10 +9,10 @@ import takutility.dubdb.entities.Source.*
 import takutility.dubdb.entities.SourceId
 import takutility.dubdb.tasks.TaskResult
 
-internal class ReadIdsTest: WikiPageTest<ReadIds>() {
+internal class ReadIdsHtmlTest: WikiPageTest<ReadIds>() {
 
     override fun newTask(context: DubDbContext) = ReadIds(context)
-    fun run(title: String): TaskResult = task.run(SourceId(WIKI, title))
+    fun run(title: String): TaskResult = task.run(task.context.wikiHtmlLoader.page(title))
 
     @Test
     fun missing() {
@@ -27,6 +27,8 @@ internal class ReadIdsTest: WikiPageTest<ReadIds>() {
     @Test
     fun avengers() {
         assertIds(run("Avengers:_Age_of_Ultron"),
+                MONDO_DOPPIATORI to "doppiaggio/film1/avengers-ageofultron.htm",
+                IMDB to "tt2395427",
                 WIKIDATA to "Q14171368",
                 WIKI_EN to "Avengers:_Age_of_Ultron",
         ) }
@@ -34,6 +36,8 @@ internal class ReadIdsTest: WikiPageTest<ReadIds>() {
     @Test
     fun angeloMaggi() {
         assertIds(run("Angelo_Maggi"),
+                MONDO_DOPPIATORI to "doppiaggio/voci/vociamag.htm",
+                IMDB to "nm0535947",
                 WIKIDATA to "Q3617056",
                 WIKI_EN to "Angelo_Maggi",
         )
@@ -42,6 +46,8 @@ internal class ReadIdsTest: WikiPageTest<ReadIds>() {
     @Test
     fun maxTurilli() {
         assertIds(run("Max_Turilli"),
+            MONDO_DOPPIATORI to "doppiaggio/voci/vocimturi.htm",
+            IMDB to "nm0850442",
             WIKIDATA to "Q3853081",
         )
     }
@@ -49,6 +55,7 @@ internal class ReadIdsTest: WikiPageTest<ReadIds>() {
     @Test
     fun robertDowneyJr() {
         assertIds(run("Robert_Downey_Jr."),
+                IMDB to "nm0000375",
                 WIKIDATA to "Q165219",
                 WIKI_EN to "Robert_Downey_Jr.",
         )

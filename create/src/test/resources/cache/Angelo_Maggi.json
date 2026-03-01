@@ -1,0 +1,86 @@
+{
+  "title" : "Angelo Maggi",
+  "id" : 1334683,
+  "mainSection" : {
+    "title" : "",
+    "index" : 0,
+    "offset" : 0
+  },
+  "sections" : [ {
+    "title" : "Biografia",
+    "index" : 1,
+    "offset" : 424
+  }, {
+    "title" : "Filmografia",
+    "index" : 2,
+    "subsections" : [ {
+      "title" : "Cinema",
+      "index" : 3,
+      "offset" : 5110
+    }, {
+      "title" : "Televisione",
+      "index" : 4,
+      "offset" : 5844
+    } ],
+    "offset" : 5092
+  }, {
+    "title" : "Doppiaggio",
+    "index" : 5,
+    "subsections" : [ {
+      "title" : "Film",
+      "index" : 6,
+      "offset" : 6887
+    }, {
+      "title" : "Film d'animazione",
+      "index" : 7,
+      "offset" : 16996
+    }, {
+      "title" : "Serie televisive",
+      "index" : 8,
+      "offset" : 18244
+    }, {
+      "title" : "Serie animate",
+      "index" : 9,
+      "offset" : 21011
+    }, {
+      "title" : "Televisione",
+      "index" : 10,
+      "offset" : 22168
+    }, {
+      "title" : "Videogiochi",
+      "index" : 11,
+      "offset" : 22375
+    }, {
+      "title" : "Podcast",
+      "index" : 12,
+      "offset" : 23709
+    } ],
+    "offset" : 6870
+  }, {
+    "title" : "Riconoscimenti",
+    "index" : 13,
+    "offset" : 23776
+  }, {
+    "title" : "Note",
+    "index" : 14,
+    "offset" : 23845
+  }, {
+    "title" : "Altri progetti",
+    "index" : 15,
+    "offset" : 23871
+  }, {
+    "title" : "Collegamenti esterni",
+    "index" : 16,
+    "offset" : 23911
+  } ],
+  "langLink" : {
+    "en" : "https://en.wikipedia.org/wiki/Angelo_Maggi",
+    "arz" : "https://arz.wikipedia.org/wiki/%D8%A7%D9%86%D8%AC%D9%8A%D9%84%D9%88_%D9%85%D8%A7%D8%AC%D9%89",
+    "fa" : "https://fa.wikipedia.org/wiki/%D8%A2%D9%86%D8%AC%D9%84%D9%88_%D9%85%D8%A7%D8%AC%DB%8C"
+  },
+  "sort" : "Maggi Mariotti ,Angelo",
+  "image" : "Angelo_Maggi_20240113.jpg",
+  "wikidata" : "Q3617056",
+  "revisionId" : 149519132,
+  "lastRead" : 1772368194.191443800
+}

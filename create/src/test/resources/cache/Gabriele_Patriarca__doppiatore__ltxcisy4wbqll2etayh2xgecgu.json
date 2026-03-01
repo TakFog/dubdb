@@ -1,0 +1,64 @@
+{
+  "title" : "Gabriele Patriarca (doppiatore)",
+  "id" : 1842818,
+  "mainSection" : {
+    "title" : "",
+    "index" : 0,
+    "offset" : 0
+  },
+  "sections" : [ {
+    "title" : "Biografia",
+    "index" : 1,
+    "offset" : 350
+  }, {
+    "title" : "Filmografia",
+    "index" : 2,
+    "offset" : 2290
+  }, {
+    "title" : "Doppiaggio",
+    "index" : 3,
+    "subsections" : [ {
+      "title" : "Film",
+      "index" : 4,
+      "offset" : 3377
+    }, {
+      "title" : "Film d'animazione",
+      "index" : 5,
+      "offset" : 8650
+    }, {
+      "title" : "Serie televisive",
+      "index" : 6,
+      "offset" : 12323
+    }, {
+      "title" : "Serie animate",
+      "index" : 7,
+      "offset" : 15141
+    }, {
+      "title" : "Programmi televisivi",
+      "index" : 8,
+      "offset" : 20833
+    }, {
+      "title" : "Videogiochi",
+      "index" : 9,
+      "offset" : 20933
+    }, {
+      "title" : "Direttore del doppiaggio",
+      "index" : 10,
+      "offset" : 21168
+    } ],
+    "offset" : 3360
+  }, {
+    "title" : "Note",
+    "index" : 11,
+    "offset" : 21510
+  }, {
+    "title" : "Collegamenti esterni",
+    "index" : 12,
+    "offset" : 21536
+  } ],
+  "langLink" : { },
+  "sort" : "Patriarca ,Gabriele",
+  "wikidata" : "Q3756660",
+  "revisionId" : 149541733,
+  "lastRead" : 1772368194.588712800
+}
