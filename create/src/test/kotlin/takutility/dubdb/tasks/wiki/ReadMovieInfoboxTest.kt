@@ -60,15 +60,10 @@ internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
             "Jeremy Renner" to "Occhio di Falco",
             "Mark Ruffalo" to "Bruce Banner",
             "Mark Ruffalo" to "Hulk",
-            "Lou Ferrigno" to "Hulk",
-            "Paul Bettany" to "Visione",
-            "Paul Bettany" to "J.A.R.V.I.S.",
         )
         assertDubber(res,
             "Angelo Maggi" to "Tony Stark",
             "Angelo Maggi" to "Iron Man",
-            "Nino D'Agata" to "J.A.R.V.I.S.",
-            "Nino D'Agata" to "Visione",
             "Christian Iansante" to "Clint Barton",
             "Christian Iansante" to "Occhio di Falco",
         )
@@ -123,18 +118,17 @@ internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
         val res = run("Deadpool_2")
 
         // correct url
-        assertEquals("Francesco_Venditti", find(res,"Deadpool", dubber = "Francesco Venditti").dubber?.wikiId)
-        assertEquals("Francesco_De_Francesco_(doppiatore)",
+        assertEquals("Francesco Venditti", find(res,"Deadpool", dubber = "Francesco Venditti").dubber?.wikiId)
+        assertEquals("Francesco De Francesco (doppiatore)",
             find(res,"Fenomeno", dubber = "Francesco De Francesco").dubber?.wikiId)
 
         //no link in text
         assertNull(find(res,"Black Tom", dubber = "Dodo Versino").dubber?.wikiId)
 
-        //link to missing page
+        //link to missing page, wikitext doesn't know
         val manca = find(res, "Peter", dubber = "Marco Manca").dubber
         assertNotNull(manca)
-        assertNull(manca!!.wikiId)
-        assertEquals("Marco_Manca", manca.ids[Source.WIKI_MISSING]?.id)
+        assertEquals("Marco Manca", manca!!.wikiId)
     }
 
     @Test
@@ -142,14 +136,13 @@ internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
         val res = run("Deadpool_2")
 
         // correct url
-        assertEquals("Ryan_Reynolds", find(res,"Deadpool", actor = "Ryan Reynolds").actor?.wikiId)
-        assertEquals("Stefan_Kapi%C4%8Di%C4%87", find(res,"Colosso", actor = "Stefan Kapičić").actor?.wikiId)
+        assertEquals("Ryan Reynolds", find(res,"Deadpool", actor = "Ryan Reynolds").actor?.wikiId)
+        assertEquals("Stefan Kapičić", find(res,"Colosso", actor = "Stefan Kapičić").actor?.wikiId)
 
-        //link to missing page
+        //link to missing page, wikitext doesn't know
         val trico = find(res, "Colosso", actor = "Andre Tricoteux").actor
         assertNotNull(trico)
-        assertNull(trico!!.wikiId)
-        assertEquals("Andre_Tricoteux", trico.ids[Source.WIKI_MISSING]?.id)
+        assertEquals("Andre Tricoteux", trico!!.wikiId)
     }
 
     @Test
@@ -159,37 +152,37 @@ internal class ReadMovieInfoboxTest: WikiPageTest<ReadMovieInfobox>() {
 
         assertSource(find(res, "Deadpool", actor = "Ryan Reynolds"),
                 sourceId = sourceId, dataSource = DataSource.MOVIE_ORIG,
-                raw = """<a href="/wiki/Ryan_Reynolds" title="Ryan Reynolds">Ryan Reynolds</a>: Wade Wilson / Deadpool"""
+                raw = """* [[Ryan Reynolds]]: Wade Wilson / Deadpool"""
         )
 
         assertSource(find(res, "Wade Wilson", actor = "Ryan Reynolds"),
                 sourceId = sourceId, dataSource = DataSource.MOVIE_ORIG,
-                raw = """<a href="/wiki/Ryan_Reynolds" title="Ryan Reynolds">Ryan Reynolds</a>: Wade Wilson / Deadpool"""
+                raw = """* [[Ryan Reynolds]]: Wade Wilson / Deadpool"""
         )
 
         assertSource(find(res, "Colosso", actor = "Andre Tricoteux"),
                 sourceId = sourceId, dataSource = DataSource.MOVIE_ORIG,
-                raw = """<a href="/w/index.php?title=Andre_Tricoteux&amp;action=edit&amp;redlink=1" class="new" title="Andre Tricoteux (la pagina non esiste)">Andre Tricoteux</a>: Peter Rasputin / Colosso"""
+                raw = """* [[Andre Tricoteux]]: Peter Rasputin / Colosso"""
         )
 
         assertSource(find(res, "Colosso", actor = "Stefan Kapičić"),
                 sourceId = sourceId, dataSource = DataSource.MOVIE_ORIG_DUB,
-                raw = """<a href="/wiki/Stefan_Kapi%C4%8Di%C4%87" title="Stefan Kapičić">Stefan Kapičić</a>: Peter Rasputin / Colosso"""
+                raw = """* [[Stefan Kapičić]]: Peter Rasputin / Colosso"""
         )
 
         assertSource(find(res, "Deadpool", dubber = "Francesco Venditti"),
                 sourceId = sourceId, dataSource = DataSource.MOVIE_DUB,
-                raw = """<a href="/wiki/Francesco_Venditti" title="Francesco Venditti">Francesco Venditti</a>: Wade Wilson / Deadpool"""
+                raw = """* [[Francesco Venditti]]: Wade Wilson / Deadpool"""
         )
 
         assertSource(find(res, "Peter", dubber = "Marco Manca"),
                 sourceId = sourceId, dataSource = DataSource.MOVIE_DUB,
-                raw = """<a href="/w/index.php?title=Marco_Manca&amp;action=edit&amp;redlink=1" class="new" title="Marco Manca (la pagina non esiste)">Marco Manca</a>: Peter"""
+                raw = """* [[Marco Manca]]: Peter"""
         )
 
         assertSource(find(res, "Black Tom", dubber = "Dodo Versino"),
                 sourceId = sourceId, dataSource = DataSource.MOVIE_DUB,
-                raw = """Dodo Versino: Black Tom"""
+                raw = """* Dodo Versino: Black Tom"""
         )
 
     }

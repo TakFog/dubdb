@@ -159,8 +159,8 @@ object WikitextParser {
                 arguments.add(
                     TemplateArgument(
                         index   = null,
-                        name    = WikiDocument(parseNodes(keyRaw)),
-                        value   = WikiDocument(parseNodes(valRaw)),
+                        name    = WikiDocument(parseNodes(keyRaw.trim())),
+                        value   = WikiDocument(parseNodes(valRaw.trim())),
                         rawText = part,
                     )
                 )
