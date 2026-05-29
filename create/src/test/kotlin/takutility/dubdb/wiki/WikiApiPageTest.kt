@@ -5,14 +5,14 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
+import org.mockito.stubbing.OngoingStubbing
 import takutility.dubdb.service.wikiapi.Parse
 import takutility.dubdb.service.wikiapi.ParseResponse
 import takutility.dubdb.service.wikiapi.WikiApi
 import java.io.File
+
+private const val SENTINEL = "SENTINEL~VALUE"
 
 class WikiApiPageTest {
     private val revid = 148840443L
@@ -47,40 +47,44 @@ class WikiApiPageTest {
 
         // Mock API calls
         // 1. Initial parse for metadata
-        whenever(api.parse(title = pageTitle, prop = "sections|properties|langlinks")).doReturn(metaResponse)
+        api.whenParse(title = pageTitle, prop = "tocdata|properties|langlinks|revid").doReturn(metaResponse)
 
         // 2. Main section content (index 0)
         // revid is used in loadContent, which comes from the meta response
         val revid = 148840443L
-        whenever(api.parse(revid = revid, section = 0, prop = "wikitext")).doReturn(mainResponse)
+       api.whenParse(revid = revid, section = 0, prop = "wikitext").doReturn(mainResponse)
 
         // 3. Doppiaggio section content (index 5)
-        whenever(api.parse(revid = revid, section = 5, prop = "wikitext")).doReturn(doppiaggioResponse)
+        api.whenParse(revid = revid, section = 5, prop = "wikitext").doReturn(doppiaggioResponse)
     }
 
     @Test
     fun `null response`() {
-        whenever(api.parse(any(), any(), any(), any())).thenReturn(null)
+        val title = "any title"
 
-        val page = WikiApiPage(api, "any title")
+        val page = WikiApiPage(api, title)
 
         assertFalse(page.exists(), "Page exists")
+        verify(api).parse(eq(title), isNull(), any(), isNull())
     }
 
     @Test
     fun `load metadata`() {
         val page = WikiApiPage(api, pageTitle)
+        val exists = page.exists()
+
+        verify(api).parse(eq(pageTitle), isNull(), any(), isNull())
 
         // Verify existence and basic properties
-        assertTrue(page.exists())
-        assertEquals(1334683L, page.id)
-        assertEquals(revid, page.revisionId)
-        assertEquals("Maggi Mariotti ,Angelo", page.sort)
-        assertEquals("Angelo_Maggi_20240113.jpg", page.image)
-        assertEquals("Q3617056", page.wikidata)
+        assertTrue(exists, "exists")
+        assertEquals(1334683L, page.id, "page id")
+        assertEquals(revid, page.revisionId, "revision id")
+        assertEquals("Maggi Mariotti ,Angelo", page.sort, "sort")
+        assertEquals("Angelo_Maggi_20240113.jpg", page.image, "image")
+        assertEquals("Q3617056", page.wikidata, "wikidata")
         
         // Verify language links
-        assertEquals("https://en.wikipedia.org/wiki/Angelo_Maggi", page.langLink?.get("en"))
+        assertEquals("https://en.wikipedia.org/wiki/Angelo_Maggi", page.langLink?.get("en"), "en link")
     }
 
     @Test
@@ -129,7 +133,7 @@ class WikiApiPageTest {
         assertTrue(doppiaggioContent.contains("=== Film ==="))
         assertTrue(doppiaggioContent.contains("[[Tom Hanks]]"))
         val ending = "=== Podcast ===\n* [[Fedez]] in ''[[Muschio selvaggio]]'' (ep. 77)"
-        assertEquals(ending, doppiaggioContent.substring(doppiaggioContent.length - ending.length))
+        assertEnd(ending, doppiaggioContent)
 
     }
 
@@ -146,9 +150,22 @@ class WikiApiPageTest {
         assertFalse(filmContent!!.contains("== Doppiaggio =="))
         assertTrue(filmContent.startsWith("=== Film ==="))
         val filmEnding = "* [[Guy Marchand]] in ''[[Toglimi un dubbio]]''\n\n"
-        assertEquals(filmEnding, filmContent.substring(filmContent.length - filmEnding.length), "film ending")
+        assertEnd(filmEnding, filmContent, "film ending")
 
         val podcastContent = doppiaggioSection.subsections["Podcast"]?.content
         assertEquals("=== Podcast ===\n* [[Fedez]] in ''[[Muschio selvaggio]]'' (ep. 77)", podcastContent)
     }
+}
+
+fun assertEnd(expectedEnding: String, actual: String, message: String? = null) {
+    assertEquals(expectedEnding, actual.substring(actual.length - expectedEnding.length), message)
+}
+
+fun WikiApi.whenParse(title: String? = null, revid: Long? = null, prop: String? = null, section: Int? = null): OngoingStubbing<ParseResponse?> {
+    return whenever(this.parse(
+        title = if (title != null) eq(title) else anyOrNull(),
+        revid = if (revid != null) eq(revid) else anyOrNull(),
+        prop = if (prop != null) eq(prop) else anyOrNull(),
+        section = if (section != null) eq(section) else anyOrNull(),
+    ))
 }
