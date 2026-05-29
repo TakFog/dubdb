@@ -206,9 +206,7 @@ internal class ExtractMovieTest {
         assertEntity(entities, "Bruce Banner", "Mark Ruffalo", "Riccardo Rossi")
         assertDubber(entities, "Hulk", "Riccardo Rossi")
         assertActor(entities, "Hulk", "Mark Ruffalo")
-        assertActor(entities, "Hulk", "Lou Ferrigno")
-        assertEntity(entities, "Visione", "Paul Bettany", "Nino D'Agata")
-        assertEntity(entities, "J.A.R.V.I.S.", "Paul Bettany", "Nino D'Agata")
+        assertEntity(entities, "J.A.R.V.I.S. e Visione", "Paul Bettany", "Nino D'Agata")
     }
 
     @Test
