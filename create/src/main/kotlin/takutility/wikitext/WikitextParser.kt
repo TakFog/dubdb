@@ -100,7 +100,7 @@ object WikitextParser {
                         // Find where this line ends (include the '\n')
                         val lineEnd = text.indexOf('\n', j)
                             .let { if (it == -1) text.length else it + 1 }
-                        if (j < text.length && text[j] in "*#;:") j = lineEnd else break
+                        if (text[j] in "*#;:") j = lineEnd else break
                     }
                     flushPlain()
                     val listEnd = if (j > listStart && text.getOrNull(j - 1) == '\n') j - 1 else j
@@ -276,7 +276,7 @@ object WikitextParser {
                 if (markers.isEmpty()) null
                 else ParsedLine(
                     markers = markers,
-                    content = line.substring(markers.length),   // keep leading space if any
+                    content = line.substring(markers.length).trim(),
                     rawLine = line,
                 )
             }

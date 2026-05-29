@@ -1,6 +1,7 @@
 package takutility.dubdb.wikitext
 
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import takutility.wikitext.*
 
@@ -11,16 +12,25 @@ class WikiListTest {
     @Test
     fun `flat unordered list has correct type and item count`() {
         val list = parseSingle("* Alpha\n* Beta\n* Gamma").assertIs<WikiList>()
-        Assertions.assertEquals(ListType.Unordered, list.listType)
-        Assertions.assertEquals(3, list.items.size)
+        assertEquals(ListType.Unordered, list.listType)
+        assertEquals(3, list.items.size)
+    }
+
+    @Test
+    fun `unordered item trim spaces`() {
+        val list = parseSingle("* Item 123 ").assertIs<WikiList>()
+        val item1 = list.items.first()
+        assertEquals("* Item 123 ", item1.rawText)
+        assertEquals("Item 123", item1.plainText)
+        assertEquals("Item 123", item1.content.plainText)
     }
 
     @Test
     fun `unordered items have star marker and depth 1`() {
         val list = parseSingle("* A\n* B").assertIs<WikiList>()
         for (item in list.items) {
-            Assertions.assertEquals('*', item.marker)
-            Assertions.assertEquals(1, item.depth)
+            assertEquals('*', item.marker)
+            assertEquals(1, item.depth)
             Assertions.assertTrue(item.isUnordered)
             Assertions.assertFalse(item.isOrdered)
         }
@@ -30,8 +40,8 @@ class WikiListTest {
     fun `unordered item content is parsed`() {
         val list = parseSingle("* [[Rome|Roma]]").assertIs<WikiList>()
         val link = list.items.first().content.children.filterIsInstance<WikiLink>()
-        Assertions.assertEquals(1, link.size)
-        Assertions.assertEquals("Rome", link.first().target)
+        assertEquals(1, link.size)
+        assertEquals("Rome", link.first().target)
     }
 
     // ── Flat ordered ──────────────────────────────────────────────────────
@@ -39,14 +49,14 @@ class WikiListTest {
     @Test
     fun `flat ordered list has correct type`() {
         val list = parseSingle("# One\n# Two\n# Three").assertIs<WikiList>()
-        Assertions.assertEquals(ListType.Ordered, list.listType)
-        Assertions.assertEquals(3, list.items.size)
+        assertEquals(ListType.Ordered, list.listType)
+        assertEquals(3, list.items.size)
     }
 
     @Test
     fun `ordered items have hash marker`() {
         val list = parseSingle("# A").assertIs<WikiList>()
-        Assertions.assertEquals('#', list.items.first().marker)
+        assertEquals('#', list.items.first().marker)
         Assertions.assertTrue(list.items.first().isOrdered)
     }
 
@@ -55,15 +65,15 @@ class WikiListTest {
     @Test
     fun `definition list has correct type`() {
         val list = parseSingle("; Term\n: Description").assertIs<WikiList>()
-        Assertions.assertEquals(ListType.Definition, list.listType)
-        Assertions.assertEquals(2, list.items.size)
+        assertEquals(ListType.Definition, list.listType)
+        assertEquals(2, list.items.size)
     }
 
     @Test
     fun `definition term marker is semicolon`() {
         val list = parseSingle("; Word").assertIs<WikiList>()
         val item = list.items.first()
-        Assertions.assertEquals(';', item.marker)
+        assertEquals(';', item.marker)
         Assertions.assertTrue(item.isTerm)
     }
 
@@ -71,7 +81,7 @@ class WikiListTest {
     fun `definition description marker is colon`() {
         val list = parseSingle(": Description").assertIs<WikiList>()
         val item = list.items.first()
-        Assertions.assertEquals(':', item.marker)
+        assertEquals(':', item.marker)
         Assertions.assertTrue(item.isDescription)
     }
 
@@ -80,7 +90,7 @@ class WikiListTest {
     @Test
     fun `mixed marker list has Mixed type`() {
         val list = parseSingle("* Bullet\n# Number").assertIs<WikiList>()
-        Assertions.assertEquals(ListType.Mixed, list.listType)
+        assertEquals(ListType.Mixed, list.listType)
     }
 
     // ── Nesting ───────────────────────────────────────────────────────────
@@ -89,10 +99,10 @@ class WikiListTest {
     fun `nested unordered list becomes subList`() {
         val src = "* Parent\n** Child 1\n** Child 2\n* Next parent"
         val list = parseSingle(src).assertIs<WikiList>()
-        Assertions.assertEquals(2, list.items.size, "two top-level items")
+        assertEquals(2, list.items.size, "two top-level items")
         val parent = list.items.first()
         Assertions.assertNotNull(parent.subList)
-        Assertions.assertEquals(2, parent.subList!!.items.size)
+        assertEquals(2, parent.subList!!.items.size)
     }
 
     @Test
@@ -100,11 +110,11 @@ class WikiListTest {
         val src = "* depth1\n** depth2\n*** depth3"
         val list = parseSingle(src).assertIs<WikiList>()
         val depth1Item = list.items.first()
-        Assertions.assertEquals(1, depth1Item.depth)
+        assertEquals(1, depth1Item.depth)
         val depth2Item = depth1Item.subList!!.items.first()
-        Assertions.assertEquals(2, depth2Item.depth)
+        assertEquals(2, depth2Item.depth)
         val depth3Item = depth2Item.subList!!.items.first()
-        Assertions.assertEquals(3, depth3Item.depth)
+        assertEquals(3, depth3Item.depth)
     }
 
     @Test
@@ -112,7 +122,7 @@ class WikiListTest {
         val src = "* Bullet\n## Sub-ordered"
         val list = parseSingle(src).assertIs<WikiList>()
         val sub = list.items.first().subList!!
-        Assertions.assertEquals('#', sub.items.first().marker)
+        assertEquals('#', sub.items.first().marker)
     }
 
     @Test
@@ -120,10 +130,10 @@ class WikiListTest {
         // Going straight from depth 1 to depth 3 without depth 2
         val src = "* top\n*** deep"
         val list = parseSingle(src).assertIs<WikiList>()
-        Assertions.assertEquals(1, list.items.size)
+        assertEquals(1, list.items.size)
         val sub = list.items.first().subList!!
-        Assertions.assertEquals(1, sub.items.size)
-        Assertions.assertEquals(3, sub.items.first().depth)
+        assertEquals(1, sub.items.size)
+        assertEquals(3, sub.items.first().depth)
     }
 
     // ── Item content ──────────────────────────────────────────────────────
@@ -133,8 +143,8 @@ class WikiListTest {
         val list = parseSingle("* {{em|important}} text").assertIs<WikiList>()
         val templates = list.items.first().content.walk()
             .filterIsInstance<WikiTemplate>().toList()
-        Assertions.assertEquals(1, templates.size)
-        Assertions.assertEquals("em", templates.first().name)
+        assertEquals(1, templates.size)
+        assertEquals("em", templates.first().name)
     }
 
     @Test
@@ -142,7 +152,7 @@ class WikiListTest {
         val list = parseSingle("* See [https://example.com here]").assertIs<WikiList>()
         val links = list.items.first().content.walk()
             .filterIsInstance<ExternalLink>().toList()
-        Assertions.assertEquals(1, links.size)
+        assertEquals(1, links.size)
     }
 
     // ── rawText and plainText ─────────────────────────────────────────────
@@ -152,13 +162,13 @@ class WikiListTest {
         val src = "* A\n* B\n* C"
         val list = parseSingle(src).assertIs<WikiList>()
         list.assertRaw(src)
-        Assertions.assertEquals(src, list.toString())
+        assertEquals(src, list.toString())
     }
 
     @Test
     fun `list item rawText is its source line`() {
         val list = parseSingle("* Hello").assertIs<WikiList>()
-        Assertions.assertEquals("* Hello", list.items.first().rawText)
+        assertEquals("* Hello", list.items.first().rawText)
     }
 
     @Test
