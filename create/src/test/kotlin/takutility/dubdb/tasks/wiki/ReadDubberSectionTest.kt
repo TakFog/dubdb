@@ -110,13 +110,13 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
 
         find(res, "Tim Roth", "Invincibile").sources.apply {
             assertEquals(1, size)
-            assertEquals("""<a href="/wiki/Tim_Roth" title="Tim Roth">Tim Roth</a> in <i><a href="/wiki/Invincibile" title="Invincibile">Invincibile</a></i>, <i><a href="/wiki/Dark_Water_(film_2005)" title="Dark Water (film 2005)">Dark Water</a></i>, <i><a href="/wiki/Un%27altra_giovinezza" title="Un'altra giovinezza">Un'altra giovinezza</a></i>, <i><a href="/wiki/Grace_di_Monaco_(film)" title="Grace di Monaco (film)">Grace di Monaco</a></i>"""
+            assertEquals("""* [[Tim Roth]] in ''[[Invincibile]]'', ''[[Dark Water (film 2005)|Dark Water]]'', ''[[Un'altra giovinezza]]'', ''[[Grace di Monaco (film)|Grace di Monaco]]''"""
                 , get(0).raw)
         }
 
         find(res, "Padre di Azur", "Azur e Asmar").sources.apply {
             assertEquals(1, size)
-            assertEquals("""Padre di Azur in <i><a href="/wiki/Azur_e_Asmar" title="Azur e Asmar">Azur e Asmar</a></i>"""
+            assertEquals("""* Padre di Azur in ''[[Azur e Asmar]]''"""
                 , get(0).raw)
         }
     }
@@ -254,7 +254,7 @@ internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
 
         assertLinkedEntity(res, "Reverendo Lovejoy", "I Simpson")
         assertSource(find(res, "Reverendo Lovejoy", "I Simpson"),
-            """<a href="/wiki/Clancy_Winchester" title="Clancy Winchester">Commissario Winchester</a> (2ª voce e principale, ep.5.5+) e <a href="/wiki/Timothy_Lovejoy" title="Timothy Lovejoy">Reverendo Lovejoy</a> (ep.5.22) in <i><a href="/wiki/I_Simpson" title="I Simpson">I Simpson</a></i>""")
+            """* [[Clancy Winchester|Commissario Winchester]] (2ª voce e principale, dall'ep.5.5) e [[Timothy Lovejoy|Reverendo Lovejoy]] (ep.5.22) in ''[[I Simpson]]'""")
     }
 
     @Test
@@ -264,7 +264,7 @@ internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
         assertLinkedEntity(res, "Clark Kent", "Superman")
         assertLinkedEntity(res, "Superman", "Superman")
         assertSource(find(res, "Superman", "Superman"),
-            """<a href="/wiki/Superman" title="Superman">Clark Kent/Superman</a> in <i><a href="/wiki/Superman_(serie_animata_1996)" title="Superman (serie animata 1996)">Superman</a></i> (stagioni 1-2)""")
+            """* [[Superman|Clark Kent/Superman]] in ''[[Superman (serie animata 1996)|Superman]]'' (stagioni 1-2)""")
     }
 
     @Test
@@ -293,9 +293,9 @@ internal class ReadDubberSectionDubAttributesTest: ReadDubberSectionBaseTest() {
             , "Neon Genesis Evangelion: The End of Evangelion"
         )
         assertSource(find(res, "Asuka Soryu Langley", "Neon Genesis Evangelion"),
-            """<a href="/wiki/Asuka_S%C5%8Dry%C5%AB_Langley" title="Asuka Sōryū Langley">Asuka Soryu Langley</a> nell'edizione <a href="/wiki/Netflix" title="Netflix">Netflix</a> di <i><a href="/wiki/Neon_Genesis_Evangelion" title="Neon Genesis Evangelion">Neon Genesis Evangelion</a></i>""")
+            """* [[Asuka Sōryū Langley|Asuka Soryu Langley]] nell'edizione Netflix di ''[[Neon Genesis Evangelion: Death & Rebirth]]'' e ''[[Neon Genesis Evangelion: The End of Evangelion]]''""")
         assertSource(find(res, "Asuka Soryu Langley", "Neon Genesis Evangelion: Death & Rebirth"),
-            """<a href="/wiki/Asuka_S%C5%8Dry%C5%AB_Langley" title="Asuka Sōryū Langley">Asuka Soryu Langley</a> nell'edizione Netflix di <i><a href="/wiki/Neon_Genesis_Evangelion:_Death_%26_Rebirth" title="Neon Genesis Evangelion: Death &amp; Rebirth">Neon Genesis Evangelion: Death &amp; Rebirth</a></i> e <i><a href="/wiki/Neon_Genesis_Evangelion:_The_End_of_Evangelion" title="Neon Genesis Evangelion: The End of Evangelion">Neon Genesis Evangelion: The End of Evangelion</a></i>""")
+            """* [[Asuka Sōryū Langley|Asuka Soryu Langley]] nell'edizione Netflix di ''[[Neon Genesis Evangelion: Death & Rebirth]]'' e ''[[Neon Genesis Evangelion: The End of Evangelion]]''""")
 
     }
 
@@ -308,7 +308,7 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
         val res = run("Angelo_Maggi")
 
         findMovie(res, "I Simpson - Il film").forEach {
-            assertSource(it, """<a href="/wiki/Clancy_Winchester" title="Clancy Winchester">Commissario Winchester</a> e <a href="/wiki/Tom_Hanks" title="Tom Hanks">Tom Hanks</a> in <i><a href="/wiki/I_Simpson_-_Il_film" title="I Simpson - Il film">I Simpson - Il film</a></i>""")
+            assertSource(it, """* [[Clancy Winchester|Commissario Winchester]] e [[Tom Hanks]] in ''[[I Simpson - Il film]]''""")
         }
         assertLinkedEntity(res, "Commissario Winchester", "I Simpson - Il film")
         assertLinkedEntity(res, "Tom Hanks", "I Simpson - Il film")
@@ -320,7 +320,7 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
         val res = run("Angelo_Maggi")
 
         findMovie(res, "I Simpson").forEach {
-            assertSource(it, """<a href="/wiki/Clancy_Winchester" title="Clancy Winchester">Commissario Winchester</a> (2ª voce e principale, ep.5.5+) e <a href="/wiki/Timothy_Lovejoy" title="Timothy Lovejoy">Reverendo Lovejoy</a> (ep.5.22) in <i><a href="/wiki/I_Simpson" title="I Simpson">I Simpson</a></i>""")
+            assertSource(it, """* [[Clancy Winchester|Commissario Winchester]] (2ª voce e principale, dall'ep.5.5) e [[Timothy Lovejoy|Reverendo Lovejoy]] (ep.5.22) in ''[[I Simpson]]''""")
         }
         assertLinkedEntity(res, "Commissario Winchester", "I Simpson")
         assertLinkedEntity(res, "Reverendo Lovejoy", "I Simpson")
@@ -331,13 +331,13 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
         val res = run("Angelo_Maggi")
 
         findMovie(res, "Iron Man: Rise of Technovore").forEach {
-            assertSource(it, """<a href="/wiki/Iron_Man" title="Iron Man">Tony Stark/Iron Man</a> in <i><a href="/wiki/Iron_Man:_Rise_of_Technovore" title="Iron Man: Rise of Technovore">Iron Man: Rise of Technovore</a></i>""")
+            assertSource(it, """* [[Iron Man|Tony Stark/Iron Man]] in ''[[Iron Man: Rise of Technovore]]''""")
         }
         assertLinkedEntity(res, "Tony Stark", "Iron Man: Rise of Technovore", "What If...?")
         assertLinkedEntity(res, "Iron Man", "Iron Man: Rise of Technovore", "What If...?")
 
         findMovie(res, "Superman").forEach {
-            assertSource(it, """<a href="/wiki/Superman" title="Superman">Clark Kent/Superman</a> in <i><a href="/wiki/Superman_(serie_animata_1996)" title="Superman (serie animata 1996)">Superman</a></i> (stagioni 1-2)""")
+            assertSource(it, """* [[Superman|Clark Kent/Superman]] in ''[[Superman (serie animata 1996)|Superman]]'' (stagioni 1-2)""")
         }
         assertLinkedEntity(res, "Clark Kent", "Superman")
         assertLinkedEntity(res, "Superman", "Superman")
@@ -350,7 +350,7 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
 
         val henryDanger = findMovie(res, "Henry Danger")
         henryDanger.forEach {
-            assertSource(it, """Maeve Tomalty, <a href="/wiki/Jade_Pettyjohn" title="Jade Pettyjohn">Jade Pettyjohn</a> e Sedona Cohen in <i><a href="/wiki/Henry_Danger" title="Henry Danger">Henry Danger</a></i>""")
+            assertSource(it, """* Maeve Tomalty, [[Jade Pettyjohn]] e Sedona Cohen in ''[[Henry Danger]]''""")
         }
         assertEntity(res, "Maeve Tomalty", "Henry Danger")
         assertLinkedEntity(res, "Jade Pettyjohn", "Henry Danger")
@@ -363,13 +363,13 @@ internal class ReadDubberSectionSplitTest: ReadDubberSectionBaseTest() {
         val res = run("Sara_Labidi")
 
         findMovie(res, "The 100").forEach {
-            assertSource(it, """Izabela Vidovic e Lola Flanery in <i><a href="/wiki/The_100" title="The 100">The 100</a></i>""")
+            assertSource(it, """* Izabela Vidovic e Lola Flanery in ''[[The 100]]''""")
         }
         assertEntity(res, "Izabela Vidovic", "The 100")
         assertEntity(res, "Lola Flanery", "The 100")
 
         find(res, "Komi Can't Communicate").forEach {
-            assertSource(it, """Hoshiko Teshigawara e Ayami Sasaki in <i><a href="/wiki/Komi_Can%27t_Communicate" title="Komi Can't Communicate">Komi Can't Communicate</a></i>""")
+            assertSource(it, """* Hoshiko Teshigawara e Ayami Sasaki in ''[[Komi Can't Communicate]]''""")
         }
         assertEntity(res, "Hoshiko Teshigawara", "Komi Can't Communicate")
         assertEntity(res, "Ayami Sasaki", "Komi Can't Communicate")

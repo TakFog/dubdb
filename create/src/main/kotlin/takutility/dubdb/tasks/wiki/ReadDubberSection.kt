@@ -6,8 +6,11 @@ import takutility.dubdb.DubDbContext
 import takutility.dubdb.entities.*
 import takutility.dubdb.tasks.TaskResult
 import takutility.dubdb.wiki.WikiHtmlPage
+import takutility.dubdb.wiki.WikiPage
 import takutility.dubdb.wiki.asEntity
 import takutility.dubdb.wiki.asMovie
+import takutility.wikitext.*
+import takutility.wikitext.TextNode as WikiTextNode
 
 private val SPLITS = listOf(" in ", " ne ")
 private val CHAR_SPLITS = setOf(",", "e")
@@ -15,9 +18,51 @@ private val CHAR_SPLITS = setOf(",", "e")
 class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
 
     fun run(dubber: DubberRef): TaskResult = dubber.wiki
+        ?.let(this::loadPage)
+        ?.let { run(dubber, it) }
+        ?: TaskResult.empty
+
+    fun runHtml(dubber: DubberRef): TaskResult = dubber.wiki
         ?.let(this::loadHtml)
         ?.let { run(dubber, it) }
         ?: TaskResult.empty
+
+    fun run(dubber: DubberRef, page: WikiPage): TaskResult {
+        val pageId = dubber.wiki ?: return TaskResult.empty
+        val section = page.sections?.get("Doppiaggio")
+            ?: return TaskResult.empty
+
+        val entities = section.subsections.values.asSequence()
+            .flatMap { subsec ->
+                val doc = subsec.content
+                    ?.let { WikitextParser.parse(it) }
+                    ?: return@flatMap emptySequence<DubbedEntity>()
+                doc.children.asSequence()
+                    .mapNotNull { it as? WikiList }
+                    .flatMap { it.items }
+                    .mapNotNull { item -> findSplit(item)?.let { Pair(item, it) } }
+                    .flatMap { (item, split) ->
+                        val rowEntities = getEntities(split.pre!!)
+                        split.post!!.children.asSequence()
+                            .mapNotNull { it as? WikiLink }
+                            .flatMap { link ->
+                                val movie = link.asMovie()
+                                rowEntities.map { entity ->
+                                    DubbedEntity(
+                                        dubber = dubber,
+                                        movie = movie,
+                                        name = entity.name!!,
+                                        ids = entity.ids.toMutable(),
+                                        sources = mutableListOf(RawData(pageId, DataSource.DUBBER, item.rawText))
+                                    )
+                                }
+                            }
+                    }
+            }
+            .toList()
+
+        return TaskResult(dubbedEntities = entities)
+    }
 
     fun run(dubber: DubberRef, page: WikiHtmlPage): TaskResult {
         val pageId = dubber.wiki ?: return TaskResult.empty
@@ -72,6 +117,51 @@ class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
         return TaskResult(dubbedEntities = entities)
     }
 
+    private fun findSplit(node: SplittableWikiNode<out WikiNode>): WikiNodeSplit<out WikiNode>? {
+        for (sv in SPLITS) {
+            val split = node.splitPlain(sv)
+            if (split.size < 2) continue //no split
+            if (split.post?.children?.getOrNull(0) is WikiTextNode)
+                return split // split at text
+        }
+        return null
+    }
+
+    private fun getEntities(preNode: WikiNode): List<EntityRef> {
+        val singleLink: WikiLink? = preNode as? WikiLink
+            ?: preNode.children.let { if (it.size == 1) it[0] else null }
+                ?.let { it as? WikiLink }
+
+        if (singleLink != null) {
+            return getEntitiesFromLinks(listOf(singleLink.asEntity()))
+        } else if (preNode.children.last() !is WikiTextNode
+            && preNode.children.all { it is WikiTextNode || it is WikiLink }) {
+            // all nodes before split are links or connectors
+            return getEntitiesFromLinks(preNode.children
+                .mapNotNull { it as? WikiLink }
+                .map { it.asEntity() })
+        }
+
+        return getEntityFromText(preNode.plainText)
+    }
+
+    private fun getEntitiesFromLinks(entities: List<EntityRef>): List<EntityRef> {
+        return entities.flatMap { ent ->
+            if ("/" in ent.name!!) {
+                ent.name!!.splitToSequence("/")
+                    .map { EntityRefImpl(it.trim(), ent.ids.toMutable()) }
+            } else {
+                sequenceOf(ent)
+            }
+        }
+    }
+
+    private fun getEntityFromText(text: String): List<EntityRef> {
+        val charName = text.trim { it <= ' ' }
+        if (charName.length >= 200) return listOf() // too long name
+        return listOf(EntityRefImpl(charName))
+    }
+
     /**
      * Look for the child text node containing a split token
      */
@@ -104,23 +194,11 @@ class ReadDubberSection(context: DubDbContext): WikiPageTask(context) {
                 .mapNotNull { i -> (li.childNode(i) as? Element)?.asEntity() }
         }
 
-        if (entities != null) {
-            // entities from tags
-            return entities.flatMap { ent ->
-                if ("/" in ent.name!!) {
-                    ent.name!!.splitToSequence("/")
-                        .map { EntityRefImpl(it.trim(), ent.ids.toMutable()) }
-                } else {
-                    sequenceOf(ent)
-                }
-            }
-        }
+        entities?.let { return getEntitiesFromLinks(it) }
 
         val text = li.text()
         val end = text.indexOf(split.token)
-        val charName = text.substring(0, end).trim { it <= ' ' }
-        if (charName.length >= 200) return listOf() // too long name
-        return listOf(EntityRefImpl(charName))
+        return getEntityFromText(text.substring(0, end))
     }
 }
 
