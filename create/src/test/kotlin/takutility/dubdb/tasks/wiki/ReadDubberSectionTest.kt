@@ -122,6 +122,7 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
     }
 
     @Test
+    @Disabled("no more missing detection")
     fun actorMissing_angeloMaggi() {
         val res = run("Angelo_Maggi")
 
@@ -155,6 +156,7 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
     }
 
     @Test
+    @Disabled("no more missing detection")
     fun actorMissing_gabrielePatriarca() {
         val res = run("Gabriele_Patriarca_(doppiatore)")
         assertMissingEntity(res, "Martin Svetlik",
@@ -162,6 +164,7 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
     }
 
     @Test
+    @Disabled("no more missing detection")
     fun movieMissing_gabrielePatriarca() {
         val res = run("Gabriele_Patriarca_(doppiatore)")
 
@@ -213,15 +216,18 @@ internal class ReadDubberSectionTest: ReadDubberSectionBaseTest() {
         assertNotNull(res.dubbedEntities)
         assertFalse(res.dubbedEntities!!.isEmpty())
 
-        assertLinkedEntity(res, "Zachary Levi",
+        val movies = arrayOf(
             "Shazam!",
             "The Mauritanian",
             "Shazam! Furia degli dei",
             "Il magico mondo di Harold",
+            "Il bambino di cristallo",
             "La fantastica signora Maisel",
         )
+
+        assertLinkedEntity(res, "Zachary Levi", *movies)
         val levi = find(res, "Zachary Levi")
-        assertEquals(5, levi.size, levi.map { it.movie.name }.toString())
+        assertEquals(movies.size, levi.size, levi.map { it.movie.name }.toString())
     }
 
     @Test
