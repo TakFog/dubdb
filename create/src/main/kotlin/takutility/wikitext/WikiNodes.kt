@@ -253,7 +253,10 @@ class WikiLink(
             displayNodes.plainText
         } else {
             // Strip namespace prefix and anchor
-            target.substringAfterLast(':').substringBefore('#').trim()
+            target
+                .let { if (it.startsWith("File:")) it.substring("File:".length) else it  }
+                .substringBefore('#')
+                .trim()
         }
 
     val hasDisplay: Boolean get() = displayNodes.children.isNotEmpty()

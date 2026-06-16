@@ -17,6 +17,15 @@ class WikiLinkTest {
     }
 
     @Test
+    fun `link with colon`() {
+        val link = parseSingle("[[NCIS: New Orleans]]").assertIs<WikiLink>()
+        Assertions.assertEquals("NCIS: New Orleans", link.target)
+        Assertions.assertFalse(link.hasDisplay)
+        link.assertPlain("NCIS: New Orleans")
+        link.assertRaw("[[NCIS: New Orleans]]")
+    }
+
+    @Test
     fun `link with display text uses display as plainText`() {
         val link = parseSingle("[[Massachusetts Institute of Technology|MIT]]").assertIs<WikiLink>()
         Assertions.assertEquals("Massachusetts Institute of Technology", link.target)
