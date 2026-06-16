@@ -6,22 +6,29 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.TestContext
 import takutility.dubdb.db.MemActorRepository
 import takutility.dubdb.db.MemDubbedEntityRepository
 import takutility.dubdb.entities.Actor
+import takutility.dubdb.entities.EntityRef
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.service.SearchResults
+import takutility.dubdb.tasks.TaskResult
 import takutility.dubdb.tasks.trakt.mockTrakt
 import takutility.dubdb.tasks.trakt.newResult
+import takutility.dubdb.tasks.wikidata.IdsFromWikidata
 
 internal class ExtractActorTest {
     lateinit var actorDb: MemActorRepository
     lateinit var dubEntityDb: MemDubbedEntityRepository
     lateinit var ctx: DubDbContext
+    var idsFromWikidata: IdsFromWikidata = mock()
     lateinit var op: ExtractActor
 
     @BeforeEach
@@ -31,10 +38,13 @@ internal class ExtractActorTest {
         val trakt = mockTrakt {
             on { searchImdb("nm0000375") } doReturn downeyJr
         }
+        whenever(idsFromWikidata.run(any<EntityRef>()))
+            .doReturn(TaskResult(sourceIds = SourceIds.of(Source.IMDB to "nm0000375")))
         ctx = TestContext.mocked {
             it.actorDb = actorDb
             it.dubEntityDb = dubEntityDb
             it.trakt = trakt
+            it[IdsFromWikidata::class] = idsFromWikidata
         }
         op = ExtractActor(ctx)
     }
@@ -52,7 +62,7 @@ internal class ExtractActorTest {
     @Test
     fun robertDowneyJr_updateActor() {
         val name = "Robert Downey Jr. Test"
-        val title = "Robert_Downey_Jr."
+        val title = "Robert Downey Jr."
 
         val old = actorDb.save(Actor(name, ids = SourceIds.of(Source.WIKI to title, Source.MONDO_DOPPIATORI to "robert-downey-jr")))
         val oldIds = old.ids.toImmutable()
@@ -79,7 +89,7 @@ internal class ExtractActorTest {
         val actor = op.run(page("Robert_Downey_Jr."))
 
         val ids = SourceIds.of(
-            Source.WIKI to "Robert_Downey_Jr.",
+            Source.WIKI to "Robert Downey Jr.",
             Source.TRAKT to "15987",
             Source.IMDB to "nm0000375",
             Source.WIKIDATA to "Q165219",
@@ -95,7 +105,7 @@ internal class ExtractActorTest {
         assertEquals("Robert_Downey_Jr_2014_Comic_Con_(cropped).jpg", actor.ids[Source.WIKIMEDIA]?.id, "photo")
     }
 
-    fun page(title: String) = ctx.wikiHtmlLoader.page(title)
+    fun page(title: String) = ctx.wikiPageLoader.page(title)
 
 }
 

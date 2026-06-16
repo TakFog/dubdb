@@ -32,7 +32,7 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_savedDubber() {
-        val dubber = op.run(page("Angelo_Maggi"))
+        val dubber = op.runHtml(page("Angelo_Maggi"))
 
         assertNotNull(dubber.id)
         val id = dubber.id!!
@@ -48,7 +48,7 @@ internal class ExtractDubberTest {
         val old = dubberDb.save(Dubber(name, ids = SourceIds.of(Source.WIKI to title, Source.TRAKT to "angelo-maggi")))
         val oldIds = old.ids.toImmutable()
 
-        val dubber = op.run(page(title))
+        val dubber = op.runHtml(page(title))
 
         oldIds.forEach { assertEquals(it, dubber.ids[it.source], "old ${it.source}") }
         assertEquals(name, dubber.name)
@@ -60,21 +60,21 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_name() {
-        val dubber = op.run(page("Angelo_Maggi"))
+        val dubber = op.runHtml(page("Angelo_Maggi"))
 
         assertEquals("Angelo Maggi", dubber.name)
     }
 
     @Test
     fun gabrielePatriarca_name() {
-        val dubber = op.run(page("Gabriele_Patriarca_(doppiatore)"))
+        val dubber = op.runHtml(page("Gabriele_Patriarca_(doppiatore)"))
 
         assertEquals("Gabriele Patriarca", dubber.name)
     }
 
     @Test
     fun angeloMaggi_ids() {
-        val dubber = op.run(page("Angelo_Maggi"))
+        val dubber = op.runHtml(page("Angelo_Maggi"))
 
         val ids = SourceIds.of(
             Source.WIKI to "Angelo_Maggi",
@@ -88,14 +88,14 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_photo() {
-        val dubber = op.run(page("Angelo_Maggi"))
+        val dubber = op.runHtml(page("Angelo_Maggi"))
 
         assertEquals("Angelo_Maggi_20240113.jpg", dubber.ids[Source.WIKIMEDIA]?.id, "photo")
     }
 
     @Test
     fun angeloMaggi_entities() {
-        val dubber = op.run(page("Angelo_Maggi"))
+        val dubber = op.runHtml(page("Angelo_Maggi"))
 
         val entities = dubEntityDb.db.values
         entities.forEach {

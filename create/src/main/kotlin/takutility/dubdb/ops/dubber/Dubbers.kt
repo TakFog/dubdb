@@ -25,7 +25,7 @@ class Dubbers(val context: DubDbContext) {
         filtered.forEach {
             i++
             logger.info { "$i/${filtered.size} Extracting ${it.title}" }
-            context[ExtractDubber::class].run(it)
+            context[ExtractDubber::class].runHtml(it)
         }
     }
 

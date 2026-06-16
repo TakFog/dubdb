@@ -9,6 +9,8 @@ import takutility.dubdb.util.splitByType
 class IdsFromWikidata(context: DubDbContext) {
     val wikidata = context.wikidata
 
+    fun run(entity: EntityRef) = run(listOf(entity))
+
     fun run(entities: List<EntityRef>): TaskResult {
         if (entities.isEmpty()) return TaskResult.empty
 

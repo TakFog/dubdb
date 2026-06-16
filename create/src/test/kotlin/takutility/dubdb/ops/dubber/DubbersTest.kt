@@ -38,9 +38,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>(), never()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).run(any())
+        verify(extractDubber, times(size)).runHtml(any())
         val inOrder = inOrder(extractDubber)
-        mostCommon.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
+        mostCommon.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -60,9 +60,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).run(any())
+        verify(extractDubber, times(size)).runHtml(any())
         val inOrder = inOrder(extractDubber)
-        mostRecent.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
+        mostRecent.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -85,9 +85,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).run(any())
+        verify(extractDubber, times(size)).runHtml(any())
         val inOrder = inOrder(extractDubber)
-        mostRecent.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
+        mostRecent.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -109,9 +109,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).run(any())
+        verify(extractDubber, times(size)).runHtml(any())
         val inOrder = inOrder(extractDubber)
-        mostRecent.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
+        mostRecent.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -128,7 +128,7 @@ internal class DubbersTest {
 
         verify(ctx.dubEntityDb).findMostCommonDubbers(size)
         verify(ctx.m<LatestDubbers>()).run(size)
-        mostRecent.forEach { verify(ctx.m<ExtractDubber>()).run(pages[it.wikiId]!!) }
+        mostRecent.forEach { verify(ctx.m<ExtractDubber>()).runHtml(pages[it.wikiId]!!) }
     }
 
     private fun mockDubbers(size: Int) = IntRange(1, size).map {

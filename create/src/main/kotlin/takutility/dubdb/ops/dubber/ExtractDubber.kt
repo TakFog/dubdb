@@ -7,6 +7,7 @@ import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.ops.ExtractPerson
 import takutility.dubdb.tasks.wiki.ReadDubberSection
 import takutility.dubdb.wiki.WikiHtmlPage
+import takutility.dubdb.wiki.WikiPage
 
 class ExtractDubber(context: DubDbContext): ExtractPerson<Dubber>(context) {
     override val db = context.dubberDb
@@ -16,6 +17,11 @@ class ExtractDubber(context: DubDbContext): ExtractPerson<Dubber>(context) {
     override fun newPerson(title: String, ids: SourceIds) = Dubber(title, ids = ids)
 
     override fun withPerson(person: Dubber, page: WikiHtmlPage) {
+        context[ReadDubberSection::class].run(person, page).dubbedEntities
+            ?.let { saveEntities(person, it) }
+    }
+
+    override fun withPerson(person: Dubber, page: WikiPage) {
         context[ReadDubberSection::class].run(person, page).dubbedEntities
             ?.let { saveEntities(person, it) }
     }
