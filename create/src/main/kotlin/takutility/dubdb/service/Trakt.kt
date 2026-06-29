@@ -3,6 +3,8 @@ package takutility.dubdb.service
 import com.uwetrottmann.trakt5.TraktV2
 import com.uwetrottmann.trakt5.entities.*
 import com.uwetrottmann.trakt5.enums.IdType
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import org.threeten.bp.LocalDate
 import org.threeten.bp.OffsetDateTime
 import retrofit2.Response
@@ -10,8 +12,29 @@ import takutility.dubdb.Config
 import takutility.dubdb.entities.EntityRef
 import takutility.dubdb.entities.Source.IMDB
 import takutility.dubdb.entities.Source.TRAKT
+import takutility.dubdb.userAgent
 import takutility.dubdb.util.splitWithBrackets
 import kotlin.math.ceil
+
+/**
+ * [TraktV2] subclass that adds a `User-Agent` header to every request so the
+ * Trakt API can identify this client.
+ */
+class DubdbTraktV2(apiKey: String) : TraktV2(apiKey) {
+
+    @Synchronized
+    override fun okHttpClient(): OkHttpClient {
+        val client = super.okHttpClient()
+        return client.newBuilder()
+            .addInterceptor(Interceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("User-Agent", userAgent)
+                    .build()
+                chain.proceed(request)
+            })
+            .build()
+    }
+}
 
 typealias IntPredicate = (Int) -> Boolean
 
@@ -68,7 +91,7 @@ class CreditResults(val movies: List<CastMember>, val shows: List<CastMember> = 
 
 class TraktImpl(private val trakt: TraktV2) : Trakt {
 
-    constructor(apiKey: String): this(TraktV2(apiKey))
+    constructor(apiKey: String): this(DubdbTraktV2(apiKey))
     constructor(config: Config): this(config.trakt.client_id)
 
     override fun searchImdb(imdbId: String): SearchResults? {

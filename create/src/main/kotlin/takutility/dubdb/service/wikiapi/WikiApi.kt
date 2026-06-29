@@ -9,8 +9,8 @@ import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import takutility.dubdb.userAgent
 
-const val userAgent = "DubDbBot/0.1"
 
 interface WikiApi {
 

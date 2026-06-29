@@ -7,7 +7,7 @@
 
     <groupId>takutility.dubdb</groupId>
     <artifactId>trakt</artifactId>
-    <version>6.16.1-SNAPSHOT</version>
+    <version>6.20.2-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.uwetrottmann.trakt5</groupId>
             <artifactId>trakt-java</artifactId>
-            <version>6.16.0</version>
+            <version>6.20.1</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
