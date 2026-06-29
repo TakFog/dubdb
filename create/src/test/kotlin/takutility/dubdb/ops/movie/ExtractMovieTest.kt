@@ -4,14 +4,19 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import takutility.dubdb.TestContext
 import takutility.dubdb.db.MemDubbedEntityRepository
 import takutility.dubdb.db.MemMovieRepository
 import takutility.dubdb.entities.*
 import takutility.dubdb.service.CreditResults
 import takutility.dubdb.service.SearchResults
+import takutility.dubdb.tasks.TaskResult
 import takutility.dubdb.tasks.trakt.*
+import takutility.dubdb.tasks.wikidata.IdsFromWikidata
 
 private val ultron: SearchResults = SearchResults(listOf(
     newResult {
@@ -87,6 +92,7 @@ internal class ExtractMovieTest {
     lateinit var dubEntityDb: MemDubbedEntityRepository
     lateinit var trakt: TraktMock
     lateinit var ctx: TestContext
+    var idsFromWikidata: IdsFromWikidata = mock()
     lateinit var op: ExtractMovie
 
     @BeforeEach
@@ -98,10 +104,24 @@ internal class ExtractMovieTest {
             on { searchImdb("tt2239822") } doReturn valerian
             on { movieCredits(71938) } doReturn ultronCredits
         }
+        //ultron wikidata
+        whenever(idsFromWikidata.run(argThat<EntityRef> { ids[Source.WIKIDATA]?.id == "Q14171368"}))
+            .doReturn(TaskResult(movies = listOf(movieRefOf("", MovieType.MOVIE, SourceIds.of(
+                Source.IMDB to "tt2395427",
+                Source.MONDO_DOPPIATORI to "doppiaggio/film1/avengers-ageofultron.htm",
+            )))))
+        //valerian wikidata
+        whenever(idsFromWikidata.run(argThat<EntityRef> { ids[Source.WIKIDATA]?.id == "Q20926273"}))
+            .doReturn(TaskResult(movies = listOf(movieRefOf("", MovieType.MOVIE, SourceIds.of(
+                Source.IMDB to "tt2239822",
+                Source.MONDO_DOPPIATORI to "doppiaggio/film1/valerianelacittadeimillepianeti.htm",
+            )))))
+
         ctx = TestContext.mocked {
             it.movieDb = movieDb
             it.dubEntityDb = dubEntityDb
             it.trakt = trakt
+            it[IdsFromWikidata::class] = idsFromWikidata
         }
         op = ExtractMovie(ctx)
     }
@@ -119,7 +139,7 @@ internal class ExtractMovieTest {
     @Test
     fun ultron_updateMovie() {
         val name = "Ultron Test"
-        val title = "Avengers:_Age_of_Ultron"
+        val title = "Avengers: Age of Ultron"
 
         val old = movieDb.save(Movie(name, ids = SourceIds.of(Source.WIKI to title, Source.UNK to "avengers-ultron")))
         val oldIds = old.ids.toImmutable()
@@ -139,7 +159,7 @@ internal class ExtractMovieTest {
         val movie = op.run(page("Avengers:_Age_of_Ultron"))
 
         val ids = SourceIds.of(
-            Source.WIKI to "Avengers:_Age_of_Ultron",
+            Source.WIKI to "Avengers: Age of Ultron",
             Source.MONDO_DOPPIATORI to "doppiaggio/film1/avengers-ageofultron.htm",
             Source.IMDB to "tt2395427",
             Source.WIKIDATA to "Q14171368",
@@ -154,7 +174,7 @@ internal class ExtractMovieTest {
         val movie = op.run(page("Valerian_e_la_città_dei_mille_pianeti"))
 
         val ids = SourceIds.of(
-            Source.WIKI to "Valerian_e_la_città_dei_mille_pianeti",
+            Source.WIKI to "Valerian e la città dei mille pianeti",
             Source.MONDO_DOPPIATORI to "doppiaggio/film1/valerianelacittadeimillepianeti.htm",
             Source.IMDB to "tt2239822",
             Source.WIKIDATA to "Q20926273",
@@ -222,7 +242,7 @@ internal class ExtractMovieTest {
         assertActor(entities, "Igon Siruss", "John Goodman")
     }
 
-    fun page(title: String) = ctx.wikiHtmlLoader.page(title)
+    fun page(title: String) = ctx.wikiPageLoader.page(title)
 
 }
 
