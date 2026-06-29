@@ -52,8 +52,30 @@ internal abstract class IdsFromWikidataBaseTest {
         assertEquals(1, result.actors?.size)
         assertNull(result.dubbers)
         assertNull(result.movies)
+        assertTrue { result.sourceIds.isEmpty() }
 
         assertEquals(SourceIds.of(wikidata, *downeyIds), result.actor?.ids)
+    }
+
+    @Test
+    fun downeyJr_exposedIds() {
+        val wikidata = WIKIDATA to "Q165219"
+        val downeyIds = arrayOf(
+            WIKI to "Robert_Downey_Jr.",
+            WIKI_EN to "Robert_Downey_Jr.",
+            IMDB to "nm0000375",
+        )
+        doMock(wikidata.second to downeyIds)
+
+        val result = task.run(actor(wikidata))
+
+        assertEquals(1, result.actors?.size)
+        assertNull(result.dubbers)
+        assertNull(result.movies)
+        assertTrue { result.sourceIds.isNotEmpty() }
+
+        assertEquals(SourceIds.of(wikidata, *downeyIds), result.sourceIds)
+        assertEquals(result.sourceIds, result.actor?.ids)
     }
 
     @Test

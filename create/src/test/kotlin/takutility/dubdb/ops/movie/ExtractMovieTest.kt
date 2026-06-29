@@ -106,16 +106,16 @@ internal class ExtractMovieTest {
         }
         //ultron wikidata
         whenever(idsFromWikidata.run(argThat<EntityRef> { ids[Source.WIKIDATA]?.id == "Q14171368"}))
-            .doReturn(TaskResult(movies = listOf(movieRefOf("", MovieType.MOVIE, SourceIds.of(
+            .doReturn(TaskResult(sourceIds = SourceIds.of(
                 Source.IMDB to "tt2395427",
                 Source.MONDO_DOPPIATORI to "doppiaggio/film1/avengers-ageofultron.htm",
-            )))))
+            )))
         //valerian wikidata
         whenever(idsFromWikidata.run(argThat<EntityRef> { ids[Source.WIKIDATA]?.id == "Q20926273"}))
-            .doReturn(TaskResult(movies = listOf(movieRefOf("", MovieType.MOVIE, SourceIds.of(
+            .doReturn(TaskResult(sourceIds = SourceIds.of(
                 Source.IMDB to "tt2239822",
                 Source.MONDO_DOPPIATORI to "doppiaggio/film1/valerianelacittadeimillepianeti.htm",
-            )))))
+            )))
 
         ctx = TestContext.mocked {
             it.movieDb = movieDb

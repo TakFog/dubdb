@@ -4,35 +4,45 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import takutility.dubdb.DubDbContext
 import takutility.dubdb.TestContext
 import takutility.dubdb.db.MemDubbedEntityRepository
 import takutility.dubdb.db.MemDubberRepository
-import takutility.dubdb.entities.DubbedEntity
-import takutility.dubdb.entities.Dubber
-import takutility.dubdb.entities.Source
-import takutility.dubdb.entities.SourceIds
+import takutility.dubdb.entities.*
+import takutility.dubdb.tasks.TaskResult
+import takutility.dubdb.tasks.wikidata.IdsFromWikidata
 
 internal class ExtractDubberTest {
     lateinit var dubberDb: MemDubberRepository
     lateinit var dubEntityDb: MemDubbedEntityRepository
     lateinit var ctx: DubDbContext
+    var idsFromWikidata: IdsFromWikidata = mock()
     lateinit var op: ExtractDubber
 
     @BeforeEach
     fun setUp() {
         dubEntityDb = MemDubbedEntityRepository()
         dubberDb = MemDubberRepository()
+        whenever(idsFromWikidata.run(any<EntityRef>()))
+            .doReturn(TaskResult(sourceIds = SourceIds.of(
+                Source.IMDB to "nm0535947",
+                Source.MONDO_DOPPIATORI to "doppiaggio/voci/vociamag.htm",
+            )))
         ctx = TestContext.mocked {
             it.dubberDb = dubberDb
             it.dubEntityDb = dubEntityDb
+            it[IdsFromWikidata::class] = idsFromWikidata
         }
         op = ExtractDubber(ctx)
     }
 
     @Test
     fun angeloMaggi_savedDubber() {
-        val dubber = op.runHtml(page("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         assertNotNull(dubber.id)
         val id = dubber.id!!
@@ -43,12 +53,12 @@ internal class ExtractDubberTest {
     @Test
     fun angeloMaggi_updateDubber() {
         val name = "Angelo Maggi Test"
-        val title = "Angelo_Maggi"
+        val title = "Angelo Maggi"
 
         val old = dubberDb.save(Dubber(name, ids = SourceIds.of(Source.WIKI to title, Source.TRAKT to "angelo-maggi")))
         val oldIds = old.ids.toImmutable()
 
-        val dubber = op.runHtml(page(title))
+        val dubber = op.run(page(title))
 
         oldIds.forEach { assertEquals(it, dubber.ids[it.source], "old ${it.source}") }
         assertEquals(name, dubber.name)
@@ -60,24 +70,24 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_name() {
-        val dubber = op.runHtml(page("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         assertEquals("Angelo Maggi", dubber.name)
     }
 
     @Test
     fun gabrielePatriarca_name() {
-        val dubber = op.runHtml(page("Gabriele_Patriarca_(doppiatore)"))
+        val dubber = op.run(page("Gabriele_Patriarca_(doppiatore)"))
 
         assertEquals("Gabriele Patriarca", dubber.name)
     }
 
     @Test
     fun angeloMaggi_ids() {
-        val dubber = op.runHtml(page("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         val ids = SourceIds.of(
-            Source.WIKI to "Angelo_Maggi",
+            Source.WIKI to "Angelo Maggi",
             Source.MONDO_DOPPIATORI to "doppiaggio/voci/vociamag.htm",
             Source.IMDB to "nm0535947",
             Source.WIKIDATA to "Q3617056",
@@ -88,14 +98,14 @@ internal class ExtractDubberTest {
 
     @Test
     fun angeloMaggi_photo() {
-        val dubber = op.runHtml(page("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         assertEquals("Angelo_Maggi_20240113.jpg", dubber.ids[Source.WIKIMEDIA]?.id, "photo")
     }
 
     @Test
     fun angeloMaggi_entities() {
-        val dubber = op.runHtml(page("Angelo_Maggi"))
+        val dubber = op.run(page("Angelo_Maggi"))
 
         val entities = dubEntityDb.db.values
         entities.forEach {
@@ -135,7 +145,7 @@ internal class ExtractDubberTest {
         assertEntity(entities, "Guile", "Street Fighter II V")
     }
 
-    fun page(title: String) = ctx.wikiHtmlLoader.page(title)
+    fun page(title: String) = ctx.wikiPageLoader.page(title)
 
 }
 

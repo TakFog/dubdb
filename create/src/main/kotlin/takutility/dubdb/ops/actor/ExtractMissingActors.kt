@@ -36,9 +36,9 @@ class ExtractMissingActors(val context: DubDbContext) {
         // extract actors
         val savedActors = selectedActors.asSequence()
             .mapNotNull { it.wikiId }
-            .map { context.wikiHtmlLoader.page(it) }
+            .map { context.wikiPageLoader.page(it) }
             .filter { it.exists() }
-            .map { context[ExtractActor::class].runHtml(it) }
+            .map { context[ExtractActor::class].run(it) }
             .toList()
 
         result.dubbedEntities?.forEach { e -> e.actor = savedActors.findActor(e.actor) }

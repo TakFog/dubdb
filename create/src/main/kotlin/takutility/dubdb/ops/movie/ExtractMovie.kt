@@ -60,7 +60,7 @@ class ExtractMovie(val context: DubDbContext) {
         val title = readTitle(context[ReadTitle::class], page).string ?: pageTitle
 
         val movie = getMovie(title, ids)
-        context[IdsFromWikidata::class].run(movie).movie?.ids?.let { movie.ids += it }
+        movie.ids += context[IdsFromWikidata::class].run(movie).sourceIds
         context[UpdateMovie::class].run(movie)
 
         movie.parseTs = Instant.now()

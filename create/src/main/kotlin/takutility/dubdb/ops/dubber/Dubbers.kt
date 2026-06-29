@@ -17,7 +17,7 @@ class Dubbers(val context: DubDbContext) {
 
         val filtered = dubbers.asSequence()
             .mapNotNull { it.wikiId }
-            .map { context.wikiHtmlLoader.page(it) }
+            .map { context.wikiPageLoader.page(it) }
             .filter { it.exists() }
             .toList()
 
@@ -25,7 +25,7 @@ class Dubbers(val context: DubDbContext) {
         filtered.forEach {
             i++
             logger.info { "$i/${filtered.size} Extracting ${it.title}" }
-            context[ExtractDubber::class].runHtml(it)
+            context[ExtractDubber::class].run(it)
         }
     }
 

@@ -9,9 +9,11 @@ import takutility.dubdb.util.splitByType
 class IdsFromWikidata(context: DubDbContext) {
     val wikidata = context.wikidata
 
-    fun run(entity: EntityRef) = run(listOf(entity))
+    fun run(entity: EntityRef) = run(listOf(entity), true)
 
-    fun run(entities: List<EntityRef>): TaskResult {
+    fun run(entities: List<EntityRef>): TaskResult = run(entities, false)
+
+    private fun run(entities: List<EntityRef>, exposeIds: Boolean): TaskResult {
         if (entities.isEmpty()) return TaskResult.empty
 
         // find other ids
@@ -28,6 +30,11 @@ class IdsFromWikidata(context: DubDbContext) {
         val movies = mutableListOf<MovieRef>()
         updated.splitByType(actors, dubbers, movies)
 
-        return TaskResult(actors = actors.notEmpty(), dubbers = dubbers.notEmpty(), movies = movies.notEmpty())
+        return TaskResult(
+            actors = actors.notEmpty(),
+            dubbers = dubbers.notEmpty(),
+            movies = movies.notEmpty(),
+            sourceIds = if (exposeIds && updated.isNotEmpty()) { updated[0].ids } else SourceIds.empty,
+        )
     }
 }

@@ -10,7 +10,7 @@ import takutility.dubdb.entities.DubberRef
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
 import takutility.dubdb.m
-import takutility.dubdb.wiki.WikiHtmlPage
+import takutility.dubdb.wiki.WikiPage
 
 internal class DubbersTest {
     lateinit var ctx: TestContext
@@ -38,9 +38,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>(), never()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).runHtml(any())
+        verify(extractDubber, times(size)).run(any())
         val inOrder = inOrder(extractDubber)
-        mostCommon.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
+        mostCommon.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -60,9 +60,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).runHtml(any())
+        verify(extractDubber, times(size)).run(any())
         val inOrder = inOrder(extractDubber)
-        mostRecent.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
+        mostRecent.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -85,9 +85,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).runHtml(any())
+        verify(extractDubber, times(size)).run(any())
         val inOrder = inOrder(extractDubber)
-        mostRecent.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
+        mostRecent.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -109,9 +109,9 @@ internal class DubbersTest {
         verify(ctx.m<LatestDubbers>()).run(size)
 
         val extractDubber = ctx.m<ExtractDubber>()
-        verify(extractDubber, times(size)).runHtml(any())
+        verify(extractDubber, times(size)).run(any())
         val inOrder = inOrder(extractDubber)
-        mostRecent.forEach { inOrder.verify(extractDubber).runHtml(pages[it.wikiId]!!) }
+        mostRecent.forEach { inOrder.verify(extractDubber).run(pages[it.wikiId]!!) }
     }
 
     @Test
@@ -128,19 +128,19 @@ internal class DubbersTest {
 
         verify(ctx.dubEntityDb).findMostCommonDubbers(size)
         verify(ctx.m<LatestDubbers>()).run(size)
-        mostRecent.forEach { verify(ctx.m<ExtractDubber>()).runHtml(pages[it.wikiId]!!) }
+        mostRecent.forEach { verify(ctx.m<ExtractDubber>()).run(pages[it.wikiId]!!) }
     }
 
     private fun mockDubbers(size: Int) = IntRange(1, size).map {
         Dubber("name $it", ids = SourceIds.of(Source.WIKI to "name_$it"))
     }.toList()
 
-    private fun dubbers2pages(dubbers: List<Dubber>): Map<String?, WikiHtmlPage> {
+    private fun dubbers2pages(dubbers: List<Dubber>): Map<String?, WikiPage> {
 
         val pages = dubbers.map { it.wikiId }.associateWith {
-            mock<WikiHtmlPage> { on {exists()} doReturn true }
+            mock<WikiPage> { on {exists()} doReturn true }
         }
-        ctx.wikiHtmlLoader = mock {
+        ctx.wikiPageLoader = mock {
             on { page(any()) }.then { a -> pages.getOrDefault(a.getArgument(0), null) }
         }
         return pages
