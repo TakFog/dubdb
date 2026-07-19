@@ -1,5 +1,6 @@
 package takutility.dubdb
 
+import kotlinx.coroutines.Runnable
 import mu.KotlinLogging
 import takutility.dubdb.db.*
 import takutility.dubdb.ops.dubber.Dubbers
@@ -10,6 +11,8 @@ import takutility.dubdb.service.wikiapi.WikiApiImpl
 import takutility.dubdb.wiki.WikiHtmlPageLoader
 import takutility.dubdb.wiki.WikiPageLoader
 import kotlin.io.path.Path
+
+var flush: Runnable? = null
 
 fun memRepositoryFromConfig(config: Config): RepositorySet {
     val movie = MemMovieRepository()
@@ -30,16 +33,17 @@ fun memRepositoryFromConfig(config: Config): RepositorySet {
         db.loadFromFile(file)
     }
 
-    Runtime.getRuntime().addShutdownHook(object : Thread() {
-        override fun run() {
-            logger.info { "Saving mem DBs" }
-            dbToFile.forEach { (db, file) ->
-                db.saveToFile(file)
-                logger.debug { "$file saved" }
-            }
-            logger.info { "Mem DB saved" }
+    val saveDbs = Runnable {
+        logger.info { "Saving mem DBs" }
+        dbToFile.forEach { (db, file) ->
+            db.saveToFile(file)
+            logger.debug { "$file saved" }
         }
-    })
+        logger.info { "Mem DB saved" }
+    }
+    flush = saveDbs
+
+    Runtime.getRuntime().addShutdownHook(Thread(saveDbs));
     return RepositorySet(movie, actor, dubber, dubbedEntity)
 }
 
@@ -81,5 +85,6 @@ fun main() {
         logger.info { "Iteration $i" }
         context[Movies::class].run(20)
         context[Dubbers::class].run(20)
+        flush?.run()
     }
 }
