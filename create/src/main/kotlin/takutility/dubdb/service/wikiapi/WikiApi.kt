@@ -5,12 +5,19 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import mu.KotlinLogging
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import takutility.dubdb.userAgent
+import java.io.IOException
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
+private val logger = KotlinLogging.logger {}
 
 interface WikiApi {
 
@@ -76,11 +83,22 @@ class WikiApiImpl: WikiApi {
         } else {
             throw IllegalArgumentException("At least title or revid required")
         }
-        prop?.let { formBody.add("prop", prop) }
-        section?.let { formBody.add("section", section.toString()) }
+        try {
+            prop?.let { formBody.add("prop", prop) }
+            section?.let { formBody.add("section", section.toString()) }
 
-        return call(formBody.build())
-            ?.let { json -> mapper.readValue<ParseResponse>(json) }
+            return call(formBody.build())
+                ?.let { json -> try {
+                        mapper.readValue<ParseResponse>(json)
+                    } catch (e: Exception) {
+                        logger.error(e) { "Error parsing: $json"}
+                        throw e
+                    }
+                }
+        } catch (e: Exception) {
+            logger.error(e) { "Error parsing for \"$title\" $revid $prop $section" }
+            throw e
+        }
     }
 
     private fun call(formBody: FormBody): String? {
@@ -90,6 +108,58 @@ class WikiApiImpl: WikiApi {
             .post(formBody)
             .build()
 
-        return client.newCall(request).execute().use { response -> response.body?.string() }
+        var attempts = 0
+        val maxAttempts = 5
+        while (true) {
+            attempts++
+            try {
+                client.newCall(request).execute().use { response ->
+                    if (response.code == 429) {
+                        if (attempts >= maxAttempts) {
+                            throw IOException("Rate limit exceeded (429) after $maxAttempts attempts")
+                        }
+                        val retryAfterHeader = response.header("Retry-After")
+                        val secondsToWait = parseRetryAfter(retryAfterHeader)
+                        logger.warn { "Rate limited (429). Retrying in $secondsToWait seconds (attempt $attempts/$maxAttempts) for $formBody" }
+                        Thread.sleep(secondsToWait * 1000)
+                    } else {
+                        return response.body?.string()
+                    }
+                }
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                logger.error(e) { "Thread interrupted during API retry delay" }
+                throw e
+            } catch (e: Exception) {
+                if (attempts >= maxAttempts) {
+                    logger.error(e) { "Error while parsing response for $formBody after $attempts attempts" }
+                    throw e
+                }
+                logger.warn(e) { "Error while calling API. Retrying in 2 seconds... (attempt $attempts/$maxAttempts)" }
+                try {
+                    Thread.sleep(2000)
+                } catch (ie: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                    throw ie
+                }
+            }
+        }
+    }
+
+    private fun parseRetryAfter(headerValue: String?): Long {
+        if (headerValue == null) return 5L
+        
+        val seconds = headerValue.toLongOrNull()
+        if (seconds != null) {
+            return if (seconds > 0) seconds else 5L
+        }
+        
+        try {
+            val date = ZonedDateTime.parse(headerValue, DateTimeFormatter.RFC_1123_DATE_TIME)
+            val delay = ChronoUnit.SECONDS.between(Instant.now(), date.toInstant())
+            return if (delay > 0) delay else 5L
+        } catch (e: Exception) {
+            return 5L
+        }
     }
 }
