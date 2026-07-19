@@ -19,12 +19,12 @@ fun Element.asWikiId(): String = absUrl("href")
         ?: Source.WIKI_MISSING.urlToId(it)
         ?: it }
 
-fun WikiLink.asWikiSourceId(): SourceId = SourceId(Source.WIKI, this.target)
+fun WikiLink.asWikiSourceId(): SourceId = SourceId.normalized(Source.WIKI, this.target)
 
 fun Element.asWikiSourceId(): SourceId = absUrl("href")
     .let { SourceId.fromUrl(Source.WIKI, it)
         ?: SourceId.fromUrl(Source.WIKI_MISSING, it)
-        ?: SourceId(Source.UNK, it)
+        ?: SourceId.normalized(Source.UNK, it)
     }
 
 fun WikiLink.asEntity(): EntityRef = parse(this) { name -> EntityRefImpl(name) }

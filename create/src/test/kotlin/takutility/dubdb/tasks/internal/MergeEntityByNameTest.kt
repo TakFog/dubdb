@@ -3,7 +3,6 @@ package takutility.dubdb.tasks.internal
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import takutility.dubdb.TestContext
 import takutility.dubdb.assertEqualsUnordered
 import takutility.dubdb.entities.*
 import takutility.dubdb.fromJson
@@ -17,7 +16,6 @@ internal class MergeEntityByNameTest {
 
     @BeforeEach
     fun before() {
-        val context = TestContext.mocked()
         task = MergeEntityByName()
     }
 
@@ -267,6 +265,54 @@ internal class MergeEntityByNameTest {
 
         assertMerge(res, bannerDubber, bannerActor)
         assertMissing(res, "Hulk")
+    }
+
+    @Test
+    fun fromDb() {
+        //{"_id": {"${'$'}oid": "56cf4765bab7a470136d6c24"}, "name": "Barb Howard", "sources": [{"source": "WIKI", "sourceId": "Fallout_(serie_televisiva)", "dataSource": "MOVIE_ORIG", "raw": "* [[Frances Turner]]: Barb Howard"}, {"source": "TRAKT", "sourceId": "163965", "dataSource": "TRAKT_MOVIE", "raw": "Barb Howard"}, {"source": "WIKI", "sourceId": "Valentina_Favazza", "dataSource": "DUBBER", "raw": "<a href=\"/w/index.php?title=Frances_Turner&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"Frances Turner (la pagina non esiste)\">Frances Turner</a> in <i><a href=\"/wiki/Fallout_(serie_televisiva)\" title=\"Fallout (serie televisiva)\">Fallout</a></i>"}], "movie": {"name": "Fallout", "ids": {"TRAKT": "163965", "IMDB": "tt12637874", "WIKIDATA": "Q113127312", "WIKI": "Fallout_(serie_televisiva)", "WIKI_EN": "Fallout_(American_TV_series)", "MONDO_DOPPIATORI": "doppiaggio/telefilm/fallout", "DUBDB": "585d48078b4d844f26a01ff3"}, "parsed": true, "type": "SERIES"}, "dubber": {"name": "Valentina Favazza", "ids": {"WIKI": "Valentina_Favazza", "WIKIDATA": "Q21418862", "WIKI_EN": "Valentina_Favazza", "MONDO_DOPPIATORI": "doppiaggio/voci/vocivfav.htm", "WIKIMEDIA": "Valentina_Favazza_-_Lucca_Comics_&_Games_2015.JPG", "DUBDB": "73e14c6b93bb86b820ecf2d3"}, "parsed": true}, "actor": {"name": "Frances Turner", "ids": {"TRAKT": "930982", "IMDB": "nm2204675", "WIKIDATA": "Q137216599", "WIKI_EN": "Frances_Turner", "WIKI": "Frances Turner", "WIKI_MISSING": "Frances_Turner"}}}
+        //{"name": "Barb Howard", "sources": [{"source": "WIKI", "sourceId": "Fallout_(serie_televisiva)", "dataSource": "MOVIE_DUB", "raw": "* [[Valentina Favazza]]: Barb Howard"}], "movie": {"name": "Fallout", "ids": {"TRAKT": "163965", "IMDB": "tt12637874", "WIKIDATA": "Q113127312", "WIKI": "Fallout_(serie_televisiva)", "WIKI_EN": "Fallout_(American_TV_series)", "MONDO_DOPPIATORI": "doppiaggio/telefilm/fallout", "DUBDB": "585d48078b4d844f26a01ff3"}, "parsed": true, "type": "SERIES"}, "dubber": {"name": "Valentina Favazza", "ids": {"WIKI": "Valentina Favazza"}, "parsed": false}}
+        val name = "Barb Howard"
+        val movie = movieRefOf("Fallout")
+
+        val ent1 = DubbedEntity(
+            name = name,
+            movie = movie,
+            ids = SourceIds.of(Source.DUBDB to "56cf4765bab7a470136d6c24"),
+            sources = mutableListOf(
+                RawData(SourceId(Source.WIKI, "Fallout_(serie_televisiva)"), DataSource.MOVIE_ORIG, raw = "* [[Frances Turner]]: Barb Howard"),
+                RawData(SourceId(Source.TRAKT, "163965"), DataSource.TRAKT_MOVIE, raw = "Barb Howard"),
+                RawData(SourceId(Source.WIKI, "Valentina_Favazza"), DataSource.DUBBER, raw = ""),
+            ),
+            dubber = DubberRefImpl("Valentina Favazza",
+                ids = SourceIds.of(
+                    Source.WIKI to "Valentina_Favazza",
+                    Source.WIKIDATA to "Q21418862",
+                    Source.WIKI_EN to "Valentina_Favazza",
+                    Source.MONDO_DOPPIATORI to "doppiaggio/voci/vocivfav.htm",
+                    Source.WIKIMEDIA to "Valentina_Favazza_-_Lucca_Comics_&_Games_2015.JPG",
+                )),
+            actor = ActorRefImpl("Frances Turner",
+                ids = SourceIds.of(
+                    Source.TRAKT to "930982",
+                    Source.IMDB to "nm2204675",
+                    Source.WIKIDATA to "Q137216599",
+                    Source.WIKI_EN to "Frances_Turner",
+                    Source.WIKI to "Frances Turner",
+                )),
+        )
+        val ent2 = DubbedEntity(
+            name = name,
+            movie = movie,
+            sources = mutableListOf(
+                RawData(SourceId(Source.WIKI, "Fallout_(serie_televisiva)"), DataSource.MOVIE_DUB, raw = "* [[Valentina Favazza]]: Barb Howard"),
+            ),
+            dubber = DubberRefImpl("Valentina Favazza",
+                ids = SourceIds.of(                    Source.WIKI to "Valentina_Favazza")),
+        )
+
+        val res = run(ent1, ent2)
+
+        assertEquals(1, res.dubbedEntities?.size)
     }
 
     @Test

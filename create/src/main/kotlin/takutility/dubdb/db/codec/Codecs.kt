@@ -3,7 +3,10 @@ package takutility.dubdb.db.codec
 import org.bson.BsonReader
 import org.bson.BsonType
 import org.bson.BsonWriter
-import org.bson.codecs.*
+import org.bson.codecs.Codec
+import org.bson.codecs.DecoderContext
+import org.bson.codecs.Encoder
+import org.bson.codecs.EncoderContext
 import org.bson.codecs.configuration.CodecRegistry
 import org.bson.types.ObjectId
 import takutility.dubdb.entities.*
@@ -87,7 +90,7 @@ class RawDataCodec: Codec<RawData> {
         r.readEndDocument()
 
         return RawData(
-            sourceId = SourceId(Source.valueOf(source!!), sourceId!!),
+            sourceId = SourceId.normalized(Source.valueOf(source!!), sourceId!!),
             dataSource = DataSource.valueOf(dataSource!!),
             raw = raw!!,
         )

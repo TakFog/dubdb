@@ -32,6 +32,7 @@ class ExtractDubber(context: DubDbContext): ExtractPerson<Dubber>(context) {
         val toSave = if (oldEntities.isEmpty()) entities
         else
             // select entities not already present in the db
+            //TODO add sources to existing entities, match by wiki
             entities.filter { e -> oldEntities[e.movie]?.none { o ->
                 if (e.name == o.name) return@none true
                 o.actor?.let { if (e.name == it.name || (e.ids.isNotEmpty() && it.matches(e))) return@none true }

@@ -28,7 +28,7 @@ class FindPhoto(context: DubDbContext): WikiPageTask(context) {
         val wiki = entity.wiki ?: return null
         return page.doc!!.select("""meta[property="og:image"]""").first()
             ?.let { ogImageUrl.find(it.attr("content"))?.groupValues?.get(1) }
-            ?.let { SourceIds.of(wiki, SourceId(Source.WIKIMEDIA, URLDecoder.decode(it, Charsets.UTF_8))) }
+            ?.let { SourceIds.of(wiki, SourceId.normalized(Source.WIKIMEDIA, URLDecoder.decode(it, Charsets.UTF_8))) }
             ?: SourceIds.of(wiki)
     }
 
@@ -40,7 +40,7 @@ class FindPhoto(context: DubDbContext): WikiPageTask(context) {
         if (!page.exists()) return null
         val wiki = entity.wiki ?: return null
         return page.image
-            ?.let { SourceIds.of(wiki, SourceId(Source.WIKIMEDIA, it)) }
+            ?.let { SourceIds.of(wiki, SourceId.normalized(Source.WIKIMEDIA, it)) }
             ?: SourceIds.of(wiki)
     }
 

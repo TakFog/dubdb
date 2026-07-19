@@ -139,12 +139,12 @@ class ReadMovieInfobox(context: DubDbContext): WikiPageTask(context) {
         val actorLink = split.pre.walk()
             .filterIsInstance<WikiLink>()
             .firstOrNull { it.plainText == actorName }
-            ?.let { SourceId(Source.WIKI, it.target) }
+            ?.let { SourceId.normalized(Source.WIKI, it.target) }
 
         val charaNames = split.post!!.plainText.substring(1).trim() // skip :
         val links = split.post.walk()
             .filterIsInstance<WikiLink>()
-            .associate { it.plainText to SourceId(Source.WIKI, it.target) }
+            .associate { it.plainText to SourceId.normalized(Source.WIKI, it.target) }
 
         return splitCharacter(charaNames).map { charaName ->
             val name = charaName.trim()

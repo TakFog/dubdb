@@ -40,6 +40,13 @@ enum class Source(val domain: String, pathPrefix: String = "") {
         start += urlPrefix.length + 1
         return url.substring(start)
     }
+
+    fun normalize(id: String): String {
+        return when (this) {
+            WIKI, WIKI_EN -> id.replace("_", " ")
+            else -> id
+        }
+    }
 }
 
 data class SourceId(
@@ -48,13 +55,15 @@ data class SourceId(
     ) {
 
     companion object {
+        fun normalized(source: Source, id: String) = SourceId(source, source.normalize(id))
+
         fun fromUrl(source: Source, url: String): SourceId?
-            = source.urlToId(url)?.let { SourceId(source, it) }
+            = source.urlToId(url)?.let { normalized(source, it) }
 
         fun fromUrlOrNull(url:String): SourceId?
-            = Source.values().firstNotNullOfOrNull { fromUrl(it, url) }
+            = Source.entries.firstNotNullOfOrNull { fromUrl(it, url) }
 
-        fun fromUrl(url:String): SourceId = fromUrlOrNull(url) ?: SourceId(Source.UNK, url)
+        fun fromUrl(url:String): SourceId = fromUrlOrNull(url) ?: normalized(Source.UNK, url)
     }
 
     fun notUnk() : SourceId? = if (source == Source.UNK) null else this
@@ -190,7 +199,7 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
         fun of(vararg values: Pair<Source, String?>): SourceIds {
             return SourceIds(mutableMapOf(*values
                 .mapNotNull {p ->
-                    p.second?.let { p.first to SourceId(p.first, it) }
+                    p.second?.let { p.first to SourceId.normalized(p.first, it) }
                 }
                 .toTypedArray()))
         }
@@ -228,7 +237,7 @@ class SourceIds(override val data: MutableMap<Source, SourceId>) : ImmutableSour
         if (id == null)
             data.remove(source)
         else
-            data[source] = SourceId(source, id.toString())
+            data[source] = SourceId.normalized(source, id.toString())
     }
 
     override fun toImmutable() = ImmutableSourceIds(data.toMap())

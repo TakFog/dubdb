@@ -4,7 +4,6 @@ import kotlinx.coroutines.Runnable
 import mu.KotlinLogging
 import takutility.dubdb.db.*
 import takutility.dubdb.ops.dubber.Dubbers
-import takutility.dubdb.ops.movie.Movies
 import takutility.dubdb.service.TraktImpl
 import takutility.dubdb.service.WikidataImpl
 import takutility.dubdb.service.wikiapi.WikiApiImpl
@@ -83,8 +82,16 @@ fun main() {
     while (true) {
         i += 1
         logger.info { "Iteration $i" }
-        context[Movies::class].run(20)
-        context[Dubbers::class].run(20)
-        flush?.run()
+//        context[Movies::class].tryRun { it.run(20) }
+        context[Dubbers::class].tryRun { it.run(20) }
+//        flush?.run()
+    }
+}
+
+private inline fun <reified T : Any> T.tryRun(action: (T) -> Unit) {
+    try {
+        action(this)
+    } catch (e: Exception) {
+        logger.error(e) { "Error while running ${T::class.qualifiedName} code" }
     }
 }
