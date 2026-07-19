@@ -1,9 +1,12 @@
 package takutility.dubdb.service
 
 import com.bordercloud.sparql.SparqlClient
+import mu.KotlinLogging
 import takutility.dubdb.entities.Source
 import takutility.dubdb.entities.SourceIds
 import java.net.URI
+
+private val logger = KotlinLogging.logger {}
 
 interface Wikidata {
 
@@ -23,7 +26,7 @@ class WikidataImpl : Wikidata {
     }
 
     override fun findIdsByItWiki(itWiki: Set<String>): Map<String, String> {
-        val list = itWiki.joinToString(separator = " ") { "<https://it.wikipedia.org/wiki/$it>" }
+        val list = itWiki.joinToString(separator = " ") { "<https://it.wikipedia.org/wiki/${it.replace(" ", "_")}>" }
         return findIdsByQuery("VALUES ?input { $list } ?input schema:about ?item .") {
             it.toString().replace("https://it.wikipedia.org/wiki/", "")
         }
@@ -35,8 +38,7 @@ class WikidataImpl : Wikidata {
     }
 
     private fun findIdsByQuery(subquery: String, cleanupInput: (Any) -> String = { it.toString() }): Map<String, String> {
-        val query = "SELECT ?input ?item WHERE { $subquery }"
-        val sr = sc.query(query)
+        val sr = tryQuery("SELECT ?input ?item WHERE { $subquery }")
 
         return sr.model.rows.associate {
             val wdid = it["item"].toString().replace("http://www.wikidata.org/entity/", "")
@@ -62,7 +64,7 @@ class WikidataImpl : Wikidata {
               OPTIONAL { ?item wdt:P5099 ?mondoDoppiatori. }
             }           
         """.trimIndent()
-        val sr = sc.query(query)
+        val sr = tryQuery(query)
 
         return sr.model.rows.associate { row ->
             val wdid = row["item"].toString().replace("http://www.wikidata.org/entity/", "")
@@ -74,4 +76,12 @@ class WikidataImpl : Wikidata {
             wdid to ids
         }
     }
+
+    private fun tryQuery(query: String) = try {
+        sc.query(query)
+    } catch (e: Exception) {
+        logger.error(e) { "Failed to query $query" }
+        throw e
+    }
 }
+
