@@ -1,5 +1,6 @@
 package takutility.dubdb
 
+import com.mongodb.client.MongoClients
 import kotlinx.coroutines.Runnable
 import mu.KotlinLogging
 import takutility.dubdb.db.*
@@ -46,8 +47,28 @@ fun memRepositoryFromConfig(config: Config): RepositorySet {
     return RepositorySet(movie, actor, dubber, dubbedEntity)
 }
 
+fun mongoRepositoryFromConfig(config: Config): RepositorySet {
+    val url = config.mongodb.url.let {
+        if (it.startsWith("mongodb://") || it.startsWith("mongodb+srv://")) it
+        else "mongodb://$it"
+    }
+    val client = MongoClients.create(url)
+    val database = client.getDatabase(config.mongodb.db)
+
+    val closeDb = Runnable {
+        logger.info { "Closing Mongo client" }
+        client.close()
+    }
+    Runtime.getRuntime().addShutdownHook(Thread(closeDb))
+
+    return mongoRepositorySet(database)
+}
+
 fun contextFromConfig(config: Config = loadConfig()): DubDbContext {
-    val db = memRepositoryFromConfig(config)
+    val db = when (config.dbType) {
+        DbType.MEM -> memRepositoryFromConfig(config)
+        DbType.MONGO -> mongoRepositoryFromConfig(config)
+    }
 
     val trakt = TraktImpl(config)
     val wikiApi = WikiApiImpl()
