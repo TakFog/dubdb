@@ -111,7 +111,7 @@
         <dependency>
             <groupId>takutility.dubdb</groupId>
             <artifactId>trakt</artifactId>
-            <version>6.20.2-SNAPSHOT</version>
+            <version>6.21.1-SNAPSHOT</version>
         </dependency>
 
         <!-- Test -->
