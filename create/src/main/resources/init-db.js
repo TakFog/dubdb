@@ -58,3 +58,6 @@ targetDb.dubbedentities.createIndex({ "movie.ids.WIKIDATA": 1 }, { sparse: true 
 targetDb.dubbedentities.createIndex({ "actor.ids.DUBDB": 1 }, { sparse: true });
 targetDb.dubbedentities.createIndex({ "actor.ids.WIKI": 1 }, { sparse: true });
 targetDb.dubbedentities.createIndex({ "actor.ids.IMDB": 1 }, { sparse: true });
+
+targetDb.dubbedentities.createIndex({ "dubber.parsed": 1, "dubber.name": 1 });
+targetDb.dubbedentities.createIndex({ "movie.parsed": 1, "dubber.name": 1 });

@@ -2,9 +2,8 @@ package takutility.dubdb.db
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
-import com.mongodb.client.model.Filters
-import com.mongodb.client.model.ReplaceOptions
-import com.mongodb.client.model.Sorts
+import com.mongodb.client.model.*
+import org.bson.Document
 import org.bson.types.ObjectId
 import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.*
@@ -99,22 +98,39 @@ class MongoDubbedEntityRepository(collection: MongoCollection<DubbedEntity>) :
     constructor(database: MongoDatabase, collectionName: String = "dubbedentities") :
         this(database.getCollection(collectionName, DubbedEntity::class.java).withCodecRegistry(codecRegistry))
 
-    private fun <T : EntityRef> findMostCommon(limit: Int, transform: (DubbedEntity) -> T?): List<T> {
-        return collection.find().asSequence()
-            .mapNotNull(transform)
-            .filter { !it.isParsed }
-            .map { EntityIds(it) }
-            .groupingBy { it }
-            .eachCount()
-            .entries
-            .sortedByDescending { it.value }
-            .take(limit)
-            .map { it.key.entity }
+    private inline fun <reified T : EntityRef> findMostCommon(fieldName: String, limit: Int): List<T> {
+        val filter = Filters.and(
+            Filters.exists(fieldName),
+            Filters.ne(fieldName, null),
+            Filters.or(
+                Filters.eq("$fieldName.parsed", false),
+                Filters.exists("$fieldName.parsed", false)
+            )
+        )
+
+        val pipeline = listOf(
+            Aggregates.match(filter),
+            Aggregates.group(
+                // Raggruppa per la struttura dell'entità annidata
+                Document("name", "$$fieldName.name").append("ids", "$$fieldName.ids"),
+                Accumulators.sum("count", 1),
+                // Mantiene il documento originale del riferimento per la deserializzazione
+                Accumulators.first("entity", "$$fieldName")
+            ),
+            Aggregates.sort(Sorts.descending("count")),
+            Aggregates.limit(limit),
+            Aggregates.replaceRoot("\$entity")
+        )
+
+        return collection
+            .withCodecRegistry(codecRegistry)
+            .aggregate(pipeline, T::class.java)
+            .toList()
     }
 
-    override fun findMostCommonMovies(limit: Int) = findMostCommon(limit) { it.movie }
-    override fun findMostCommonDubbers(limit: Int) = findMostCommon(limit) { it.dubber }
-    override fun findMostCommonActors(limit: Int) = findMostCommon(limit) { it.actor }
+    override fun findMostCommonMovies(limit: Int): List<MovieRef> = findMostCommon("movie", limit)
+    override fun findMostCommonDubbers(limit: Int): List<DubberRef> = findMostCommon("dubber", limit)
+    override fun findMostCommonActors(limit: Int): List<ActorRef> = findMostCommon("actor", limit)
 
     private fun findByRef(ref: EntityRef, field: String): Sequence<DubbedEntity> {
         val filters = ref.ids.asSequence()
