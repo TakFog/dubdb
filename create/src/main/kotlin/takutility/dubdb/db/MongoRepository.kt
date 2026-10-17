@@ -70,19 +70,19 @@ open class MongoRepository<E : Entity>(
 
 class MongoMovieRepository(collection: MongoCollection<Movie>) :
     MongoRepository<Movie>(collection), MovieRepository {
-    constructor(database: MongoDatabase, collectionName: String = "movie") :
+    constructor(database: MongoDatabase, collectionName: String = "movies") :
         this(database.getCollection(collectionName, Movie::class.java).withCodecRegistry(codecRegistry))
 }
 
 class MongoActorRepository(collection: MongoCollection<Actor>) :
     MongoRepository<Actor>(collection), ActorRepository {
-    constructor(database: MongoDatabase, collectionName: String = "actor") :
+    constructor(database: MongoDatabase, collectionName: String = "actors") :
         this(database.getCollection(collectionName, Actor::class.java).withCodecRegistry(codecRegistry))
 }
 
 class MongoDubberRepository(collection: MongoCollection<Dubber>) :
     MongoRepository<Dubber>(collection), DubberRepository {
-    constructor(database: MongoDatabase, collectionName: String = "dubber") :
+    constructor(database: MongoDatabase, collectionName: String = "dubbers") :
         this(database.getCollection(collectionName, Dubber::class.java).withCodecRegistry(codecRegistry))
 
     override fun findMostRecent(limit: Int, unparsed: Boolean, updated: Boolean): List<Dubber> {
@@ -97,7 +97,7 @@ class MongoDubberRepository(collection: MongoCollection<Dubber>) :
 
 class MongoDubbedEntityRepository(collection: MongoCollection<DubbedEntity>) :
     MongoRepository<DubbedEntity>(collection), DubbedEntityRepository {
-    constructor(database: MongoDatabase, collectionName: String = "dubbed") :
+    constructor(database: MongoDatabase, collectionName: String = "dubbedentities") :
         this(database.getCollection(collectionName, DubbedEntity::class.java).withCodecRegistry(codecRegistry))
 
     private fun <T : EntityRef> findMostCommon(limit: Int, transform: (DubbedEntity) -> T?): List<T> {
