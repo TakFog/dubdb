@@ -5,7 +5,6 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.client.model.Sorts
-import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 import takutility.dubdb.db.codec.codecRegistry
 import takutility.dubdb.entities.*
@@ -117,28 +116,21 @@ class MongoDubbedEntityRepository(collection: MongoCollection<DubbedEntity>) :
     override fun findMostCommonDubbers(limit: Int) = findMostCommon(limit) { it.dubber }
     override fun findMostCommonActors(limit: Int) = findMostCommon(limit) { it.actor }
 
+    private fun findByRef(ref: EntityRef, field: String): Sequence<DubbedEntity> {
+        val filters = ref.ids.asSequence()
+            .filter { it.source.isKey() }
+            .map { Filters.eq("$field.ids.${it.source.name}", it.id) }
+            .toList()
+        if (filters.isEmpty()) return emptySequence()
+        return collection.find(Filters.or(filters)).asSequence()
+    }
+
     override fun findByRef(ref: DubberRef): List<DubbedEntity> {
-        val filters = mutableListOf<Bson>()
-        ref.id?.let { if (ObjectId.isValid(it)) filters.add(Filters.eq("dubber.ids.DUBDB", it)) }
-        ref.ids.forEach {
-            if (it.source != Source.DUBDB) {
-                filters.add(Filters.eq("dubber.ids.${it.source.name}", it.id))
-            }
-        }
-        val cursor = if (filters.isNotEmpty()) collection.find(Filters.or(filters)) else collection.find()
-        return cursor.asSequence().filter { it.dubber?.matches(ref) ?: false }.toList()
+        return findByRef(ref, "dubber").filter { it.dubber?.matches(ref) ?: false }.toList()
     }
 
     override fun findByRef(ref: MovieRef): List<DubbedEntity> {
-        val filters = mutableListOf<Bson>()
-        ref.id?.let { if (ObjectId.isValid(it)) filters.add(Filters.eq("movie.ids.DUBDB", it)) }
-        ref.ids.forEach {
-            if (it.source != Source.DUBDB) {
-                filters.add(Filters.eq("movie.ids.${it.source.name}", it.id))
-            }
-        }
-        val cursor = if (filters.isNotEmpty()) collection.find(Filters.or(filters)) else collection.find()
-        return cursor.asSequence().filter { it.movie.matches(ref) }.toList()
+        return findByRef(ref, "movie").filter { it.movie.matches(ref) }.toList()
     }
 
     @Suppress("INAPPLICABLE_JVM_NAME")

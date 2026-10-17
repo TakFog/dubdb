@@ -2,7 +2,7 @@ package takutility.dubdb.entities
 
 private val wikiMissingPattern: Regex = Regex("""https://it\.wikipedia.org/w/index\.php\?title=([^&]+)&action=edit&redlink=1""")
 
-enum class Source(val domain: String, pathPrefix: String = "") {
+enum class Source(domain: String, pathPrefix: String = "") {
     DUBDB("")
     , IMDB("imdb.com", "/Name")
     , MONDO_DOPPIATORI("antoniogenna.net")
@@ -47,7 +47,12 @@ enum class Source(val domain: String, pathPrefix: String = "") {
             else -> id
         }
     }
+
+    fun isKey() = KEY_SOURCES.contains(this)
 }
+
+private val KEY_SOURCES = listOf(Source.DUBDB, Source.IMDB, Source.WIKI, Source.WIKIDATA, Source.TRAKT)
+fun keySources() = KEY_SOURCES
 
 data class SourceId(
     val source: Source,

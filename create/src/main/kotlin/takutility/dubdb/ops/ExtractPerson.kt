@@ -53,7 +53,7 @@ abstract class ExtractPerson<E>(val context: DubDbContext) where E: Entity, E: E
         person.ids += context[IdsFromWikidata::class].run(person).sourceIds
         moreIds(person)
 
-        person.parseTs = Instant.now()
+        person.parseTs = Instant.now() //TODO mark parsed at the end
         db.save(person)
         updateRefIds(listOf(person))
 
