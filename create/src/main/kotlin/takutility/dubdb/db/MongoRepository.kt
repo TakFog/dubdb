@@ -11,6 +11,31 @@ import takutility.dubdb.util.Counter
 import takutility.dubdb.util.countInstances
 import takutility.dubdb.util.isBefore
 
+private fun filterById(id: SourceId, field: String = "ids") =
+    if (id.source == Source.DUBDB && field == "ids")
+        Filters.eq("_id", ObjectId(id.id))
+    else
+        Filters.eq("$field.${id.source.name}", id.id)
+
+private fun <E: EntityRef> findBySources(collection: MongoCollection<E>, ids: SourceIds, field: String = "ids"): List<E> {
+    val uniqFilters = sequenceOf(Source.TRAKT, Source.IMDB, Source.WIKIDATA)
+        .mapNotNull { s -> ids[s]?.let{ filterById(it, field) } }
+        .toList()
+    if (uniqFilters.isNotEmpty()) {
+        val uniqRes = collection.find(Filters.or(uniqFilters)).toList()
+        if (uniqRes.isNotEmpty()) return uniqRes
+    }
+
+    val subFilters = sequenceOf(Source.WIKI, Source.WIKI_EN, Source.WIKI_MISSING)
+        .mapNotNull { s -> ids[s]?.let{ filterById(it, field) } }
+        .toList()
+    if (subFilters.isEmpty()) return emptyList()
+
+    return collection.find(Filters.or(subFilters)).asSequence()
+        .filter { it.ids.isCompatible(ids) }
+        .toList()
+}
+
 open class MongoRepository<E : Entity>(
     protected val collection: MongoCollection<E>
 ) : EntityRepository<E> {
@@ -32,38 +57,51 @@ open class MongoRepository<E : Entity>(
         return entity
     }
 
+    override fun save(entities: Iterable<E>): List<E> {
+        val entityList = entities.toList()
+        if (entityList.isEmpty()) return emptyList()
+
+        val inserts = mutableListOf<E>()
+        val bulkWrites = mutableListOf<WriteModel<E>>()
+
+        for (entity in entityList) {
+            val id = entity.id
+            if (id == null || !ObjectId.isValid(id)) {
+                entity.id = ObjectId().toHexString()
+                inserts.add(entity)
+            } else {
+                // Prepara l'operazione di replace (upsert) per il BulkWrite
+                val filter = Filters.eq("_id", ObjectId(id))
+                val replaceModel = ReplaceOneModel(filter, entity, ReplaceOptions().upsert(true))
+                bulkWrites.add(replaceModel)
+            }
+        }
+
+        if (inserts.isNotEmpty()) {
+            collection.insertMany(inserts)
+        }
+
+        if (bulkWrites.isNotEmpty()) {
+            collection.bulkWrite(bulkWrites, BulkWriteOptions().ordered(false))
+        }
+
+        return entityList
+    }
+
+
     override fun findById(dubdbId: String): E? {
         if (!ObjectId.isValid(dubdbId)) return null
         return collection.find(Filters.eq("_id", ObjectId(dubdbId))).firstOrNull()
     }
 
     override fun findBySource(id: SourceId): List<E> {
-        val filter = if (id.source == Source.DUBDB) {
-            if (!ObjectId.isValid(id.id)) return emptyList()
-            Filters.eq("_id", ObjectId(id.id))
-        } else {
-            Filters.eq("ids.${id.source.name}", id.id)
-        }
-        return collection.find(filter).into(mutableListOf())
+        if (id.source == Source.DUBDB) return findById(id.id)
+            ?.let { listOf(it) } ?: emptyList()
+
+        return collection.find(filterById(id)).toList()
     }
 
-    override fun findBySources(ids: SourceIds): List<E> {
-        sequenceOf(Source.TRAKT, Source.IMDB, Source.WIKIDATA)
-            .filter { it in ids }
-            .map { findBySource(ids[it]!!) }
-            .filter { it.isNotEmpty() }
-            .firstOrNull()?.let { return it }
-
-        val subIds = SourceIds.of(ids
-            .filter { it.source in listOf(Source.WIKI, Source.WIKI_EN, Source.WIKI_MISSING) })
-        if (subIds.isEmpty()) return emptyList()
-
-        val wikiFilters = subIds.map { Filters.eq("ids.${it.source.name}", it.id) }
-        val filter = Filters.or(wikiFilters)
-        return collection.find(filter).asSequence()
-            .filter { it.ids.isCompatible(subIds) }
-            .toList()
-    }
+    override fun findBySources(ids: SourceIds): List<E> = findBySources(collection, ids)
 }
 
 class MongoMovieRepository(collection: MongoCollection<Movie>) :
@@ -132,14 +170,8 @@ class MongoDubbedEntityRepository(collection: MongoCollection<DubbedEntity>) :
     override fun findMostCommonDubbers(limit: Int): List<DubberRef> = findMostCommon("dubber", limit)
     override fun findMostCommonActors(limit: Int): List<ActorRef> = findMostCommon("actor", limit)
 
-    private fun findByRef(ref: EntityRef, field: String): Sequence<DubbedEntity> {
-        val filters = ref.ids.asSequence()
-            .filter { it.source.isKey() }
-            .map { Filters.eq("$field.ids.${it.source.name}", it.id) }
-            .toList()
-        if (filters.isEmpty()) return emptySequence()
-        return collection.find(Filters.or(filters)).asSequence()
-    }
+    private fun findByRef(ref: EntityRef, field: String): List<DubbedEntity>
+        = findBySources(collection, ref.ids, "$field.ids")
 
     override fun findByRef(ref: DubberRef): List<DubbedEntity> {
         return findByRef(ref, "dubber").filter { it.dubber?.matches(ref) ?: false }.toList()
